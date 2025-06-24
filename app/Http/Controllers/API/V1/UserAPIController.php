@@ -16,285 +16,285 @@ use Illuminate\Http\UploadedFile;
 
 class UserAPIController extends Controller
 {
-  private UserRepository $userRepository;
+    private UserRepository $userRepository;
 
-  public function __construct(UserRepository $userRepository)
-  {
-    $this->userRepository = $userRepository;
-  }
-
-  /**
-   * Display a listing of the resource.
-   */
-  public function index(Request $request): JsonResponse
-  {
-    // Check if user has permission to view all users
-    $this->authorize('viewAny', 'App\Models\User');
-
-    $filters = $request->only([
-      'page',
-      'per_page',
-      'sort',
-      'search',
-      'roles',
-    ]);
-
-    if ($filters) {
-      $users = $this->userRepository
-        ->getFilter($filters)
-        ->with('role')
-        ->paginate($filters['per_page'] ?? 10)
-        ->withQueryString();
-    } else {
-      $users = $this->userRepository->getAll();
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
     }
 
-    return response()->json($users);
-  }
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        // Check if user has permission to view all users
+        $this->authorize('viewAny', 'App\Models\User');
 
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(StoreUserRequest $request): JsonResponse
-  {
-    // Check if user has permission to create a new user
-    $this->authorize('create', 'App\Models\User');
+        $filters = $request->only([
+            'page',
+            'per_page',
+            'sort',
+            'search',
+            'roles',
+        ]);
 
-    $user = $this->userRepository->createNewUser($request->all());
+        if ($filters) {
+            $users = $this->userRepository
+                ->getFilter($filters)
+                ->with('role')
+                ->paginate($filters['per_page'] ?? 10)
+                ->withQueryString();
+        } else {
+            $users = $this->userRepository->getAll();
+        }
 
-    return response()->json([
-      'message' => 'User created successfully. A password reset email has been sent. Please advice the user to reset their password.',
-      'user' => $user,
-    ], 201);
-  }
-
-  /**
-   * Display the specified resource.
-   */
-  public function show($id): JsonResponse
-  {
-    // Get user
-    $user = $this->userRepository->find($id);
-
-    // Check if user exists
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not found.',
-      ], 404);
+        return response()->json($users);
     }
 
-    // Check if user has permission to view the user
-    $this->authorize('view', $user);
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreUserRequest $request): JsonResponse
+    {
+        // Check if user has permission to create a new user
+        $this->authorize('create', 'App\Models\User');
 
-    // Load related data
-    $user->load('role');
+        $user = $this->userRepository->createNewUser($request->all());
 
-    return response()->json($user);
-  }
-
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(UpdateUserRequest $request, $id): JsonResponse
-  {
-    // Get user
-    $user = $this->userRepository->find($id);
-
-    // Check if user exists
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not found.',
-      ], 404);
+        return response()->json([
+            'message' => 'User created successfully. A password reset email has been sent. Please advice the user to reset their password.',
+            'user' => $user,
+        ], 201);
     }
 
-    // Check if user has permission to update the user
-    $this->authorize('update', $user);
+    /**
+     * Display the specified resource.
+     */
+    public function show($id): JsonResponse
+    {
+        // Get user
+        $user = $this->userRepository->find($id);
 
-    // Prepare update data
-    $data = $request->only(['name', 'email', 'phone', 'role_id']);
+        // Check if user exists
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
 
-    // Update user
-    $this->userRepository->update($data, $user->id);
+        // Check if user has permission to view the user
+        $this->authorize('view', $user);
 
-    return response()->json([
-      'message' => 'User updated successfully.',
-      'user' => $this->userRepository->find($user->id),
-    ]);
-  }
+        // Load related data
+        $user->load('role');
 
-  /**
-   * Update the specified resource in storage.
-   */
-  public function updateProfile(UpdateUserRequest $request, ?int $id = null): JsonResponse
-  {
-    // Get user
-    $user = $id ? $this->userRepository->find($id) : Auth::user();
-
-    // Check if user exists
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not found.',
-      ], 404);
+        return response()->json($user);
     }
 
-    // Check if user has permission to update the user
-    $this->authorize('update', $user);
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateUserRequest $request, $id): JsonResponse
+    {
+        // Get user
+        $user = $this->userRepository->find($id);
 
-    // Prepare update data
-    $data = $request->only(['name', 'email', 'phone']);
+        // Check if user exists
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
 
-    // Update user
-    $this->userRepository->update($data, $user->id);
+        // Check if user has permission to update the user
+        $this->authorize('update', $user);
 
-    return response()->json([
-      'message' => 'User updated successfully.',
-      'user' => $this->userRepository->find($user->id),
-    ]);
-  }
+        // Prepare update data
+        $data = $request->only(['name', 'email', 'phone', 'role_id']);
 
-  /**
-   * Update the password of the specified user.
-   */
-  public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
-  {
-    // Get authenticated user
-    $user = Auth::user();
+        // Update user
+        $this->userRepository->update($data, $user->id);
 
-    // Check if user is authenticated
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not authenticated.',
-      ], 404);
+        return response()->json([
+            'message' => 'User updated successfully.',
+            'user' => $this->userRepository->find($user->id),
+        ]);
     }
 
-    // Check if user has permission to update the user
-    $this->authorize('updatePassword', $user);
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updateProfile(UpdateUserRequest $request, ?int $id = null): JsonResponse
+    {
+        // Get user
+        $user = $id ? $this->userRepository->find($id) : Auth::user();
 
-    // Update user password
-    $this->userRepository->updateUserPassword($user->id, $request->password);
+        // Check if user exists
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
 
-    return response()->json([
-      'message' => 'Password updated successfully.',
-    ]);
-  }
+        // Check if user has permission to update the user
+        $this->authorize('update', $user);
 
-  /**
-   * Remove the specified resource from storage.
-   */
-  public function destroy($id): JsonResponse
-  {
-    // Get authenticated user
-    $user = Auth::user();
+        // Prepare update data
+        $data = $request->only(['name', 'email', 'phone']);
 
-    // Get user to delete
-    $userToDelete = $this->userRepository->find($id);
+        // Update user
+        $this->userRepository->update($data, $user->id);
 
-    if (!$userToDelete) {
-      return response()->json([
-        'message' => 'User not found.',
-      ], 404);
+        return response()->json([
+            'message' => 'User updated successfully.',
+            'user' => $this->userRepository->find($user->id),
+        ]);
     }
 
-    // Check if user has permission to delete the user
-    $this->authorize('delete', $userToDelete);
+    /**
+     * Update the password of the specified user.
+     */
+    public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
+    {
+        // Get authenticated user
+        $user = Auth::user();
 
-    // Delete user
-    $result = $this->userRepository->destroyUser((int)$id, $user->id);
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 404);
+        }
 
-    // Return appropriate response based on result
-    return response()->json([
-      'message' => $result['message']
-    ], $result['status']);
-  }
+        // Check if user has permission to update the user
+        $this->authorize('updatePassword', $user);
 
-  /**
-   * Remove multiple users from storage.
-   */
-  public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
-  {
-    // Get authenticated user
-    $user = Auth::user();
+        // Update user password
+        $this->userRepository->updateUserPassword($user->id, $request->password);
 
-    // Check if user has permission to bulk delete users
-    $this->authorize('bulkDelete', 'App\Models\User');
-
-    // Get validated data
-    $ids = $request->validated('ids');
-
-    // Delete multiple users
-    $result = $this->userRepository->bulkDestroy($ids, $user->id);
-
-    return response()->json([
-      'message' => $result['deleted'] . ' users deleted successfully',
-      'details' => [
-        'deleted' => $result['deleted'],
-        'failed' => $result['failed'],
-        'total_attempted' => $result['attempted'],
-        'self_delete_attempt' => $result['self_delete_attempt']
-          ? 'Self-deletion was attempted and skipped'
-          : null,
-      ]
-    ]);
-  }
-
-  /**
-   * Upload or update user avatar.
-   */
-  public function uploadAvatar(UpdateUserAvatarRequest $request): JsonResponse
-  {
-    // Get authenticated user
-    $user = Auth::user();
-
-    // Check if user is authenticated
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not authenticated.',
-      ], 401);
+        return response()->json([
+            'message' => 'Password updated successfully.',
+        ]);
     }
 
-    // Check if user has permission to update their avatar
-    $this->authorize('update', $user);
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id): JsonResponse
+    {
+        // Get authenticated user
+        $user = Auth::user();
 
-    // Upload avatar
-    /** @var UploadedFile $avatarFile */
-    $avatarFile = $request->file('avatar');
-    if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
-      return response()->json([
-        'message' => 'Avatar file is required.',
-      ], 400);
+        // Get user to delete
+        $userToDelete = $this->userRepository->find($id);
+
+        if (!$userToDelete) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Check if user has permission to delete the user
+        $this->authorize('delete', $userToDelete);
+
+        // Delete user
+        $result = $this->userRepository->destroyUser((int)$id, $user->id);
+
+        // Return appropriate response based on result
+        return response()->json([
+            'message' => $result['message']
+        ], $result['status']);
     }
 
-    $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
+    /**
+     * Remove multiple users from storage.
+     */
+    public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
+    {
+        // Get authenticated user
+        $user = Auth::user();
 
-    return response()->json([
-      'message' => $result['message'],
-      'avatar_url' => $result['avatar_url'] ?? null,
-    ], $result['status']);
-  }
+        // Check if user has permission to bulk delete users
+        $this->authorize('bulkDelete', 'App\Models\User');
 
-  /**
-   * Delete user avatar.
-   */
-  public function deleteAvatar(): JsonResponse
-  {
-    // Get authenticated user
-    $user = Auth::user();
+        // Get validated data
+        $ids = $request->validated('ids');
 
-    // Check if user is authenticated
-    if (!$user) {
-      return response()->json([
-        'message' => 'User not authenticated.',
-      ], 401);
+        // Delete multiple users
+        $result = $this->userRepository->bulkDestroy($ids, $user->id);
+
+        return response()->json([
+            'message' => $result['deleted'] . ' users deleted successfully',
+            'details' => [
+                'deleted' => $result['deleted'],
+                'failed' => $result['failed'],
+                'total_attempted' => $result['attempted'],
+                'self_delete_attempt' => $result['self_delete_attempt']
+                    ? 'Self-deletion was attempted and skipped'
+                    : null,
+            ]
+        ]);
     }
 
-    // Check if user has permission to update their avatar
-    $this->authorize('update', $user);
+    /**
+     * Upload or update user avatar.
+     */
+    public function uploadAvatar(UpdateUserAvatarRequest $request): JsonResponse
+    {
+        // Get authenticated user
+        $user = Auth::user();
 
-    // Delete avatar
-    $result = $this->userRepository->deleteAvatar($user->id);
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
 
-    return response()->json([
-      'message' => $result['message'],
-    ], $result['status']);
-  }
+        // Check if user has permission to update their avatar
+        $this->authorize('update', $user);
+
+        // Upload avatar
+        /** @var UploadedFile $avatarFile */
+        $avatarFile = $request->file('avatar');
+        if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
+            return response()->json([
+                'message' => 'Avatar file is required.',
+            ], 400);
+        }
+
+        $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
+
+        return response()->json([
+            'message' => $result['message'],
+            'avatar_url' => $result['avatar_url'] ?? null,
+        ], $result['status']);
+    }
+
+    /**
+     * Delete user avatar.
+     */
+    public function deleteAvatar(): JsonResponse
+    {
+        // Get authenticated user
+        $user = Auth::user();
+
+        // Check if user is authenticated
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        // Check if user has permission to update their avatar
+        $this->authorize('update', $user);
+
+        // Delete avatar
+        $result = $this->userRepository->deleteAvatar($user->id);
+
+        return response()->json([
+            'message' => $result['message'],
+        ], $result['status']);
+    }
 }

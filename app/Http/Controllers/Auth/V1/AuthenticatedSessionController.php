@@ -21,7 +21,7 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      *
      * @OA\Post(
-     *     path="/v1/login",
+     *     path="/api/v1/login",
      *     summary="Authenticate user and handle 2FA if enabled",
      *     description="Authenticates a user with email and password. Supports both session-based and token-based authentication. If two-factor authentication is enabled, sends a 2FA code via email.",
      *     operationId="login",
@@ -219,7 +219,7 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      *
      * @OA\Post(
-     *     path="/v1/logout",
+     *     path="/api/v1/logout",
      *     summary="Logout user and destroy session or revoke token",
      *     description="Logs out the authenticated user. For token-based authentication, revokes the current access token. For session-based authentication, destroys the session.",
      *     operationId="logout",
