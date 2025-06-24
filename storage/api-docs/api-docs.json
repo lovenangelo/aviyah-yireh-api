@@ -13,7 +13,7 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/login": {
+        "/v1/login": {
             "post": {
                 "tags": [
                     "Authentication"
@@ -264,7 +264,7 @@
                 }
             }
         },
-        "/logout": {
+        "/v1/logout": {
             "post": {
                 "tags": [
                     "Authentication"
