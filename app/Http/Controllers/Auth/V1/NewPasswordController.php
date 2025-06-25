@@ -12,10 +12,58 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Tag(
+ *     name="Password Reset",
+ *     description="Endpoints for resetting user passwords"
+ * )
+ */
 class NewPasswordController extends Controller
 {
     /**
      * Handle an incoming new password request.
+     *
+     * @OA\Post(
+     *     path="/api/v1/reset-password",
+     *     summary="Reset user password",
+     *     description="Resets the user's password using a valid token.",
+     *     operationId="resetPassword",
+     *     tags={"Password Reset"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Password reset data",
+     *         @OA\JsonContent(
+     *             required={"token", "email", "password", "password_confirmation"},
+     *             @OA\Property(property="token", type="string", example="reset-token-value"),
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="newPassword123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="Password reset successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error or invalid token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="This password reset token is invalid.")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
      *
      * @throws \Illuminate\Validation\ValidationException
      */

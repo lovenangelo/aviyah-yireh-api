@@ -331,12 +331,735 @@
                     }
                 ]
             }
+        },
+        "/api/v1/email/verification-notification": {
+            "post": {
+                "tags": [
+                    "Email Verification"
+                ],
+                "summary": "Send a new email verification notification",
+                "description": "Sends a new email verification link to the authenticated user. Handles both token-based and session-based requests.",
+                "operationId": "sendEmailVerificationNotification",
+                "parameters": [
+                    {
+                        "name": "X-Request-Token",
+                        "in": "header",
+                        "description": "Header to indicate token-based authentication request",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification link sent or already verified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "title": "Verification Link Sent",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "verification-link-sent"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "title": "Already Verified",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Email already verified"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to dashboard if already verified (session-based)",
+                        "headers": {
+                            "Location": {
+                                "description": "Redirect location",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "/dashboard"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (throttled)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Too many requests. Please try again later."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reset-password": {
+            "post": {
+                "tags": [
+                    "Password Reset"
+                ],
+                "summary": "Reset user password",
+                "description": "Resets the user's password using a valid token.",
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "description": "Password reset data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "reset-token-value"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Password reset successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "This password reset token is invalid."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/forgot-password": {
+            "post": {
+                "tags": [
+                    "Password Reset"
+                ],
+                "summary": "Send password reset link",
+                "description": "Sends a password reset link to the user's email address.",
+                "operationId": "sendPasswordResetLink",
+                "requestBody": {
+                    "description": "Password reset link request data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "We have emailed your password reset link!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or unable to send reset link",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "We can't find a user with that email address."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/register": {
+            "post": {
+                "tags": [
+                    "Registration"
+                ],
+                "summary": "Register a new user",
+                "description": "Registers a new user and returns user data and token for token-based requests, or no content for session-based requests.",
+                "operationId": "registerUser",
+                "parameters": [
+                    {
+                        "name": "X-Request-Token",
+                        "in": "header",
+                        "description": "Header to indicate token-based registration request",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "true"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "User registration data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Registration successful (token-based)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|abc123def456..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "Registration successful (session-based, no content)"
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email has already been taken."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/two-factor/toggle": {
+            "post": {
+                "tags": [
+                    "Two-Factor Authentication"
+                ],
+                "summary": "Enable or disable two-factor authentication",
+                "description": "Toggles two-factor authentication for the authenticated user.",
+                "operationId": "toggleTwoFactorAuth",
+                "parameters": [
+                    {
+                        "name": "X-Request-Token",
+                        "in": "header",
+                        "description": "Header to indicate token-based request",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "true"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "2FA toggle data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "enabled"
+                                ],
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "2FA toggled (token-based)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Two-factor authentication has been enabled."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "2FA toggled (session-based, no content)"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/two-factor/verify": {
+            "post": {
+                "tags": [
+                    "Two-Factor Authentication"
+                ],
+                "summary": "Verify two-factor authentication code",
+                "description": "Verifies the 2FA code for the user and logs them in.",
+                "operationId": "verifyTwoFactorCode",
+                "parameters": [
+                    {
+                        "name": "X-Request-Token",
+                        "in": "header",
+                        "description": "Header to indicate token-based request",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "true"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "2FA verification data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "2FA verified (token-based)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Two-factor authentication successful."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|abc123def456..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "2FA verified (session-based, no content)"
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or expired code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired two-factor code."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/verify-email/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Email Verification"
+                ],
+                "summary": "Verify user email address",
+                "description": "Verifies the user's email address using the verification link.",
+                "operationId": "verifyEmail",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Email verification hash",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcdef123456"
+                        }
+                    },
+                    {
+                        "name": "X-Request-Token",
+                        "in": "header",
+                        "description": "Header to indicate token-based verification request",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email verified or already verified (token-based)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "title": "Email Verified",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Email verified successfully"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "title": "Already Verified",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Email already verified"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirect to dashboard if already verified (session-based)",
+                        "headers": {
+                            "Location": {
+                                "description": "Redirect location",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "/dashboard?verified=1"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "tags": [
         {
             "name": "Authentication",
             "description": "Authentication endpoints for login and logout"
+        },
+        {
+            "name": "Email Verification",
+            "description": "Endpoints for verifying user email addresses"
+        },
+        {
+            "name": "Password Reset",
+            "description": "Endpoints for requesting password reset links"
+        },
+        {
+            "name": "Registration",
+            "description": "Endpoints for user registration"
+        },
+        {
+            "name": "Two-Factor Authentication",
+            "description": "Endpoints for two-factor authentication (2FA) management and verification"
         }
     ],
     "components": {

@@ -9,10 +9,61 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\TwoFactorVerifyRequest;
 use App\Http\Requests\Auth\TwoFactorToggleRequest;
 
+/**
+ * @OA\Tag(
+ *     name="Two-Factor Authentication",
+ *     description="Endpoints for two-factor authentication (2FA) management and verification"
+ * )
+ */
 class TwoFactorAuthController extends Controller
 {
     /**
      * Toggle two-factor authentication for the authenticated user.
+     *
+     * @OA\Post(
+     *     path="/api/v1/two-factor/toggle",
+     *     summary="Enable or disable two-factor authentication",
+     *     description="Toggles two-factor authentication for the authenticated user.",
+     *     operationId="toggleTwoFactorAuth",
+     *     tags={"Two-Factor Authentication"},
+     *     security={
+     *         {"bearer_token": {}}
+     *     },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="2FA toggle data",
+     *         @OA\JsonContent(
+     *             required={"enabled"},
+     *             @OA\Property(property="enabled", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="X-Request-Token",
+     *         in="header",
+     *         description="Header to indicate token-based request",
+     *         required=false,
+     *         @OA\Schema(type="string", example="true")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="2FA toggled (token-based)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Two-factor authentication has been enabled."),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="2FA toggled (session-based, no content)"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     )
+     * )
      */
     public function toggle(TwoFactorToggleRequest $request): JsonResponse|Response
     {
@@ -44,44 +95,91 @@ class TwoFactorAuthController extends Controller
 
     /**
      * Verify the two-factor authentication code.
+     *
+     * @OA\Post(
+     *     path="/api/v1/two-factor/verify",
+     *     summary="Verify two-factor authentication code",
+     *     description="Verifies the 2FA code for the user and logs them in.",
+     *     operationId="verifyTwoFactorCode",
+     *     tags={"Two-Factor Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="2FA verification data",
+     *         @OA\JsonContent(
+     *             required={"email", "code"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="code", type="string", example="123456")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="X-Request-Token",
+     *         in="header",
+     *         description="Header to indicate token-based request",
+     *         required=false,
+     *         @OA\Schema(type="string", example="true")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="2FA verified (token-based)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Two-factor authentication successful."),
+     *             @OA\Property(property="user", type="object"),
+     *             @OA\Property(property="token", type="string", example="1|abc123def456...")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="2FA verified (session-based, no content)"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Invalid or expired two-factor code",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid or expired two-factor code.")
+     *         )
+     *     )
+     * )
      */
     public function verify(TwoFactorVerifyRequest $request): JsonResponse|Response
     {
-        // Find the user by email
         $email = $request->email;
         $user = \App\Models\User::where('email', $email)->first();
 
+        $response = null;
+
         if (!$user) {
-            return response()->json([
+            $response = response()->json([
                 'message' => 'User not found.'
             ], 404);
-        }
-
-        // Verify the code
-        if (!$user->verifyTwoFactorCode($request->code)) {
-            return response()->json([
+        } elseif (!$user->verifyTwoFactorCode($request->code)) {
+            $response = response()->json([
                 'message' => 'Invalid or expired two-factor code.'
             ], 422);
+        } else {
+            Auth::login($user);
+
+            if ($request->expectsJson() || $request->hasHeader('X-Request-Token')) {
+                $token = $user->createToken('auth-token')->plainTextToken;
+                $user->load('role');
+
+                $response = response()->json([
+                    'message' => 'Two-factor authentication successful.',
+                    'user' => $user,
+                    'token' => $token
+                ]);
+            } else {
+                $request->session()->regenerate();
+                $response = response()->noContent();
+            }
         }
 
-        // Login the user
-        Auth::login($user);
-
-        // Check if token-based authentication is requested
-        if ($request->expectsJson() || $request->hasHeader('X-Request-Token')) {
-            $token = $user->createToken('auth-token')->plainTextToken;
-            $user->load('role');
-
-            return response()->json([
-                'message' => 'Two-factor authentication successful.',
-                'user' => $user,
-                'token' => $token
-            ]);
-        }
-
-        // For session-based authentication
-        $request->session()->regenerate();
-
-        return response()->noContent();
+        return $response;
     }
 }
