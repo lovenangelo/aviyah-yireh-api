@@ -225,8 +225,7 @@ class AuthenticatedSessionController extends Controller
      *     operationId="logout",
      *     tags={"Authentication"},
      *     security={
-     *         {"sanctum": {}},
-     *         {"session": {}}
+     *         {"bearer_token": {}}
      *     },
      *     @OA\Parameter(
      *         name="X-Request-Token",

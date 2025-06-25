@@ -264,26 +264,6 @@
                 }
             }
         },
-        "ROUTE API": {
-            "get": {
-                "summary": "Title",
-                "description": "Destroy an authenticated session.",
-                "operationId": "c3f19266be6dc49c5876b5ca188eb571",
-                "responses": {
-                    "200": {
-                        "description": "Donec sollicitudin molestie malesuada."
-                    },
-                    "default": {
-                        "description": "An error has occurred."
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/v1/logout": {
             "post": {
                 "tags": [
@@ -347,10 +327,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
-                    },
-                    {
-                        "session": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -361,5 +338,15 @@
             "name": "Authentication",
             "description": "Authentication endpoints for login and logout"
         }
-    ]
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearer_token": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
 }
