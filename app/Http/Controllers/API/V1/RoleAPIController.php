@@ -9,10 +9,19 @@ use App\Repositories\RoleRepository;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Requests\BulkDestroyRolesRequest;
+use App\Models\Role;
 
+/**
+ * @OA\Tag(
+ *     name="Roles",
+ *     description="Endpoints for managing roles in the application",
+ * )
+ */
 class RoleAPIController extends Controller
 {
     private RoleRepository $roleRepository;
+    private const ROLE = 'App\Models\Role';
+    private const ROLE_NOT_FOUND = 'Role not found.';
 
     public function __construct(RoleRepository $roleRepository)
     {
@@ -21,11 +30,21 @@ class RoleAPIController extends Controller
 
     /**
      * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/roles",
+     *     summary="Get list of roles",
+     *     tags={"Roles"},
+     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="sort", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="List of roles")
+     * )
      */
     public function index(Request $request): JsonResponse
     {
         // Check if user has permission to view all roles
-        $this->authorize('viewAny', 'App\Models\Role');
+        $this->authorize('viewAny', self::ROLE);
 
         $filters = $request->only([
             'page',
@@ -49,11 +68,25 @@ class RoleAPIController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/roles",
+     *     summary="Create a new role",
+     *     tags={"Roles"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="description", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Role created successfully")
+     * )
      */
     public function store(StoreRoleRequest $request): JsonResponse
     {
         // Check if user has permission to create a new role
-        $this->authorize('create', 'App\Models\Role');
+        $this->authorize('create', self::ROLE);
 
         $role = $this->roleRepository->createNewRole($request->all());
 
@@ -65,6 +98,14 @@ class RoleAPIController extends Controller
 
     /**
      * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/v1/roles/{id}",
+     *     summary="Get a role by ID",
+     *     tags={"Roles"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Role details"),
+     *     @OA\Response(response=404, description="Role not found")
+     * )
      */
     public function show($id): JsonResponse
     {
@@ -74,7 +115,7 @@ class RoleAPIController extends Controller
         // Check if role exists
         if (!$role) {
             return response()->json([
-                'message' => 'Role not found.',
+                'message' => self::ROLE_NOT_FOUND,
             ], 404);
         }
 
@@ -89,6 +130,22 @@ class RoleAPIController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v1/roles/{id}",
+     *     summary="Update a role",
+     *     tags={"Roles"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="description", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Role updated successfully"),
+     *     @OA\Response(response=404, description="Role not found")
+     * )
      */
     public function update(UpdateRoleRequest $request, $id): JsonResponse
     {
@@ -98,7 +155,7 @@ class RoleAPIController extends Controller
         // Check if role exists
         if (!$role) {
             return response()->json([
-                'message' => 'Role not found.',
+                'message' => self::ROLE_NOT_FOUND,
             ], 404);
         }
 
@@ -119,6 +176,14 @@ class RoleAPIController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/v1/roles/{id}",
+     *     summary="Delete a role",
+     *     tags={"Roles"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Role deleted successfully"),
+     *     @OA\Response(response=404, description="Role not found")
+     * )
      */
     public function destroy($id): JsonResponse
     {
@@ -127,7 +192,7 @@ class RoleAPIController extends Controller
 
         if (!$roleToDelete) {
             return response()->json([
-                'message' => 'Role not found.',
+                'message' => self::ROLE_NOT_FOUND,
             ], 404);
         }
 
@@ -145,11 +210,24 @@ class RoleAPIController extends Controller
 
     /**
      * Remove multiple roles from storage.
+     * @OA\Post(
+     *     path="/api/v1/roles/bulk-destroy",
+     *     summary="Bulk delete roles",
+     *     tags={"Roles"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ids"},
+     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Roles deleted successfully")
+     * )
      */
     public function bulkDestroy(BulkDestroyRolesRequest $request): JsonResponse
     {
         // Check if user has permission to bulk delete roles
-        $this->authorize('bulkDelete', 'App\Models\Role');
+        $this->authorize('bulkDelete', self::ROLE);
 
         // Get validated data
         $ids = $request->validated('ids');

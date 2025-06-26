@@ -14,9 +14,18 @@ use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateUserAvatarRequest;
 use Illuminate\Http\UploadedFile;
 
+/**
+ * @OA\Tag(
+ *     name="Users",
+ *     description="Endpoints for managing users, including CRUD operations, bulk actions, and profile management."
+ * )
+ */
 class UserAPIController extends Controller
 {
     private UserRepository $userRepository;
+    private const USER = 'App\Models\User';
+    private const USER_NOT_AUTHENTICATED = 'User not authenticated.';
+    private const USER_NOT_FOUND = 'User not found.';
 
     public function __construct(UserRepository $userRepository)
     {
@@ -25,11 +34,23 @@ class UserAPIController extends Controller
 
     /**
      * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/api/v1/users",
+     *     summary="Get list of users",
+     *     tags={"Users"},
+     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="sort", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="roles", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="List of users")
+     * )
      */
     public function index(Request $request): JsonResponse
     {
         // Check if user has permission to view all users
-        $this->authorize('viewAny', 'App\Models\User');
+        $this->authorize('viewAny', self::USER);
 
         $filters = $request->only([
             'page',
@@ -54,11 +75,28 @@ class UserAPIController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @OA\Post(
+     *     path="/api/v1/users",
+     *     summary="Create a new user",
+     *     tags={"Users"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "role_id"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="email", type="string"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="role_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="User created successfully")
+     * )
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
         // Check if user has permission to create a new user
-        $this->authorize('create', 'App\Models\User');
+        $this->authorize('create', self::USER);
 
         $user = $this->userRepository->createNewUser($request->all());
 
@@ -70,6 +108,15 @@ class UserAPIController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @OA\Get(
+     *     path="/api/v1/users/{id}",
+     *     summary="Get a user by ID",
+     *     tags={"Users"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="User details"),
+     *     @OA\Response(response=404, description="User not found")
+     * )
      */
     public function show($id): JsonResponse
     {
@@ -79,7 +126,7 @@ class UserAPIController extends Controller
         // Check if user exists
         if (!$user) {
             return response()->json([
-                'message' => 'User not found.',
+                'message' => self::USER_NOT_FOUND,
             ], 404);
         }
 
@@ -94,6 +141,25 @@ class UserAPIController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @OA\Put(
+     *     path="/api/v1/users/{id}",
+     *     summary="Update a user",
+     *     tags={"Users"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "role_id"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="email", type="string"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="role_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="User updated successfully"),
+     *     @OA\Response(response=404, description="User not found")
+     * )
      */
     public function update(UpdateUserRequest $request, $id): JsonResponse
     {
@@ -103,7 +169,7 @@ class UserAPIController extends Controller
         // Check if user exists
         if (!$user) {
             return response()->json([
-                'message' => 'User not found.',
+                'message' => self::USER_NOT_FOUND,
             ], 404);
         }
 
@@ -163,7 +229,7 @@ class UserAPIController extends Controller
         // Check if user is authenticated
         if (!$user) {
             return response()->json([
-                'message' => 'User not authenticated.',
+                'message' => self::USER_NOT_AUTHENTICATED,
             ], 404);
         }
 
@@ -180,6 +246,15 @@ class UserAPIController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @OA\Delete(
+     *     path="/api/v1/users/{id}",
+     *     summary="Delete a user",
+     *     tags={"Users"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="User deleted successfully"),
+     *     @OA\Response(response=404, description="User not found")
+     * )
      */
     public function destroy($id): JsonResponse
     {
@@ -191,7 +266,7 @@ class UserAPIController extends Controller
 
         if (!$userToDelete) {
             return response()->json([
-                'message' => 'User not found.',
+                'message' => self::USER_NOT_FOUND,
             ], 404);
         }
 
@@ -209,6 +284,20 @@ class UserAPIController extends Controller
 
     /**
      * Remove multiple users from storage.
+     *
+     * @OA\Post(
+     *     path="/api/v1/users/bulk-destroy",
+     *     summary="Bulk delete users",
+     *     tags={"Users"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ids"},
+     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Users deleted successfully")
+     * )
      */
     public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
     {
@@ -216,7 +305,7 @@ class UserAPIController extends Controller
         $user = Auth::user();
 
         // Check if user has permission to bulk delete users
-        $this->authorize('bulkDelete', 'App\Models\User');
+        $this->authorize('bulkDelete', self::USER);
 
         // Get validated data
         $ids = $request->validated('ids');
@@ -248,7 +337,7 @@ class UserAPIController extends Controller
         // Check if user is authenticated
         if (!$user) {
             return response()->json([
-                'message' => 'User not authenticated.',
+                'message' => self::USER_NOT_AUTHENTICATED,
             ], 401);
         }
 
