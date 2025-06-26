@@ -9,8 +9,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 /**
  * @OA\Info(
  *      version="1.0.0",
- *      title="NuWa Stone API",
- *      description="API Docs",
+ *      title="LARAPI",
+ *      description="API Documentation for LARAPI",
  *
  *      @OA\Contact(
  *          email="lovenangelo.dev@gmail.com"
