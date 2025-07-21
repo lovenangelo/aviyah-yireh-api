@@ -9,6 +9,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiErrorResponse;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
@@ -21,7 +22,7 @@ use Illuminate\Auth\Events\Registered;
  */
 class RegisteredUserController extends Controller
 {
-    use ApiErrorResponse;
+    use ApiResponse;
 
     /**
      * Handle an incoming registration request.

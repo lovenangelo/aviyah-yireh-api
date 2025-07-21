@@ -9,7 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-trait ApiErrorResponse
+trait ApiResponse
 {
     /**
      * Custom validation error code mapping per controller
