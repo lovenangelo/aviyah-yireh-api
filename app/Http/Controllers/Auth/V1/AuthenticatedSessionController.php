@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class AuthenticatedSessionController extends Controller
 {
+    use ApiResponse;
     /**
      * Handle an incoming authentication request.
      *
@@ -159,57 +161,47 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): Response|JsonResponse
     {
-        $request->authenticate();
+        $user = null;
+        try {
+            $request->authenticate();
 
-        $user = Auth::user();
-        $response = null;
+            $user = Auth::user();
+            $response = null;
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Two-factor Authentication");
+        }
 
         if ($user->two_factor_enabled) {
             try {
                 $user->generateTwoFactorCode();
                 $user->sendTwoFactorCodeNotification();
                 Auth::logout();
-
-                $response = $request->isTokenRequest()
-                    ? response()->json([
-                        'message' => 'Two-factor authentication code has been sent to your email.',
-                        'two_factor_auth_required' => true,
-                        'email' => $user->email
-                    ], 200)
-                    : response()->json([
-                        'two_factor_auth_required' => true,
-                        'email' => $user->email
-                    ], 200);
+                $data = [
+                    'two_factor_auth_required' => true,
+                    'email' => $user->email
+                ];
+                $response = $this->formatSuccessResponse($data, "Two-factor authentication code has been sent to your email");
             } catch (\Exception $e) {
                 Auth::login($user);
 
-                if ($request->isTokenRequest()) {
-                    $user->load('role');
-                    $token = $user->createToken('auth-token')->plainTextToken;
-
-                    $response = response()->json([
-                        'user' => $user,
-                        'token' => $token,
-                        'warning' => 'Two-factor authentication is enabled but the code could not be sent. You have been logged in without 2FA verification.'
-                    ]);
-                } else {
-                    $request->session()->regenerate();
-                    $response = response()->noContent();
-                }
-            }
-        } else {
-            if ($request->isTokenRequest()) {
                 $user->load('role');
                 $token = $user->createToken('auth-token')->plainTextToken;
 
-                $response = response()->json([
+                $data = [
                     'user' => $user,
-                    'token' => $token
-                ]);
-            } else {
-                $request->session()->regenerate();
-                $response = response()->noContent();
+                    'token' => $token,
+                    'warning' => 'Two-factor authentication is enabled but the code could not be sent. You have been logged in without 2FA verification.'
+                ];
+                $response = $this->handleApiException($e, $request, "Two-factor Authentication");
             }
+        } else {
+            $user->load('role');
+            $token = $user->createToken('auth-token')->plainTextToken;
+            $data = [
+                'user' => $user,
+                'token' => $token
+            ];
+            $response = $this->formatSuccessResponse($data, "Successfully logged in!");
         }
 
         return $response;
