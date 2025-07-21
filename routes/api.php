@@ -29,6 +29,9 @@ Route::prefix('v1')->group(function () {
 
     // Email verification routes
     Route::middleware('auth:sanctum')->group(function () {
+        // Logout
+        Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
+            ->name('api.verification.send');
         // Email verification
         Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
             ->middleware(['signed', 'throttle:6,1'])
@@ -36,9 +39,9 @@ Route::prefix('v1')->group(function () {
 
         // Email verification notification
         Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-            ->middleware(['throttle:6,1'])
-            ->name('api.verification.send');
+            ->middleware(['throttle:6,1']);
     });
+
 
     // Authenticated routes
     Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -46,9 +49,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         })->name('api.user');
-
-        // Logout
-        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout');
 
         // Two-factor authentication toggle
         Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle'])->name('api.two-factor.toggle');

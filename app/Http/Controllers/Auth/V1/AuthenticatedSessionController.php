@@ -250,21 +250,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): Response|JsonResponse
     {
         // For token-based authentication, revoke the token
-        if ($request->hasHeader('X-Request-Token') && $request->user()) {
-            $request->user()->currentAccessToken()->delete();
-            return response()->json([
-                'message' => 'Token revoked successfully',
-                'status' => 'success'
-            ]);
-        }
-
-        // For session-based authentication
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return response()->noContent();
+        $request->user()->currentAccessToken()->delete();
+        return $this->formatSuccessResponse(message: "Token revoked successfully");
     }
 }
