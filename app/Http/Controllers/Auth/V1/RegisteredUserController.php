@@ -112,11 +112,8 @@ class RegisteredUserController extends Controller
             Auth::login($user);
 
             $token = $user->createToken('auth-token')->plainTextToken;
-
-            return response()->json([
-                'user' => $user,
-                'token' => $token
-            ]);
+            $data = ["user" => $user, "token" => $token];
+            return $this->formatSuccessResponse($data, "Successfully registered new user", 201);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'registration');
         }
