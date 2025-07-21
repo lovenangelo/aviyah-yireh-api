@@ -11,11 +11,6 @@ class VerifyEmail extends \Illuminate\Auth\Notifications\VerifyEmail
 {
     protected $useApiRoute;
 
-    public function __construct(bool $useApiRoute = false)
-    {
-        $this->useApiRoute = $useApiRoute;
-    }
-
     protected function verificationUrl($notifiable)
     {
         $verificationExpireTime = Config::get(
@@ -23,19 +18,8 @@ class VerifyEmail extends \Illuminate\Auth\Notifications\VerifyEmail
             Config::get('auth.passwords.users.expire', 60)
         );
 
-        if ($this->useApiRoute) {
-            return URL::temporarySignedRoute(
-                'api.verification.verify',
-                Carbon::now()->addMinutes($verificationExpireTime),
-                [
-                    'id' => $notifiable->getKey(),
-                    'hash' => sha1($notifiable->getEmailForVerification()),
-                ]
-            );
-        }
-
         return URL::temporarySignedRoute(
-            'verification.verify',
+            'api.verification.verify',
             Carbon::now()->addMinutes($verificationExpireTime),
             [
                 'id' => $notifiable->getKey(),

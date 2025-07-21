@@ -245,8 +245,8 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  bool  $useApiRoute
      * @return void
      */
-    public function sendEmailVerificationNotification($useApiRoute = false)
+    public function sendEmailVerificationNotification()
     {
-        $this->notify(new VerifyEmail($useApiRoute));
+        $this->notify(new VerifyEmail());
     }
 }

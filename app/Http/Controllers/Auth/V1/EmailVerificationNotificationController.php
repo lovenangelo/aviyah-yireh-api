@@ -80,17 +80,10 @@ class EmailVerificationNotificationController extends Controller
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
-            // For token-based requests
-            if ($request->hasHeader('X-Request-Token')) {
-                return response()->json(['message' => 'Email already verified']);
-            }
-
-            return redirect()->intended('/dashboard');
+            return response()->json(['message' => 'Email already verified']);
         }
 
-        // Use API route for verification if this is an API request
-        $useApiRoute = $request->hasHeader('X-Request-Token');
-        $request->user()->sendEmailVerificationNotification($useApiRoute);
+        $request->user()->sendEmailVerificationNotification();
 
         return response()->json(['status' => 'verification-link-sent']);
     }
