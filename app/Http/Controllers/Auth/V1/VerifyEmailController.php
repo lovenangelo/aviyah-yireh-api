@@ -84,20 +84,24 @@ class VerifyEmailController extends Controller
      * )
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse|JsonResponse
-    {
-        if ($request->user()->hasVerifiedEmail()) {
+    {   
+        try {
+            
+            if ($request->user()->hasVerifiedEmail()) {
+                // For token-based clients
+                return $this->formatSuccessResponse(message: "Email already verified");
+            }
+
+            if ($request->user()->markEmailAsVerified()) {
+                event(new Verified($request->user()));
+            }
+
             // For token-based clients
-            return $this->formatSuccessResponse(message: "Email already verified");
+            return $this->formatSuccessResponse(message: "Email verified successfully");
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'email_verification');
         }
-
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
-
-        // For token-based clients
-        return $this->formatSuccessResponse(message: "Email verified successfully");
-
-
+        ;
         
     }
 }
