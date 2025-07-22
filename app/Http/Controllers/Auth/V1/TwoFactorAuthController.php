@@ -161,8 +161,7 @@ class TwoFactorAuthController extends Controller
         } elseif (!$user->verifyTwoFactorCode($request->code)) {
             $response = $this->formatErrorResponse(422, "Invalid or expired two-factor code.");
         } else {
-            Auth::login($user);
-            if ($request->expectsJson() || $request->hasHeader('X-Request-Token')) {
+            if ($request->expectsJson()) {
                 $token = $user->createToken('auth-token')->plainTextToken;
                 $user->load('role');
                 $data = [
@@ -171,7 +170,6 @@ class TwoFactorAuthController extends Controller
                 ];
                 $response = $this->formatSuccessResponse($data, "Two-factor authentication successful.", 201, $request);
             } else {
-                $request->session()->regenerate();
                 $response = response()->noContent();
             }
         }
