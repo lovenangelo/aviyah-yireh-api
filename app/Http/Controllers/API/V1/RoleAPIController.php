@@ -10,6 +10,9 @@ use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Requests\BulkDestroyRolesRequest;
 use App\Models\Role;
+use App\Traits\ApiResponse;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @OA\Tag(
@@ -19,6 +22,8 @@ use App\Models\Role;
  */
 class RoleAPIController extends Controller
 {
+    use ApiResponse;
+
     private RoleRepository $roleRepository;
     private const ROLE = 'App\Models\Role';
     private const ROLE_NOT_FOUND = 'Role not found.';
@@ -43,27 +48,31 @@ class RoleAPIController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // Check if user has permission to view all roles
-        $this->authorize('viewAny', self::ROLE);
+        try {
+            // Check if user has permission to view all roles
+            $this->authorize('viewAny', self::ROLE);
 
-        $filters = $request->only([
-            'page',
-            'per_page',
-            'sort',
-            'search',
-        ]);
+            $filters = $request->only([
+                'page',
+                'per_page',
+                'sort',
+                'search',
+            ]);
 
-        if ($filters) {
-            $roles = $this->roleRepository
-                ->getFilter($filters)
-                ->withCount('users')
-                ->paginate($filters['per_page'] ?? 10)
-                ->withQueryString();
-        } else {
-            $roles = $this->roleRepository->getAll();
+            if ($filters) {
+                $roles = $this->roleRepository
+                    ->getFilter($filters)
+                    ->withCount('users')
+                    ->paginate($filters['per_page'] ?? 10)
+                    ->withQueryString();
+            } else {
+                $roles = $this->roleRepository->getAll();
+            }
+
+            return $this->formatSuccessResponse($roles, "Roles retrieved successfuly!", 200);
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, 'Fetch Roles');
         }
-
-        return response()->json($roles);
     }
 
     /**
