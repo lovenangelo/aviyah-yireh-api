@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth\V1;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -16,6 +17,7 @@ use Illuminate\Validation\ValidationException;
  */
 class PasswordResetLinkController extends Controller
 {
+    use ApiResponse;
     /**
      * Handle an incoming password reset link request.
      *
@@ -69,16 +71,20 @@ class PasswordResetLinkController extends Controller
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
 
-        if ($status != Password::RESET_LINK_SENT) {
-            throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
+            if ($status != Password::RESET_LINK_SENT) {
+                throw ValidationException::withMessages([
+                    'email' => [__($status)],
+                ]);
+            }
+        } catch (ValidationException $e) {
+            return $this->handleValidationError($e, $request);
         }
 
-        return response()->json(['status' => __($status)]);
+        return $this->formatSuccessResponse(null, "Password reset link successfuly sent!", 200, $request);
     }
 }
