@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-
+use App\Traits\ApiResponse;
 /**
  * @OA\Tag(
  *     name="Email Verification",
@@ -14,7 +14,8 @@ use Illuminate\Http\Request;
  * )
  */
 class EmailVerificationNotificationController extends Controller
-{
+{   
+    use ApiResponse;
     /**
      * Send a new email verification notification.
      *
@@ -77,14 +78,19 @@ class EmailVerificationNotificationController extends Controller
      *     )
      * )
      */
-    public function store(Request $request): JsonResponse|RedirectResponse
+    public function store(Request $request): JsonResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified']);
+        try {
+            if ($request->user()->hasVerifiedEmail()) {
+                return $this->formatSuccessResponse(message: "Email already verified");
+            }
+
+            $request->user()->sendEmailVerificationNotification();
+
+            return $this->formatSuccessResponse(message: "Verification email has been sent");
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'email_verification');
         }
-
-        $request->user()->sendEmailVerificationNotification();
-
-        return response()->json(['status' => 'verification-link-sent']);
+        
     }
 }
