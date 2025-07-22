@@ -81,10 +81,9 @@ class PasswordResetLinkController extends Controller
                     'email' => [__($status)],
                 ]);
             }
+            return $this->formatSuccessResponse(null, "Password reset link successfuly sent!", 200, $request);
         } catch (ValidationException $e) {
             return $this->handleValidationError($e, $request);
         }
-
-        return $this->formatSuccessResponse(null, "Password reset link successfuly sent!", 200, $request);
     }
 }

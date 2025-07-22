@@ -71,16 +71,16 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         try {
+            $request->validate([
+                'token' => ['required'],
+                'email' => ['required', 'email'],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
+
+            // Here we will attempt to reset the user's password. If it is successful we
+            // will update the password on an actual user model and persist it to the
+            // database. Otherwise we will parse the error and return the response.
             $status = Password::reset(
                 $request->only('email', 'password', 'password_confirmation', 'token'),
                 function ($user) use ($request) {
@@ -98,10 +98,9 @@ class NewPasswordController extends Controller
                     'email' => [__($status)],
                 ]);
             }
+            return $this->formatSuccessResponse(null, "Password reset is successful!", 200, $request);
         } catch (ValidationException $e) {
             return $this->handleValidationError($e, $request);
         }
-
-        return $this->formatSuccessResponse(null, "Password reset is successful!", 200, $request);
     }
 }
