@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\TwoFactorVerifyRequest;
 use App\Http\Requests\Auth\TwoFactorToggleRequest;
+use App\Traits\ApiResponse;
 
 /**
  * @OA\Tag(
@@ -17,6 +18,7 @@ use App\Http\Requests\Auth\TwoFactorToggleRequest;
  */
 class TwoFactorAuthController extends Controller
 {
+    use ApiResponse;
     /**
      * Toggle two-factor authentication for the authenticated user.
      *
@@ -155,27 +157,19 @@ class TwoFactorAuthController extends Controller
         $response = null;
 
         if (!$user) {
-            $response = response()->json([
-                'message' => 'User not found.'
-            ], 404);
+            $response = $this->formatErrorResponse(404, "User not found.");
         } elseif (!$user->verifyTwoFactorCode($request->code)) {
-            $response = response()->json([
-                'message' => 'Invalid or expired two-factor code.'
-            ], 422);
+            $response = $this->formatErrorResponse(422, "Invalid or expired two-factor code.");
         } else {
-            Auth::login($user);
-
-            if ($request->expectsJson() || $request->hasHeader('X-Request-Token')) {
+            if ($request->expectsJson()) {
                 $token = $user->createToken('auth-token')->plainTextToken;
                 $user->load('role');
-
-                $response = response()->json([
-                    'message' => 'Two-factor authentication successful.',
+                $data = [
                     'user' => $user,
                     'token' => $token
-                ]);
+                ];
+                $response = $this->formatSuccessResponse($data, "Two-factor authentication successful.", 201, $request);
             } else {
-                $request->session()->regenerate();
                 $response = response()->noContent();
             }
         }
