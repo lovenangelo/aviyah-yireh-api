@@ -94,15 +94,17 @@ class RoleAPIController extends Controller
      */
     public function store(StoreRoleRequest $request): JsonResponse
     {
-        // Check if user has permission to create a new role
-        $this->authorize('create', self::ROLE);
+        try {
+            // Check if user has permission to create a new role
+            $this->authorize('create', self::ROLE);
+            $role = $this->roleRepository->createNewRole($request->all());
 
-        $role = $this->roleRepository->createNewRole($request->all());
-
-        return response()->json([
-            'message' => 'Role created successfully.',
-            'role' => $role,
-        ], 201);
+            return $this->formatSuccessResponse($role, "Role created successfully.", 201, $request);
+        } catch (ValidationException $e) {
+            return $this->handleApiException($e, $request, 'Create New Role');
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, 'Create New Role');
+        }
     }
 
     /**

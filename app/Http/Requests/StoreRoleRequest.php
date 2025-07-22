@@ -4,9 +4,13 @@ namespace App\Http\Requests;
 
 use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Traits\ApiResponse;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreRoleRequest extends FormRequest
 {
+    use ApiResponse;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,5 +30,11 @@ class StoreRoleRequest extends FormRequest
             'name' => 'required|string|max:255|unique:roles,name',
             'description' => 'nullable|string|max:1000',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $response = $this->formatErrorResponse(422, 'Validation failed.', $validator->errors()->toArray());
+        throw new HttpResponseException($response);
     }
 }
