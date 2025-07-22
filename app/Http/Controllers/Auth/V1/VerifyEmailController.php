@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-
+use App\Traits\ApiResponse;
 /**
  * @OA\Tag(
  *     name="Email Verification",
@@ -15,7 +15,8 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
  * )
  */
 class VerifyEmailController extends Controller
-{
+{   
+    use ApiResponse;
     /**
      * Mark the authenticated user's email address as verified.
      *
@@ -86,7 +87,7 @@ class VerifyEmailController extends Controller
     {
         if ($request->user()->hasVerifiedEmail()) {
             // For token-based clients
-            return response()->json(['message' => 'Email already verified'], 200);
+            return $this->formatSuccessResponse(message: "Email already verified");
         }
 
         if ($request->user()->markEmailAsVerified()) {
@@ -94,6 +95,9 @@ class VerifyEmailController extends Controller
         }
 
         // For token-based clients
-        return response()->json(['message' => 'Email verified successfully'], 200);
+        return $this->formatSuccessResponse(message: "Email verified successfully");
+
+
+        
     }
 }
