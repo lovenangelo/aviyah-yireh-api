@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
+use App\Traits\ApiResponse;
 
 /**
  * @OA\Tag(
@@ -20,6 +21,7 @@ use Illuminate\Validation\ValidationException;
  */
 class NewPasswordController extends Controller
 {
+    use ApiResponse;
     /**
      * Handle an incoming new password request.
      *
@@ -78,24 +80,28 @@ class NewPasswordController extends Controller
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->string('password')),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        try {
+            $status = Password::reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function ($user) use ($request) {
+                    $user->forceFill([
+                        'password' => Hash::make($request->string('password')),
+                        'remember_token' => Str::random(60),
+                    ])->save();
 
-                event(new PasswordReset($user));
+                    event(new PasswordReset($user));
+                }
+            );
+
+            if ($status != Password::PASSWORD_RESET) {
+                throw ValidationException::withMessages([
+                    'email' => [__($status)],
+                ]);
             }
-        );
-
-        if ($status != Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
+        } catch (ValidationException $e) {
+            return $this->handleValidationError($e, $request);
         }
 
-        return response()->json(['status' => __($status)]);
+        return $this->formatSuccessResponse(null, "Password reset is successful!", 200, $request);
     }
 }
