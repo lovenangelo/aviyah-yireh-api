@@ -71,7 +71,7 @@ class RoleAPIController extends Controller
 
             return $this->formatSuccessResponse($roles, "Roles retrieved successfuly!", 200);
         } catch (AuthorizationException $e) {
-            return $this->handleApiException($e, $request, 'Fetch Roles');
+            return $this->handleApiException($e, $request, 'Roles Fetching');
         }
     }
 
@@ -101,9 +101,9 @@ class RoleAPIController extends Controller
 
             return $this->formatSuccessResponse($role, "Role created successfully.", 201, $request);
         } catch (ValidationException $e) {
-            return $this->handleApiException($e, $request, 'Create New Role');
+            return $this->handleApiException($e, $request, 'Role Creation');
         } catch (AuthorizationException $e) {
-            return $this->handleApiException($e, $request, 'Create New Role');
+            return $this->handleApiException($e, $request, 'Role Creation');
         }
     }
 
@@ -118,25 +118,27 @@ class RoleAPIController extends Controller
      *     @OA\Response(response=404, description="Role not found")
      * )
      */
-    public function show($id): JsonResponse
+    public function show(Request $request, $id): JsonResponse
     {
-        // Get role
-        $role = $this->roleRepository->find($id);
+        try {
+            // Get role
+            $role = $this->roleRepository->find($id);
 
-        // Check if role exists
-        if (!$role) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            // Check if role exists
+            if (!$role) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to view the role
+            $this->authorize('view', $role);
+
+            // Load related data
+            $role->loadCount('users');
+
+            return $this->formatSuccessResponse($role, "Role with associated users retrieved successfuly.", 200);
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, "Role retrieval");
         }
-
-        // Check if user has permission to view the role
-        $this->authorize('view', $role);
-
-        // Load related data
-        $role->loadCount('users');
-
-        return response()->json($role);
     }
 
     /**
