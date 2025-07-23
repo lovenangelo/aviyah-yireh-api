@@ -13,7 +13,7 @@ use App\Http\Requests\BulkDestroyUsersRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateUserAvatarRequest;
 use Illuminate\Http\UploadedFile;
-
+use App\Traits\ApiResponse;
 /**
  * @OA\Tag(
  *     name="Users",
@@ -22,6 +22,7 @@ use Illuminate\Http\UploadedFile;
  */
 class UserAPIController extends Controller
 {
+    use ApiResponse;
     private UserRepository $userRepository;
     private const USER = 'App\Models\User';
     private const USER_NOT_AUTHENTICATED = 'User not authenticated.';
@@ -49,28 +50,35 @@ class UserAPIController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // Check if user has permission to view all users
-        $this->authorize('viewAny', self::USER);
 
-        $filters = $request->only([
-            'page',
-            'per_page',
-            'sort',
-            'search',
-            'roles',
-        ]);
+        try {
+             // Check if user has permission to view all users
+            $this->authorize('viewAny', self::USER);
 
-        if ($filters) {
-            $users = $this->userRepository
-                ->getFilter($filters)
-                ->with('role')
-                ->paginate($filters['per_page'] ?? 10)
-                ->withQueryString();
-        } else {
-            $users = $this->userRepository->getAll();
+            $filters = $request->only([
+                'page',
+                'per_page',
+                'sort',
+                'search',
+                'roles',
+            ]);
+
+            if ($filters) {
+                $users = $this->userRepository
+                    ->getFilter($filters)
+                    ->with('role')
+                    ->paginate($filters['per_page'] ?? 10)
+                    ->withQueryString();
+            } else {
+                $users = $this->userRepository->getAll();
+            }
+
+            return response()->json($users);
+
+        } catch (\Throwable $th) {
+             return $this->handleApiException($th, $request, 'show_list_users');
         }
-
-        return response()->json($users);
+        
     }
 
     /**
@@ -95,15 +103,24 @@ class UserAPIController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        // Check if user has permission to create a new user
-        $this->authorize('create', self::USER);
+        try {
+            // Check if user has permission to create a new user
+            $this->authorize('create', self::USER);
 
-        $user = $this->userRepository->createNewUser($request->all());
+            $user = $this->userRepository->createNewUser($request->all());
 
-        return response()->json([
-            'message' => 'User created successfully. A password reset email has been sent. Please advice the user to reset their password.',
-            'user' => $user,
-        ], 201);
+            return $this->formatSuccessResponse(
+                message: 'User created successfully. A password reset email has been sent. Please advice the user to reset their password.',
+                data: [
+                    'user'=> $user
+                ],
+                statusCode: 201
+            );
+
+        } catch (\Throwable $th) {
+           return $this->handleApiException($th, $request, 'create_user');
+        }
+        
     }
 
     /**
@@ -125,9 +142,10 @@ class UserAPIController extends Controller
 
         // Check if user exists
         if (!$user) {
-            return response()->json([
-                'message' => self::USER_NOT_FOUND,
-            ], 404);
+            return $this->formatErrorResponse(
+                    messsage: self::USER_NOT_FOUND,
+                    statusCode: 404
+            );
         }
 
         // Check if user has permission to view the user
@@ -136,7 +154,9 @@ class UserAPIController extends Controller
         // Load related data
         $user->load('role');
 
-        return response()->json($user);
+        return $this->formatSuccessResponse(
+            data: $user
+        );
     }
 
     /**
@@ -163,29 +183,39 @@ class UserAPIController extends Controller
      */
     public function update(UpdateUserRequest $request, $id): JsonResponse
     {
-        // Get user
-        $user = $this->userRepository->find($id);
 
-        // Check if user exists
-        if (!$user) {
-            return response()->json([
-                'message' => self::USER_NOT_FOUND,
-            ], 404);
+        try {
+             // Get user
+            $user = $this->userRepository->find($id);
+
+            // Check if user exists
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    messsage: self::USER_NOT_FOUND,
+                    statusCode: 404
+                );
+            }
+
+            // Check if user has permission to update the user
+            $this->authorize('update', $user);
+
+            // Prepare update data
+            $data = $request->only(['name', 'email', 'phone', 'role_id']);
+
+            // Update user
+            $this->userRepository->update($data, $user->id);
+
+            return $this->formatSuccessResponse(
+                message: "User updated successfully",
+                data: [
+                    'user'=> $this->userRepository->find($user->id)
+                ]
+            );
+
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'update_user');
         }
-
-        // Check if user has permission to update the user
-        $this->authorize('update', $user);
-
-        // Prepare update data
-        $data = $request->only(['name', 'email', 'phone', 'role_id']);
-
-        // Update user
-        $this->userRepository->update($data, $user->id);
-
-        return response()->json([
-            'message' => 'User updated successfully.',
-            'user' => $this->userRepository->find($user->id),
-        ]);
+       
     }
 
     /**
@@ -193,29 +223,40 @@ class UserAPIController extends Controller
      */
     public function updateProfile(UpdateUserRequest $request, ?int $id = null): JsonResponse
     {
-        // Get user
-        $user = $id ? $this->userRepository->find($id) : Auth::user();
+        try {
+             // Get user
+            $user = $id ? $this->userRepository->find($id) : Auth::user();
 
-        // Check if user exists
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found.',
-            ], 404);
+            // Check if user exists
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    message: self::USER_NOT_FOUND,
+                    statusCode: 404
+                );
+            }
+
+            // Check if user has permission to update the user
+            $this->authorize('update', $user);
+
+            // Prepare update data
+            $data = $request->only(['name', 'email', 'phone']);
+
+            // Update user
+            $this->userRepository->update($data, $user->id);
+
+            return $this->formatSuccessResponse(
+                message: "User updated successfully",
+                data: [
+                    'user'=> $this->userRepository->find($user->id)
+                ]
+            );
+
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'update_profile');
+
         }
-
-        // Check if user has permission to update the user
-        $this->authorize('update', $user);
-
-        // Prepare update data
-        $data = $request->only(['name', 'email', 'phone']);
-
-        // Update user
-        $this->userRepository->update($data, $user->id);
-
-        return response()->json([
-            'message' => 'User updated successfully.',
-            'user' => $this->userRepository->find($user->id),
-        ]);
+       
+        
     }
 
     /**
@@ -223,25 +264,33 @@ class UserAPIController extends Controller
      */
     public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
     {
-        // Get authenticated user
-        $user = Auth::user();
+        try {
+            // Get authenticated user
+            $user = Auth::user();
 
-        // Check if user is authenticated
-        if (!$user) {
-            return response()->json([
-                'message' => self::USER_NOT_AUTHENTICATED,
-            ], 404);
+            // Check if user is authenticated
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    message: self::USER_NOT_AUTHENTICATED,
+                    statusCode: 404
+                );
+            }
+
+            // Check if user has permission to update the user
+            $this->authorize('updatePassword', $user);
+
+            // Update user password
+            $this->userRepository->updateUserPassword($user->id, $request->password);
+
+            return $this->formatSuccessResponse(
+                message: "Password updated successfully"
+            );
+
+        } catch (\Throwable $th) {
+           return $this->handleApiException($th, $request, 'update_password');
         }
 
-        // Check if user has permission to update the user
-        $this->authorize('updatePassword', $user);
-
-        // Update user password
-        $this->userRepository->updateUserPassword($user->id, $request->password);
-
-        return response()->json([
-            'message' => 'Password updated successfully.',
-        ]);
+        
     }
 
     /**
@@ -256,30 +305,36 @@ class UserAPIController extends Controller
      *     @OA\Response(response=404, description="User not found")
      * )
      */
-    public function destroy($id): JsonResponse
-    {
-        // Get authenticated user
-        $user = Auth::user();
+    public function destroy( Request $request, $id): JsonResponse
+    {   
+        try {
+           // Get authenticated user
+            $user = Auth::user();
 
-        // Get user to delete
-        $userToDelete = $this->userRepository->find($id);
+            // Get user to delete
+            $userToDelete = $this->userRepository->find($id);
 
-        if (!$userToDelete) {
-            return response()->json([
-                'message' => self::USER_NOT_FOUND,
-            ], 404);
+            if (!$userToDelete) {
+                return $this->formatErrorResponse(
+                    message: self::USER_NOT_FOUND,
+                    statusCode: 404
+                );
+            }
+
+            // Check if user has permission to delete the user
+            $this->authorize('delete', $userToDelete);
+
+            // Delete user
+            $result = $this->userRepository->destroyUser((int)$id, $user->id);
+
+            return $this->formatSuccessResponse(
+                message: $result['message'],
+                statusCode: $result['status']
+            );
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'delete_user');
         }
-
-        // Check if user has permission to delete the user
-        $this->authorize('delete', $userToDelete);
-
-        // Delete user
-        $result = $this->userRepository->destroyUser((int)$id, $user->id);
-
-        // Return appropriate response based on result
-        return response()->json([
-            'message' => $result['message']
-        ], $result['status']);
+        
     }
 
     /**
@@ -301,29 +356,35 @@ class UserAPIController extends Controller
      */
     public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
     {
-        // Get authenticated user
-        $user = Auth::user();
+        try {
+                // Get authenticated user
+            $user = Auth::user();
 
-        // Check if user has permission to bulk delete users
-        $this->authorize('bulkDelete', self::USER);
+            // Check if user has permission to bulk delete users
+            $this->authorize('bulkDelete', self::USER);
 
-        // Get validated data
-        $ids = $request->validated('ids');
+            // Get validated data
+            $ids = $request->validated('ids');
 
-        // Delete multiple users
-        $result = $this->userRepository->bulkDestroy($ids, $user->id);
+            // Delete multiple users
+            $result = $this->userRepository->bulkDestroy($ids, $user->id);
 
-        return response()->json([
-            'message' => $result['deleted'] . ' users deleted successfully',
-            'details' => [
-                'deleted' => $result['deleted'],
-                'failed' => $result['failed'],
-                'total_attempted' => $result['attempted'],
-                'self_delete_attempt' => $result['self_delete_attempt']
-                    ? 'Self-deletion was attempted and skipped'
-                    : null,
-            ]
-        ]);
+            return $this->formatSuccessResponse(
+                message: $result['deleted'] . ' users deleted successfully',
+                data: [
+                    'deleted' => $result['deleted'],
+                    'failed'=> $result['failed'],
+                    'total_attempted' => $result['attempted'],
+                    'self_delete_attempt' => $result['self_delete_attempt'] 
+                        ? 'Self-deletion was attempted  and skipped'
+                        :null
+                ]
+            );
+
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'bulk_delete_users');
+        }
+        
     }
 
     /**
@@ -331,59 +392,83 @@ class UserAPIController extends Controller
      */
     public function uploadAvatar(UpdateUserAvatarRequest $request): JsonResponse
     {
-        // Get authenticated user
-        $user = Auth::user();
+        try {
+            // Get authenticated user
+            $user = Auth::user();
 
-        // Check if user is authenticated
-        if (!$user) {
+            // Check if user is authenticated
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    message: self::USER_NOT_AUTHENTICATED,
+                    statusCode: 401
+                );
+            }
+
+            // Check if user has permission to update their avatar
+            $this->authorize('update', $user);
+
+            // Upload avatar
+            /** @var UploadedFile $avatarFile */
+            $avatarFile = $request->file('avatar');
+            if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
+                return $this->formatErrorResponse(
+                    message: "Avatar file is required",
+                    statusCode: 400
+                );
+            }
+
+            $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
+
             return response()->json([
-                'message' => self::USER_NOT_AUTHENTICATED,
-            ], 401);
+                'message' => $result['message'],
+                'avatar_url' => $result['avatar_url'] ?? null,
+            ], $result['status']);
+            return $this->formatSuccessResponse(
+                message: $result['message'],
+                statusCode: $result['status'],
+                data: [
+                    'avatar_url' =>  $result['avatar_url']?? null
+                ]
+            );    
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'upload_avatar');
         }
+        
 
-        // Check if user has permission to update their avatar
-        $this->authorize('update', $user);
-
-        // Upload avatar
-        /** @var UploadedFile $avatarFile */
-        $avatarFile = $request->file('avatar');
-        if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
-            return response()->json([
-                'message' => 'Avatar file is required.',
-            ], 400);
-        }
-
-        $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
-
-        return response()->json([
-            'message' => $result['message'],
-            'avatar_url' => $result['avatar_url'] ?? null,
-        ], $result['status']);
     }
 
     /**
      * Delete user avatar.
      */
-    public function deleteAvatar(): JsonResponse
-    {
-        // Get authenticated user
-        $user = Auth::user();
+    public function deleteAvatar(Request $request): JsonResponse
+    {   
+        try {
+                // Get authenticated user
+            $user = Auth::user();
 
-        // Check if user is authenticated
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not authenticated.',
-            ], 401);
+            // Check if user is authenticated
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    message: self::USER_NOT_AUTHENTICATED,
+                    statusCode: 401
+                );
+                
+            }
+
+            // Check if user has permission to update their avatar
+            $this->authorize('update', $user);
+
+            // Delete avatar
+            $result = $this->userRepository->deleteAvatar($user->id);
+
+        
+            return $this->formatSuccessResponse(
+                message:$result['message']
+            );
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'delete_avatar');
         }
-
-        // Check if user has permission to update their avatar
-        $this->authorize('update', $user);
-
-        // Delete avatar
-        $result = $this->userRepository->deleteAvatar($user->id);
-
-        return response()->json([
-            'message' => $result['message'],
-        ], $result['status']);
+        
+        
     }
 }
