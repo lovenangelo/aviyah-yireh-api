@@ -73,10 +73,12 @@ class UserAPIController extends Controller
                 $users = $this->userRepository->getAll();
             }
 
-            return response()->json($users);
+            return $this->formatSuccessResponse(
+                data: $users
+            );
 
         } catch (\Throwable $th) {
-             return $this->handleApiException($th, $request, 'show_list_users');
+             return $this->handleApiException($th, $request, 'Show Users');
         }
         
     }
@@ -118,7 +120,7 @@ class UserAPIController extends Controller
             );
 
         } catch (\Throwable $th) {
-           return $this->handleApiException($th, $request, 'create_user');
+           return $this->handleApiException($th, $request, 'Create User');
         }
         
     }
@@ -213,7 +215,7 @@ class UserAPIController extends Controller
             );
 
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'update_user');
+            return $this->handleApiException($th, $request, 'Update User');
         }
        
     }
@@ -252,7 +254,7 @@ class UserAPIController extends Controller
             );
 
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'update_profile');
+            return $this->handleApiException($th, $request, 'Update Profile');
 
         }
        
@@ -287,7 +289,7 @@ class UserAPIController extends Controller
             );
 
         } catch (\Throwable $th) {
-           return $this->handleApiException($th, $request, 'update_password');
+           return $this->handleApiException($th, $request, 'Update Password');
         }
 
         
@@ -332,7 +334,7 @@ class UserAPIController extends Controller
                 statusCode: $result['status']
             );
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'delete_user');
+            return $this->handleApiException($th, $request, 'Delete User');
         }
         
     }
@@ -382,7 +384,7 @@ class UserAPIController extends Controller
             );
 
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'bulk_delete_users');
+            return $this->handleApiException($th, $request, 'Delete Multiple Users');
         }
         
     }
@@ -431,7 +433,7 @@ class UserAPIController extends Controller
                 ]
             );    
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'upload_avatar');
+            return $this->handleApiException($th, $request, 'Upload Avatar');
         }
         
 
@@ -466,7 +468,7 @@ class UserAPIController extends Controller
                 message:$result['message']
             );
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, 'delete_avatar');
+            return $this->handleApiException($th, $request, 'Delete Avatar');
         }
         
         
