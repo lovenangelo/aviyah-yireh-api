@@ -137,28 +137,33 @@ class UserAPIController extends Controller
      *     @OA\Response(response=404, description="User not found")
      * )
      */
-    public function show($id): JsonResponse
+    public function show($id, Request $request): JsonResponse
     {
-        // Get user
-        $user = $this->userRepository->find($id);
+        try {
+            // Get user
+            $user = $this->userRepository->find($id);
 
-        // Check if user exists
-        if (!$user) {
-            return $this->formatErrorResponse(
-                    messsage: self::USER_NOT_FOUND,
-                    statusCode: 404
+            // Check if user exists
+            if (!$user) {
+                return $this->formatErrorResponse(
+                        message: self::USER_NOT_FOUND,
+                        statusCode: 404
+                );
+            }
+
+            // Check if user has permission to view the user
+            $this->authorize('view', $user);
+
+            // Load related data
+            $user->load('role');
+
+            return $this->formatSuccessResponse(
+                data: $user
             );
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'Get User Details');
         }
-
-        // Check if user has permission to view the user
-        $this->authorize('view', $user);
-
-        // Load related data
-        $user->load('role');
-
-        return $this->formatSuccessResponse(
-            data: $user
-        );
+        
     }
 
     /**
@@ -193,7 +198,7 @@ class UserAPIController extends Controller
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
-                    messsage: self::USER_NOT_FOUND,
+                    message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
             }
@@ -308,7 +313,7 @@ class UserAPIController extends Controller
      * )
      */
     public function destroy( Request $request, $id): JsonResponse
-    {   
+    {
         try {
            // Get authenticated user
             $user = Auth::user();
@@ -377,8 +382,8 @@ class UserAPIController extends Controller
                     'deleted' => $result['deleted'],
                     'failed'=> $result['failed'],
                     'total_attempted' => $result['attempted'],
-                    'self_delete_attempt' => $result['self_delete_attempt'] 
-                        ? 'Self-deletion was attempted  and skipped'
+                    'self_delete_attempt' => $result['self_delete_attempt']
+                        ? 'Self-deletion was attempted and skipped'
                         :null
                 ]
             );
@@ -466,7 +471,6 @@ class UserAPIController extends Controller
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Delete Avatar');
         }
-        
         
     }
 }
