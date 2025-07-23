@@ -20,17 +20,7 @@ Route::prefix('v1')->group(function () {
 
     // Email verification routes
     Route::middleware('auth:sanctum')->group(function () {
-        // Logout
-        Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
-            ->name('api.verification.send');
-        // Email verification
-        Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-            ->middleware(['signed', 'throttle:6,1'])
-            ->name('api.verification.verify');
-
-        // Email verification notification
-        Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-            ->middleware(['throttle:6,1']);
+        require_once base_path("routes/API/V1/email/index.php");
     });
 
 
