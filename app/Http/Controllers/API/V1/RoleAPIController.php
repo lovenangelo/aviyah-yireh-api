@@ -197,27 +197,26 @@ class RoleAPIController extends Controller
      *     @OA\Response(response=404, description="Role not found")
      * )
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
-        // Get role to delete
-        $roleToDelete = $this->roleRepository->find($id);
+        try {
+            // Get role to delete
+            $roleToDelete = $this->roleRepository->find($id);
 
-        if (!$roleToDelete) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            if (!$roleToDelete) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to delete the role
+            $this->authorize('delete', $roleToDelete);
+
+            // Delete role
+            $result = $this->roleRepository->destroyRole((int)$id);
+
+            return $this->formatSuccessResponse(null, $result["message"], $result['status'], $request);
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, "Role delete");
         }
-
-        // Check if user has permission to delete the role
-        $this->authorize('delete', $roleToDelete);
-
-        // Delete role
-        $result = $this->roleRepository->destroyRole((int)$id);
-
-        // Return appropriate response based on result
-        return response()->json([
-            'message' => $result['message']
-        ], $result['status']);
     }
 
     /**
@@ -238,23 +237,27 @@ class RoleAPIController extends Controller
      */
     public function bulkDestroy(BulkDestroyRolesRequest $request): JsonResponse
     {
-        // Check if user has permission to bulk delete roles
-        $this->authorize('bulkDelete', self::ROLE);
+        try {
+            // Check if user has permission to bulk delete roles
+            $this->authorize('bulkDelete', self::ROLE);
 
-        // Get validated data
-        $ids = $request->validated('ids');
+            // Get validated data
+            $ids = $request->validated('ids');
 
-        // Delete multiple roles
-        $result = $this->roleRepository->bulkDestroy($ids);
+            // Delete multiple roles
+            $result = $this->roleRepository->bulkDestroy($ids);
 
-        return response()->json([
-            'message' => $result['deleted'] . ' roles deleted successfully',
-            'details' => [
+            $message = $result['deleted'] . ' roles deleted successfully';
+            $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],
                 'total_attempted' => $result['attempted'],
                 'roles_with_users' => $result['has_users'],
-            ]
-        ]);
+            ];
+
+            return $this->formatSuccessResponse($data, $message, 200, $request);
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, "Role delete many");
+        }
     }
 }
