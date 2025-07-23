@@ -15,16 +15,7 @@ use App\Http\Controllers\Auth\V1\TwoFactorAuthController;
 Route::prefix('v1')->group(function () {
     // Guest routes
     Route::middleware('guest')->group(function () {
-        // Authentication
-        Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('api.login');
-        Route::post('/register', [RegisteredUserController::class, 'store'])->name('api.register');
-
-        // Password reset
-        Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('api.password.email');
-        Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('api.password.update');
-
-        // Two-factor authentication verification
-        Route::post('/two-factor/verify', [TwoFactorAuthController::class, 'verify'])->name('api.two-factor.verify');
+        require_once base_path("routes/API/V1/guest/index.php");
     });
 
     // Email verification routes
