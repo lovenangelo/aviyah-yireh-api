@@ -162,29 +162,28 @@ class RoleAPIController extends Controller
      */
     public function update(UpdateRoleRequest $request, $id): JsonResponse
     {
-        // Get role
-        $role = $this->roleRepository->find($id);
+        try {
+            // Get role
+            $role = $this->roleRepository->find($id);
 
-        // Check if role exists
-        if (!$role) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            // Check if role exists
+            if (!$role) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to update the role
+            $this->authorize('update', $role);
+
+            // Prepare update data
+            $data = $request->only(['name', 'description']);
+
+            // Update role
+            $updatedRole = $this->roleRepository->update($data, $role->id);
+
+            return $this->formatSuccessResponse($updatedRole, "Role updated successfully.", 200, $request);
+        } catch (AuthorizationException $e) {
+            return $this->handleApiException($e, $request, "Role update");
         }
-
-        // Check if user has permission to update the role
-        $this->authorize('update', $role);
-
-        // Prepare update data
-        $data = $request->only(['name', 'description']);
-
-        // Update role
-        $this->roleRepository->update($data, $role->id);
-
-        return response()->json([
-            'message' => 'Role updated successfully.',
-            'role' => $this->roleRepository->find($role->id),
-        ]);
     }
 
     /**
