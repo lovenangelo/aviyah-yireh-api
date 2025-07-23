@@ -11,8 +11,6 @@ use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Requests\BulkDestroyRolesRequest;
 use App\Models\Role;
 use App\Traits\ApiResponse;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @OA\Tag(
@@ -70,7 +68,7 @@ class RoleAPIController extends Controller
             }
 
             return $this->formatSuccessResponse($roles, "Roles retrieved successfuly!", 200);
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Roles Fetching');
         }
     }
@@ -100,9 +98,7 @@ class RoleAPIController extends Controller
             $role = $this->roleRepository->createNewRole($request->all());
 
             return $this->formatSuccessResponse($role, "Role created successfully.", 201, $request);
-        } catch (ValidationException $e) {
-            return $this->handleApiException($e, $request, 'Role Creation');
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Role Creation');
         }
     }
@@ -136,7 +132,7 @@ class RoleAPIController extends Controller
             $role->loadCount('users');
 
             return $this->formatSuccessResponse($role, "Role with associated users retrieved successfuly.", 200);
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Role retrieval");
         }
     }
@@ -181,7 +177,7 @@ class RoleAPIController extends Controller
             $updatedRole = $this->roleRepository->update($data, $role->id);
 
             return $this->formatSuccessResponse($updatedRole, "Role updated successfully.", 200, $request);
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Role update");
         }
     }
@@ -214,7 +210,7 @@ class RoleAPIController extends Controller
             $result = $this->roleRepository->destroyRole((int)$id);
 
             return $this->formatSuccessResponse(null, $result["message"], $result['status'], $request);
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Role delete");
         }
     }
@@ -256,7 +252,7 @@ class RoleAPIController extends Controller
             ];
 
             return $this->formatSuccessResponse($data, $message, 200, $request);
-        } catch (AuthorizationException $e) {
+        } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Role delete many");
         }
     }
