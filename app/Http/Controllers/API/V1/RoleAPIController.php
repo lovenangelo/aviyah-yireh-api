@@ -122,7 +122,7 @@ class RoleAPIController extends Controller
 
             // Check if role exists
             if (!$role) {
-                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to view the role
@@ -164,7 +164,7 @@ class RoleAPIController extends Controller
 
             // Check if role exists
             if (!$role) {
-                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to update the role
@@ -200,7 +200,7 @@ class RoleAPIController extends Controller
             $roleToDelete = $this->roleRepository->find($id);
 
             if (!$roleToDelete) {
-                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to delete the role
