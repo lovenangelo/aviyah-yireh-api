@@ -421,17 +421,13 @@ class UserAPIController extends Controller
 
             $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
 
-            return response()->json([
-                'message' => $result['message'],
-                'avatar_url' => $result['avatar_url'] ?? null,
-            ], $result['status']);
             return $this->formatSuccessResponse(
                 message: $result['message'],
                 statusCode: $result['status'],
                 data: [
                     'avatar_url' =>  $result['avatar_url']?? null
                 ]
-            );    
+            );
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Upload Avatar');
         }
@@ -443,7 +439,7 @@ class UserAPIController extends Controller
      * Delete user avatar.
      */
     public function deleteAvatar(Request $request): JsonResponse
-    {   
+    {
         try {
                 // Get authenticated user
             $user = Auth::user();
