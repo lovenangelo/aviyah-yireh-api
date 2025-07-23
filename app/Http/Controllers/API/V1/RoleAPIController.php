@@ -10,6 +10,7 @@ use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Requests\BulkDestroyRolesRequest;
 use App\Models\Role;
+use App\Traits\ApiResponse;
 
 /**
  * @OA\Tag(
@@ -19,6 +20,8 @@ use App\Models\Role;
  */
 class RoleAPIController extends Controller
 {
+    use ApiResponse;
+
     private RoleRepository $roleRepository;
     private const ROLE = 'App\Models\Role';
     private const ROLE_NOT_FOUND = 'Role not found.';
@@ -43,27 +46,31 @@ class RoleAPIController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // Check if user has permission to view all roles
-        $this->authorize('viewAny', self::ROLE);
+        try {
+            // Check if user has permission to view all roles
+            $this->authorize('viewAny', self::ROLE);
 
-        $filters = $request->only([
-            'page',
-            'per_page',
-            'sort',
-            'search',
-        ]);
+            $filters = $request->only([
+                'page',
+                'per_page',
+                'sort',
+                'search',
+            ]);
 
-        if ($filters) {
-            $roles = $this->roleRepository
-                ->getFilter($filters)
-                ->withCount('users')
-                ->paginate($filters['per_page'] ?? 10)
-                ->withQueryString();
-        } else {
-            $roles = $this->roleRepository->getAll();
+            if ($filters) {
+                $roles = $this->roleRepository
+                    ->getFilter($filters)
+                    ->withCount('users')
+                    ->paginate($filters['per_page'] ?? 10)
+                    ->withQueryString();
+            } else {
+                $roles = $this->roleRepository->getAll();
+            }
+
+            return $this->formatSuccessResponse($roles, "Roles retrieved successfuly!", 200);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, 'Roles Fetching');
         }
-
-        return response()->json($roles);
     }
 
     /**
@@ -85,15 +92,15 @@ class RoleAPIController extends Controller
      */
     public function store(StoreRoleRequest $request): JsonResponse
     {
-        // Check if user has permission to create a new role
-        $this->authorize('create', self::ROLE);
+        try {
+            // Check if user has permission to create a new role
+            $this->authorize('create', self::ROLE);
+            $role = $this->roleRepository->createNewRole($request->all());
 
-        $role = $this->roleRepository->createNewRole($request->all());
-
-        return response()->json([
-            'message' => 'Role created successfully.',
-            'role' => $role,
-        ], 201);
+            return $this->formatSuccessResponse($role, "Role created successfully.", 201, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, 'Role Creation');
+        }
     }
 
     /**
@@ -107,25 +114,27 @@ class RoleAPIController extends Controller
      *     @OA\Response(response=404, description="Role not found")
      * )
      */
-    public function show($id): JsonResponse
+    public function show(Request $request, $id): JsonResponse
     {
-        // Get role
-        $role = $this->roleRepository->find($id);
+        try {
+            // Get role
+            $role = $this->roleRepository->find($id);
 
-        // Check if role exists
-        if (!$role) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            // Check if role exists
+            if (!$role) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to view the role
+            $this->authorize('view', $role);
+
+            // Load related data
+            $role->loadCount('users');
+
+            return $this->formatSuccessResponse($role, "Role with associated users retrieved successfuly.", 200);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Role retrieval");
         }
-
-        // Check if user has permission to view the role
-        $this->authorize('view', $role);
-
-        // Load related data
-        $role->loadCount('users');
-
-        return response()->json($role);
     }
 
     /**
@@ -149,29 +158,28 @@ class RoleAPIController extends Controller
      */
     public function update(UpdateRoleRequest $request, $id): JsonResponse
     {
-        // Get role
-        $role = $this->roleRepository->find($id);
+        try {
+            // Get role
+            $role = $this->roleRepository->find($id);
 
-        // Check if role exists
-        if (!$role) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            // Check if role exists
+            if (!$role) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to update the role
+            $this->authorize('update', $role);
+
+            // Prepare update data
+            $data = $request->only(['name', 'description']);
+
+            // Update role
+            $updatedRole = $this->roleRepository->update($data, $role->id);
+
+            return $this->formatSuccessResponse($updatedRole, "Role updated successfully.", 200, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Role update");
         }
-
-        // Check if user has permission to update the role
-        $this->authorize('update', $role);
-
-        // Prepare update data
-        $data = $request->only(['name', 'description']);
-
-        // Update role
-        $this->roleRepository->update($data, $role->id);
-
-        return response()->json([
-            'message' => 'Role updated successfully.',
-            'role' => $this->roleRepository->find($role->id),
-        ]);
     }
 
     /**
@@ -185,27 +193,26 @@ class RoleAPIController extends Controller
      *     @OA\Response(response=404, description="Role not found")
      * )
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
-        // Get role to delete
-        $roleToDelete = $this->roleRepository->find($id);
+        try {
+            // Get role to delete
+            $roleToDelete = $this->roleRepository->find($id);
 
-        if (!$roleToDelete) {
-            return response()->json([
-                'message' => self::ROLE_NOT_FOUND,
-            ], 404);
+            if (!$roleToDelete) {
+                return $this->formatErrorResponse("404", "Role not found.", [], 404);
+            }
+
+            // Check if user has permission to delete the role
+            $this->authorize('delete', $roleToDelete);
+
+            // Delete role
+            $result = $this->roleRepository->destroyRole((int)$id);
+
+            return $this->formatSuccessResponse(null, $result["message"], $result['status'], $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Role delete");
         }
-
-        // Check if user has permission to delete the role
-        $this->authorize('delete', $roleToDelete);
-
-        // Delete role
-        $result = $this->roleRepository->destroyRole((int)$id);
-
-        // Return appropriate response based on result
-        return response()->json([
-            'message' => $result['message']
-        ], $result['status']);
     }
 
     /**
@@ -226,23 +233,27 @@ class RoleAPIController extends Controller
      */
     public function bulkDestroy(BulkDestroyRolesRequest $request): JsonResponse
     {
-        // Check if user has permission to bulk delete roles
-        $this->authorize('bulkDelete', self::ROLE);
+        try {
+            // Check if user has permission to bulk delete roles
+            $this->authorize('bulkDelete', self::ROLE);
 
-        // Get validated data
-        $ids = $request->validated('ids');
+            // Get validated data
+            $ids = $request->validated('ids');
 
-        // Delete multiple roles
-        $result = $this->roleRepository->bulkDestroy($ids);
+            // Delete multiple roles
+            $result = $this->roleRepository->bulkDestroy($ids);
 
-        return response()->json([
-            'message' => $result['deleted'] . ' roles deleted successfully',
-            'details' => [
+            $message = $result['deleted'] . ' roles deleted successfully';
+            $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],
                 'total_attempted' => $result['attempted'],
                 'roles_with_users' => $result['has_users'],
-            ]
-        ]);
+            ];
+
+            return $this->formatSuccessResponse($data, $message, 200, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Role delete many");
+        }
     }
 }

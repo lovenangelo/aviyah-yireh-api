@@ -92,7 +92,7 @@ Route::prefix('v1')->group(function () {
             Route::delete("/{id}", [RoleAPIController::class, 'destroy'])->name("roles.delete");
 
             // Role bulk delete
-            Route::delete('/bulk-delete', [RoleAPIController::class, 'bulkDestroy'])
+            Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
                 ->name('roles.bulk-delete');
 
             // Role API resource
