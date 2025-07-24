@@ -477,6 +477,45 @@
                 }
             }
         },
+        "/api/v1/users/upload-avatar": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Upload or update user avatar",
+                "description": "Upload or update user avatar.",
+                "operationId": "7a62595562b940c83e68a6158feb9972",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar updated successfully."
+                    },
+                    "401": {
+                        "description": "User not authenticated"
+                    },
+                    "400": {
+                        "description": "Avatar file is required"
+                    }
+                }
+            }
+        },
         "/api/v1/login": {
             "post": {
                 "tags": [

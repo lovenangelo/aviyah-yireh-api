@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Controllers\API\V1\RoleAPIController;
-use App\Http\Controllers\API\V1\UserAPIController;
+use App\Http\Controllers\API\V1\Role\RoleAPIController;
+use App\Http\Controllers\API\V1\User\UserAPIController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\V1\NewPasswordController;
-use App\Http\Controllers\Auth\V1\VerifyEmailController;
-use App\Http\Controllers\Auth\V1\RegisteredUserController;
-use App\Http\Controllers\Auth\V1\PasswordResetLinkController;
-use App\Http\Controllers\Auth\V1\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\V1\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\V1\TwoFactorAuthController;
+use App\Http\Controllers\API\V1\Auth\NewPasswordController;
+use App\Http\Controllers\API\V1\Auth\VerifyEmailController;
+use App\Http\Controllers\API\V1\Auth\RegisteredUserController;
+use App\Http\Controllers\API\V1\Auth\PasswordResetLinkController;
+use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\API\V1\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
 
 Route::prefix('v1')->group(function () {
     // Guest routes

@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\API\V1;
+namespace App\Http\Controllers\API\V1\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\BulkDestroyUsersRequest;
-use App\Http\Requests\UpdateUserPasswordRequest;
-use App\Http\Requests\UpdateUserAvatarRequest;
+use App\Http\Requests\User\UserStoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\BulkDestroyUsersRequest;
+use App\Http\Requests\User\UpdateUserPasswordRequest;
+use App\Http\Requests\User\UpdateUserAvatarRequest;
 use Illuminate\Http\UploadedFile;
 use App\Traits\ApiResponse;
 /**
@@ -382,7 +382,7 @@ class UserAPIController extends Controller
                     'deleted' => $result['deleted'],
                     'failed'=> $result['failed'],
                     'total_attempted' => $result['attempted'],
-                    'self_delete_attempt' => $result['self_delete_attempt']
+                    'self_delete_attempt' => $result['self_delete_attempt'] 
                         ? 'Self-deletion was attempted and skipped'
                         :null
                 ]
