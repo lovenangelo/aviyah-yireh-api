@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +55,10 @@ trait ApiResponse
             return $this->handleDatabaseError($e, $request, $context);
         }
 
+        if ($e instanceof AuthorizationException) {
+            return $this->handleAuthorizationError($e, $request);
+        }
+
         return $this->handleGeneralError($e, $request, $context);
     }
 
@@ -77,6 +82,27 @@ trait ApiResponse
             message: 'Request failed due to validation errors',
             details: $errors,
             statusCode: 422,
+            request: $request
+        );
+    }
+
+    /**
+     * Handle authorization errors
+     */
+    protected function handleAuthorizationError(AuthorizationException $e, Request $request): JsonResponse
+    {
+
+        $errors[] = [
+            'field' => 'persmission',
+            'code' => 'FORBIDDEN_ACCESS',
+            'message' => $e->getMessage()
+        ];
+
+        return $this->formatErrorResponse(
+            code: "FORBIDDEN_ACCESS",
+            message: "Request failed due to unauthorized access.",
+            details: $errors,
+            statusCode: 403,
             request: $request
         );
     }
