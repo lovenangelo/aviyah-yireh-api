@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Auth\V1\VerifyEmailController;
-use App\Http\Controllers\Auth\V1\EmailVerificationNotificationController;
+use App\Http\Controllers\API\V1\Auth\VerifyEmailController;
+use App\Http\Controllers\API\V1\Auth\EmailVerificationNotificationController;
 
 // Email verification
 Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)

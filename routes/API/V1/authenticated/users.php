@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\V1\UserAPIController;
+use App\Http\Controllers\API\V1\User\UserAPIController;
 
 // User info
 Route::get('/user', function (Request $request) {
