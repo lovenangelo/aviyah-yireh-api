@@ -3,9 +3,13 @@
 namespace App\Http\Requests\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Traits\ApiResponse;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BulkDestroyRolesRequest extends FormRequest
 {
+    use ApiResponse;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -40,5 +44,11 @@ class BulkDestroyRolesRequest extends FormRequest
             'ids.min' => 'At least one role ID must be provided.',
             'ids.*.exists' => 'One or more role IDs do not exist in the database.'
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $response = $this->formatErrorResponse(422, 'Bulk delete failed.', $validator->errors()->toArray());
+        throw new HttpResponseException($response);
     }
 }
