@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\V1\RoleAPIController;
+use App\Http\Controllers\API\V1\Role\RoleAPIController;
 
 // Roles-related Routes
 Route::prefix("roles")->group(function () {

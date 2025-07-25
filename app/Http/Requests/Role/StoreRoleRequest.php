@@ -1,12 +1,16 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Role;
 
-use App\Models\User;
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Traits\ApiResponse;
+use Illuminate\Contracts\Validation\Validator;
 
-class StoreUserRequest extends FormRequest
+class StoreRoleRequest extends FormRequest
 {
+    use ApiResponse;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,8 +26,9 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = User::$rules;
-        unset($rules['password']);
-        return $rules;
+        return [
+            'name' => 'required|string|max:255|unique:roles,name',
+            'description' => 'nullable|string|max:1000',
+        ];
     }
 }
