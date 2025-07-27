@@ -4,6 +4,7 @@ use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\API\V1\Role\RoleAPIController;
 use App\Http\Controllers\API\V1\User\UserAPIController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
+use App\Http\Controllers\API\V1\Event\EventController;
 
 // Logout
 Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
@@ -67,4 +68,13 @@ Route::prefix("users")->group(function () {
 
     // User API resource
     Route::apiResource('/', UserAPIController::class);
+});
+
+Route::prefix("event")->group(function(){
+    $eventIdRoute = "/{id}";
+    
+    Route::get($eventIdRoute, [EventController::class, 'show']);
+    Route::put($eventIdRoute, [EventController::class, 'update']);
+    Route::delete($eventIdRoute,[EventController::class, 'destroy']);
+    Route::apiResource('/', EventController::class);
 });
