@@ -6,7 +6,7 @@ use App\Models\TrainingMaterial;
 
 class TrainingMaterialRepository
 {
-  public function all()
+  public function getAll()
   {
     return TrainingMaterial::all();
   }
