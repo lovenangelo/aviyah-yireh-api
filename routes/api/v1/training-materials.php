@@ -15,4 +15,7 @@ Route::prefix("training-materials")->group(function () {
 
   // Edit training material
   Route::put("/{id}", [TrainingMaterialAPIController::class, 'update'])->name("edit.training.material");
+
+  // Delete training material
+  Route::delete("/{id}", [TrainingMaterialAPIController::class, 'destroy'])->name("delete.training.material");
 });

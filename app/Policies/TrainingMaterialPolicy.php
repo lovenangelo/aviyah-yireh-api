@@ -35,7 +35,7 @@ class TrainingMaterialPolicy
   /**
    * Determine whether the user can update video material
    */
-  public function update(User $user, TrainingMaterial $material): bool
+  public function update(User $user): bool
   {
     return $user->hasRole('admin');
   }
@@ -43,10 +43,10 @@ class TrainingMaterialPolicy
   /**
    * Determine whether the user can delete the model.
    */
-  public function delete(User $user, TrainingMaterial $material): bool
+  public function delete(User $user): bool
   {
-    // Admin can delete training materials but not if they have associated users
-    return $user->hasRole('admin') && $material->users()->count() === 0;
+    // Admin can delete training materials
+    return $user->hasRole('admin');
   }
 
   /**

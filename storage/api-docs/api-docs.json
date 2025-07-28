@@ -1271,7 +1271,7 @@
                     {
                         "name": "type",
                         "in": "query",
-                        "description": "Type of filter (used when filter is set)",
+                        "description": "Set to true when filtering",
                         "required": false,
                         "style": "form",
                         "explode": false,
@@ -1301,7 +1301,7 @@
                     {
                         "name": "sort",
                         "in": "query",
-                        "description": "Sort option",
+                        "description": "Sort to true when sorting",
                         "required": false,
                         "style": "form",
                         "explode": false,
@@ -1328,6 +1328,9 @@
                 "responses": {
                     "200": {
                         "description": "List of training materials"
+                    },
+                    "400": {
+                        "description": "Invalid filter type specified in query parameters."
                     }
                 }
             },
@@ -1438,7 +1441,7 @@
                     "Training Materials"
                 ],
                 "summary": "Edit a training material",
-                "description": "Upload a training material",
+                "description": "Update a training material",
                 "operationId": "13ceeb6dfe7c8a1692ce59f85db6fb0f",
                 "parameters": [
                     {
@@ -1512,6 +1515,35 @@
                     },
                     "404": {
                         "description": "Training material not found."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Delete a training material",
+                "description": "Remove the specified training material.",
+                "operationId": "54c7f07f460d9646be894d0dce6db279",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training material deleted successfully!"
+                    },
+                    "404": {
+                        "description": "Training material not found."
+                    },
+                    "403": {
+                        "description": "Unauthorized action."
                     }
                 }
             }

@@ -36,7 +36,7 @@ class TrainingMaterialAPIController extends Controller
      *         name="type",
      *         in="query",
      *         required=false,
-     *         description="Type of filter (used when filter is set)",
+     *         description="Set to true when filtering",
      *         @OA\Schema(type="string"),
      *         style="form",
      *         explode=false
@@ -54,7 +54,7 @@ class TrainingMaterialAPIController extends Controller
      *         name="sort",
      *         in="query",
      *         required=false,
-     *         description="Sort option",
+     *         description="Sort to true when sorting",
      *         @OA\Schema(type="string"),
      *         style="form",
      *         explode=false
@@ -68,7 +68,8 @@ class TrainingMaterialAPIController extends Controller
      *         style="form",
      *         explode=false
      *     ),
-     *     @OA\Response(response=200, description="List of training materials")
+     *     @OA\Response(response=200, description="List of training materials"),
+     *     @OA\Response(response=400, description="Invalid filter type specified in query parameters.")
      * )
      */
     public function index(Request $request): JsonResponse
@@ -201,7 +202,7 @@ class TrainingMaterialAPIController extends Controller
     }
 
     /**
-     * Upload a training material
+     * Update a training material
      *
      * @OA\Put(
      * path="/api/v1/training-materials/{id}",
@@ -250,6 +251,38 @@ class TrainingMaterialAPIController extends Controller
             $this->trainingMaterialRepository->update($data, $id);
 
             return $this->formatSuccessResponse($data, "Training material updated successfully!", 200, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request);
+        }
+    }
+
+    /**
+     * Remove the specified training material.
+     * @OA\Delete(
+     *     path="/api/v1/training-materials/{id}",
+     *     summary="Delete a training material",
+     *     tags={"Training Materials"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Training material deleted successfully!"),
+     *     @OA\Response(response=404, description="Training material not found."),
+     *     @OA\Response(response=403, description="Unauthorized action."),
+     * )
+     */
+    public function destroy(Request $request, $id): JsonResponse
+    {
+        try {
+            // Check if user is authorized
+            $this->authorize("delete", self::TRAINING_MATERIAL);
+
+            // Get training material to delete
+            $trainingMaterial = $this->trainingMaterialRepository->find($id);
+
+            if (!$trainingMaterial) {
+                return $this->formatErrorResponse("404", "Training material not found.", [], 404);
+            }
+
+            $this->trainingMaterialRepository->delete($trainingMaterial);
+            return $this->formatSuccessResponse(null, "Training material deleted successfully!", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
