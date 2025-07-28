@@ -32,13 +32,96 @@ class TrainingMaterialAPIController extends Controller
      *     path="/api/v1/training-materials",
      *     summary="Get list of training materials",
      *     tags={"Training Materials"},
-     *     @OA\Response(response=200, description="List of users")
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         required=false,
+     *         description="Type of filter (used when filter is set)",
+     *         @OA\Schema(type="string"),
+     *         style="form",
+     *         explode=false
+     *     ),
+     *     @OA\Parameter(
+     *         name="filter",
+     *         in="query",
+     *         required=false,
+     *         description="Filter type",
+     *         @OA\Schema(type="string", enum={"pdf","video","image","audio","english","tagalog"}),
+     *         style="form",
+     *         explode=false
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         required=false,
+     *         description="Sort option",
+     *         @OA\Schema(type="string"),
+     *         style="form",
+     *         explode=false
+     *     ),
+     *     @OA\Parameter(
+     *         name="sortBy",
+     *         in="query",
+     *         required=false,
+     *         description="Sort by field (used when sort is set)",
+     *         @OA\Schema(type="string", enum={"popularity", "dateUploaded"}),
+     *         style="form",
+     *         explode=false
+     *     ),
+     *     @OA\Response(response=200, description="List of training materials")
      * )
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            $trainingMaterials = $this->trainingMaterialRepository->getAll();
+            $trainingMaterials = null;
+            $filter = $request->query('filter');
+            $sort = $request->query('sort');
+
+            // Retrieve training material based on filter
+            if ($filter) {
+                $type = $request->query('type');
+                switch ($type) {
+                    case "pdf":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllPdf();
+                        break;
+                    case "video":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllVideos();
+                        break;
+                    case "image":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllImage();
+                        break;
+                    case "audio":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllAudio();
+                        break;
+                    case "english":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllEnglish();
+                        break;
+                    case "tagalog":
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllTagalog();
+                        break;
+                    default:
+                        return $this->formatErrorResponse(400, 'Invalid filter type specified in query parameters.', [], 400);
+                        break;
+                }
+                // Retrieve training material based on sort
+            } elseif ($sort) {
+                $sortBy = $request->query('sortBy');
+                switch ($sortBy) {
+                    case 'popularity':
+                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByPopularity();
+                        break;
+                    case 'dateUploaded':
+                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByDateUploaded();
+                        break;
+                    default:
+                        return $this->formatErrorResponse(400, 'Invalid sort type specified in query parameters.', [], 400);
+                        break;
+                }
+            } else {
+                // Otherview return all list of training material
+                $trainingMaterials = $this->trainingMaterialRepository->getAll();
+            }
             return $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
@@ -84,6 +167,34 @@ class TrainingMaterialAPIController extends Controller
             $trainingMaterial = $this->trainingMaterialRepository->upload($request->all());
 
             return $this->formatSuccessResponse($trainingMaterial, "Training material uploaded successfully!", 201, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request);
+        }
+    }
+
+
+    /**
+     * Display the specified training material.
+     * @OA\Get(
+     *     path="/api/v1/training-material/{id}",
+     *     summary="Get a training material by ID",
+     *     tags={"Training Materials"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Training material details"),
+     *     @OA\Response(response=404, description="Training material not found")
+     * )
+     */
+    public function show(Request $request, $id): JsonResponse
+    {
+        try {
+            $trainingMaterial = $this->trainingMaterialRepository->find($id);
+
+            // Check if training material exists
+            if (!$trainingMaterial) {
+                return $this->formatErrorResponse("404", "Training material not found.", [], 404);
+            }
+
+            return $this->formatSuccessResponse($trainingMaterial, "Training material retrieved successfully!", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }

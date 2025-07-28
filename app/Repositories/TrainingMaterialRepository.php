@@ -8,7 +8,74 @@ class TrainingMaterialRepository
 {
   public function getAll()
   {
-    return TrainingMaterial::all();
+    return TrainingMaterial::with(['category', 'language', 'user'])->get();
+  }
+
+  public function getAllPdf()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('category', function ($q) {
+        $q->where('name', 'pdf');
+      })
+      ->get();
+  }
+  public function getAllVideos()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('category', function ($q) {
+        $q->where('name', 'video');
+      })
+      ->get();
+  }
+
+  public function getAllImage()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('category', function ($q) {
+        $q->where('name', 'image');
+      })
+      ->get();
+  }
+
+  public function getAllAudio()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('category', function ($q) {
+        $q->where('name', 'audio');
+      })
+      ->get();
+  }
+
+  public function getAllEnglish()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('language', function ($q) {
+        $q->where('name', 'english');
+      })
+      ->get();
+  }
+
+  public function getAllTagalog()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->whereHas('language', function ($q) {
+        $q->where('name', 'tagalog');
+      })
+      ->get();
+  }
+
+  public function getVideosByPopularity()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->orderBy('views', 'desc')
+      ->get();
+  }
+
+  public function getVideosByDateUploaded()
+  {
+    return TrainingMaterial::with(['category', 'language', 'user'])
+      ->orderBy('created_at', 'desc')
+      ->get();
   }
 
   public function find($id)

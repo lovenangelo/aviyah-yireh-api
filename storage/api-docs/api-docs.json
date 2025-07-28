@@ -1267,9 +1267,67 @@
                 "summary": "Get list of training materials",
                 "description": "Display a listing of the training materials.",
                 "operationId": "0b5ee88e755c2fc3b8e84b44c94c170f",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type of filter (used when filter is set)",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "Filter type",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pdf",
+                                "video",
+                                "image",
+                                "audio",
+                                "english",
+                                "tagalog"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort option",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Sort by field (used when sort is set)",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "popularity",
+                                "dateUploaded"
+                            ]
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "List of users"
+                        "description": "List of training materials"
                     }
                 }
             },
@@ -1342,6 +1400,34 @@
                     },
                     "403": {
                         "description": "Unauthorized to perform action."
+                    }
+                }
+            }
+        },
+        "/api/v1/training-material/{id}": {
+            "get": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Get a training material by ID",
+                "description": "Display the specified training material.",
+                "operationId": "c1227773700f232eb17e1047c94c537b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training material details"
+                    },
+                    "404": {
+                        "description": "Training material not found"
                     }
                 }
             }
