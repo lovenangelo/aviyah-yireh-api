@@ -23,7 +23,7 @@ class ApiV1RouteServiceProvider extends ServiceProvider
             ->group(base_path('routes/api/v1/authenticated.php'));
 
         Route::prefix(self::API_V1_PREFIX)
-            ->middleware(['api', 'verified'])
+            ->middleware(['api', 'auth:sanctum'])
             ->group(base_path('routes/api/v1/email.php'));
 
         Route::prefix(self::API_V1_PREFIX)
