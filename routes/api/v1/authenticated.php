@@ -32,9 +32,6 @@ Route::prefix("roles")->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
-
-    // Role API resource
-    Route::apiResource('/', RoleAPIController::class);
 });
 
 
@@ -64,7 +61,4 @@ Route::prefix("users")->group(function () {
     // User bulk delete
     Route::delete('/bulk-delete', [UserAPIController::class, 'bulkDestroy'])
         ->name('users.bulk-delete');
-
-    // User API resource
-    Route::apiResource('/', UserAPIController::class);
 });
