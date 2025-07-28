@@ -12,7 +12,8 @@ use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\User;
 
 class EventController extends Controller
-{   
+{
+    private const EVENT_NOT_FOUND = "Event not found";
     use ApiResponse;
     /**
      * Display a listing of the resource.
@@ -72,7 +73,7 @@ class EventController extends Controller
             if(!$event){
                 return $this->formatErrorResponse(
                     code: "NOT_FOUND",
-                    message: "Event not found",
+                    message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
             }
@@ -99,7 +100,7 @@ class EventController extends Controller
             if(!$event){
                 return $this->formatErrorResponse(
                     code: "NOT_FOUND",
-                    message:"Event not found",
+                    message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
             }
@@ -136,12 +137,13 @@ class EventController extends Controller
             if(!$event){
                 return $this->formatErrorResponse(
                     code: "NOT_FOUND",
-                    message:"Event not found",
+                    message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
             }
 
             $this->authorize('delete', $event);
+            $event->delete();
             return $this->formatSuccessResponse(
                 message: "Event successfully deleted",
                 data: [

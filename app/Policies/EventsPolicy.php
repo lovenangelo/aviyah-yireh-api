@@ -45,7 +45,7 @@ class EventsPolicy
      */
     public function delete(User $user, Events $events): bool
     {
-        return $user->id === $events->author_id;
+        return $user->id === $events->author_id || $user->hasRole('admin');
     }
 
     /**
@@ -61,6 +61,6 @@ class EventsPolicy
      */
     public function forceDelete(User $user, Events $events): bool
     {
-        return $user->id === $events->author_id;
+        return $user->id === $events->author_id || $user->hasRole('admin');
     }
 }
