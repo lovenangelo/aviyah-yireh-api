@@ -166,9 +166,9 @@ class TrainingMaterialAPIController extends Controller
             $this->authorize("create", self::TRAINING_MATERIAL);
 
             // Rturn file and thumbnail path after storing them
-            $filePath = $request->file('file')->store('training_materials');
+            $filePath = $request->file('file')->store('training_materials', 'public');
             $thumbnailPath = $request->hasFile('thumbnail')
-                ? $request->file('thumbnail')->store('thumbnails')
+                ? $request->file('thumbnail')->store('thumbnails', 'public')
                 : null;
 
             // Finalize the file metadata to store in db
