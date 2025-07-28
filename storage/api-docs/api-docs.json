@@ -1267,51 +1267,78 @@
                 "summary": "Get list of training materials",
                 "description": "Display a listing of the training materials.",
                 "operationId": "0b5ee88e755c2fc3b8e84b44c94c170f",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "sort",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "roles",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of users"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Upload a training material",
+                "description": "Upload a training material",
+                "operationId": "746111b4dba8ed25f7cb72a2adafddb3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "category_id",
+                                    "language_id",
+                                    "title",
+                                    "description",
+                                    "path",
+                                    "thumbnail_path",
+                                    "is_visible",
+                                    "duration"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "thumbnail_path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_visible": {
+                                        "type": "boolean"
+                                    },
+                                    "duration": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Video uploaded successfully."
+                    },
+                    "403": {
+                        "description": "Unauthorized to perform action."
                     }
                 }
             }

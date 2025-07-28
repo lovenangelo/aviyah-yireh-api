@@ -52,13 +52,39 @@ class TrainingMaterialAPIController extends Controller
      *     path="/api/v1/training-materials",
      *     summary="Upload a training material",
      *     tags={"Training Materials"},
-     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="sort", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="roles", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Video uploaded successfully.")
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 required={"user_id", "category_id", "language_id", "title", "description", "path", "thumbnail_path", "is_visible", "duration"},
+     *                 @OA\Property(property="user_id", type="integer"),
+     *                 @OA\Property(property="category_id", type="integer"),
+     *                 @OA\Property(property="language_id", type="integer"),
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="path", type="string", format="binary"),
+     *                 @OA\Property(property="thumbnail_path", type="string", format="binary"),
+     *                 @OA\Property(property="is_visible", type="boolean"),
+     *                 @OA\Property(property="duration", type="string", format="date")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Video uploaded successfully."),
      *     @OA\Response(response=403, description="Unauthorized to perform action.")
      * )
      */
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            // Check if user is authorized
+            $this->authorize("create", self::TRAINING_MATERIAL);
+
+            $trainingMaterial = $this->trainingMaterialRepository->upload($request->all());
+
+            return $this->formatSuccessResponse($trainingMaterial, "Video uploaded successfully!", 201, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request);
+        }
+    }
 }

@@ -16,7 +16,7 @@ class TrainingMaterialRepository
     return TrainingMaterial::find($id);
   }
 
-  public function create(array $data)
+  public function upload(array $data)
   {
     return TrainingMaterial::create($data);
   }
