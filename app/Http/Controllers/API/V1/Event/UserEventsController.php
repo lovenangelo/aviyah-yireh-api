@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Repositories\EventRepository;
 
 
 class UserEventsController extends Controller
@@ -20,7 +21,6 @@ class UserEventsController extends Controller
             
             $this->authorize('viewAny', User::find($id));
             $userEvents = User::with('events')->select('id', 'name')->has('events')->get();
-          
 
             return $this->formatSuccessResponse(
                 data: $userEvents

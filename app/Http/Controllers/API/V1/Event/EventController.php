@@ -9,24 +9,32 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
+use App\Repositories\EventRepository;
 use App\Models\User;
+
 
 class EventController extends Controller
 {
     private const EVENT_NOT_FOUND = "Event not found";
     use ApiResponse;
+
+    public function __construct(EventRepository $eventRepository){
+        $this->eventRepository = $eventRepository;
+    }
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            $event = Events::all();
+            $event =  $this->eventRepository->getEvents();
             return $this->formatSuccessResponse(
                 data: $event
             );
         } catch (\Throwable $th) {
-           return $this->handleApiExeception($th, $request, 'Show Events');
+           return $this->handleApiException($th, $request, 'Show Events');
         }
 
     }
@@ -37,20 +45,12 @@ class EventController extends Controller
     public function store(StoreEventRequest $request): JsonResponse
     {
         try {
-            if (!auth()->check()) {
-                return $this->handleAuthorizationError($request);
-            }
+            
+
             $this->authorize('create', Events::class);
 
-            $event = Events::create([
-                'title' => $request->title,
-                'description' => $request->description,
-                'location' => $request->location,
-                'start_at' => $request->start_at,
-                'end_at' => $request->end_at,
-                'author_id' => auth()->id(),
-            ]);
-
+            $event = $this->eventRepository->storeEvents($request);
+    
 
             return $this->formatSuccessResponse(
                 message: "Event created successfully",
@@ -69,7 +69,8 @@ class EventController extends Controller
     {
         try {
             
-            $event = Events::find($id);
+            $event = $this->eventRepository->find($id);
+
             if(!$event){
                 return $this->formatErrorResponse(
                     code: "NOT_FOUND",
@@ -95,7 +96,7 @@ class EventController extends Controller
     public function update(UpdateEventRequest $request,  $id)
     {
         try {
-            $event = Events::find($id);
+            $event = $this->eventRepository->find($id);
 
             if(!$event){
                 return $this->formatErrorResponse(
@@ -105,17 +106,15 @@ class EventController extends Controller
                 );
             }
 
-            $lastEventTitle = $event->title;
-
             $this->authorize('update', $event);
 
            
-            $event->update($request->all());
+            $this->eventRepository->update($request->all(), $event->id);
 
             return $this->formatSuccessResponse(
                 message: "Event update successfully",
                 data: [
-                    "updatedEvent"=>$lastEventTitle,
+                    "eventId"=>$event->id,
                     "changes" => $request->all()
                 ]
             );
@@ -132,7 +131,7 @@ class EventController extends Controller
     {
         try {
         
-            $event = Events::find($id);
+            $event = $this->eventRepository->find($id);
 
             if(!$event){
                 return $this->formatErrorResponse(
@@ -143,11 +142,16 @@ class EventController extends Controller
             }
 
             $this->authorize('delete', $event);
-            $event->delete();
+            
+            $this->eventRepository->delete($event->id);
+            
             return $this->formatSuccessResponse(
                 message: "Event successfully deleted",
                 data: [
-                    "deletedEvent"=>$event->title
+                    "deletedEvent" =>[
+                        "id" => $event->id,
+                        "title"=>$event->title
+                    ]
                 ]
                 );
 
