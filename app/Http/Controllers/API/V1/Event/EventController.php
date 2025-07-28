@@ -29,7 +29,21 @@ class EventController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $event =  $this->eventRepository->getEvents();
+            $filters = $request->only([
+                'title',
+                'location',
+                'start_at',
+                'end_at',
+                'author_id'
+            ]);
+
+            if($filters){
+                $event = $this->eventRepository->getFilter($filters);
+            }
+            else{
+                $event =  $this->eventRepository->getEvents();
+            }
+           
             return $this->formatSuccessResponse(
                 data: $event
             );

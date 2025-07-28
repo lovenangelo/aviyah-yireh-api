@@ -57,6 +57,10 @@ class EventRepository extends BaseRepository {
         return $user;
     }
 
+    public function getFilter($filters){
+       return $this->model->filter($filters)->get();
+    }
+
 
 
 }
