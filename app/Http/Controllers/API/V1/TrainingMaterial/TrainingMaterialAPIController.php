@@ -133,9 +133,12 @@ class TrainingMaterialAPIController extends Controller
                 return $this->formatErrorResponse("404", "Training material not found.", [], 400);
             }
 
-            $trainingMaterial->update($request->all());
+            // Prepare update data
+            $data = $request->all();
 
-            return $this->formatSuccessResponse($trainingMaterial, "Training material updated successfully!", 200, $request);
+            $this->trainingMaterialRepository->update($data, $id);
+
+            return $this->formatSuccessResponse($data, "Training material updated successfully!", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
