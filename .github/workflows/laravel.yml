@@ -1,0 +1,56 @@
+name: Auto Deploy to Ubuntu Server
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    
+    # Only run on push to main or when PR is merged to main
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to Ubuntu Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          # Navigate to your project directory
+          cd ${{ secrets.PROJECT_PATH }}
+          
+          # Pull latest changes
+          echo "Pulling latest changes from main branch..."
+          git fetch origin
+          git reset --hard origin/main
+          git pull origin main
+
+          # For PHP projects:
+          composer install --no-dev --optimize-autoloader
+          
+          # Restart services (uncomment and modify as needed)
+          sudo systemctl restart nginx
+          
+          echo "Deployment completed successfully!"
+          
+    - name: Notify on Success
+      if: success()
+      run: |
+        echo "✅ Deployment to server completed successfully!"
+        
+    - name: Notify on Failure
+      if: failure()
+      run: |
+        echo "❌ Deployment failed!"
+        exit 1
