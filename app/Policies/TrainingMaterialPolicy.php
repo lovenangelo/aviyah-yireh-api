@@ -2,14 +2,14 @@
 
 namespace App\Policies;
 
-use App\Models\Role;
+use App\Models\TrainingMaterial;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class TrainingMaterialPolicy
 {
   /**
-   * Determine whether the user can view any models.
+   * Determine whether the user can view any training material
    */
   public function viewAny(User $user): bool
   {
@@ -17,7 +17,7 @@ class TrainingMaterialPolicy
   }
 
   /**
-   * Determine whether the user can view the model.
+   * Determine whether the user can view the training material
    */
   public function view(User $user): bool
   {
@@ -25,7 +25,7 @@ class TrainingMaterialPolicy
   }
 
   /**
-   * Determine whether the user can create models.
+   * Determine whether the user can create training materials
    */
   public function create(User $user): bool
   {
@@ -33,9 +33,9 @@ class TrainingMaterialPolicy
   }
 
   /**
-   * Determine whether the user can update the model.
+   * Determine whether the user can update video material
    */
-  public function update(User $user): bool
+  public function update(User $user, TrainingMaterial $material): bool
   {
     return $user->hasRole('admin');
   }
@@ -43,10 +43,10 @@ class TrainingMaterialPolicy
   /**
    * Determine whether the user can delete the model.
    */
-  public function delete(User $user, Role $model): bool
+  public function delete(User $user, TrainingMaterial $material): bool
   {
-    // Admin can delete roles but not if they have associated users
-    return $user->hasRole('admin') && $model->users()->count() === 0;
+    // Admin can delete training materials but not if they have associated users
+    return $user->hasRole('admin') && $material->users()->count() === 0;
   }
 
   /**
@@ -61,18 +61,18 @@ class TrainingMaterialPolicy
   /**
    * Determine whether the user can restore the model.
    */
-  public function restore(User $user, Role $model): bool
+  public function restore(User $user, TrainingMaterial $material): bool
   {
-    // Only admin can restore roles
+    // Only admin can restore video materials
     return $user->hasRole('admin');
   }
 
   /**
    * Determine whether the user can permanently delete the model.
    */
-  public function forceDelete(User $user, Role $model): bool
+  public function forceDelete(User $user, TrainingMaterial $material): bool
   {
-    // Only admin can force delete roles without associated users
-    return $user->hasRole('admin') && $model->users()->count() === 0;
+    // Only admin can force delete video materials without associated users
+    return $user->hasRole('admin') && $material->users()->count() === 0;
   }
 }
