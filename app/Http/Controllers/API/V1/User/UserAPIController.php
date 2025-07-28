@@ -7,13 +7,14 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\User\UserStoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\BulkDestroyUsersRequest;
+use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserAvatarRequest;
-use Illuminate\Http\UploadedFile;
 use App\Traits\ApiResponse;
+use Illuminate\Http\UploadedFile;
+
 /**
  * @OA\Tag(
  *     name="Users",
@@ -52,7 +53,7 @@ class UserAPIController extends Controller
     {
 
         try {
-             // Check if user has permission to view all users
+            // Check if user has permission to view all users
             $this->authorize('viewAny', self::USER);
 
             $filters = $request->only([
@@ -76,11 +77,9 @@ class UserAPIController extends Controller
             return $this->formatSuccessResponse(
                 data: $users
             );
-
         } catch (\Throwable $th) {
-             return $this->handleApiException($th, $request, 'Show Users');
+            return $this->handleApiException($th, $request, 'Show Users');
         }
-        
     }
 
     /**
@@ -114,15 +113,13 @@ class UserAPIController extends Controller
             return $this->formatSuccessResponse(
                 message: 'User created successfully. A password reset email has been sent. Please advice the user to reset their password.',
                 data: [
-                    'user'=> $user
+                    'user' => $user
                 ],
                 statusCode: 201
             );
-
         } catch (\Throwable $th) {
-           return $this->handleApiException($th, $request, 'Create User');
+            return $this->handleApiException($th, $request, 'Create User');
         }
-        
     }
 
     /**
@@ -146,8 +143,9 @@ class UserAPIController extends Controller
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
-                        message: self::USER_NOT_FOUND,
-                        statusCode: 404
+                    code: 'USER_NOT_FOUND',
+                    message: self::USER_NOT_FOUND,
+                    statusCode: 404
                 );
             }
 
@@ -163,7 +161,6 @@ class UserAPIController extends Controller
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Get User Details');
         }
-        
     }
 
     /**
@@ -192,12 +189,13 @@ class UserAPIController extends Controller
     {
 
         try {
-             // Get user
+            // Get user
             $user = $this->userRepository->find($id);
 
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_FOUND',
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -215,14 +213,12 @@ class UserAPIController extends Controller
             return $this->formatSuccessResponse(
                 message: "User updated successfully",
                 data: [
-                    'user'=> $this->userRepository->find($user->id)
+                    'user' => $this->userRepository->find($user->id)
                 ]
             );
-
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Update User');
         }
-       
     }
 
     /**
@@ -231,12 +227,13 @@ class UserAPIController extends Controller
     public function updateProfile(UpdateUserRequest $request, ?int $id = null): JsonResponse
     {
         try {
-             // Get user
+            // Get user
             $user = $id ? $this->userRepository->find($id) : Auth::user();
 
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_FOUND',
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -254,16 +251,12 @@ class UserAPIController extends Controller
             return $this->formatSuccessResponse(
                 message: "User updated successfully",
                 data: [
-                    'user'=> $this->userRepository->find($user->id)
+                    'user' => $this->userRepository->find($user->id)
                 ]
             );
-
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Update Profile');
-
         }
-       
-        
     }
 
     /**
@@ -278,6 +271,7 @@ class UserAPIController extends Controller
             // Check if user is authenticated
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 404
                 );
@@ -292,12 +286,9 @@ class UserAPIController extends Controller
             return $this->formatSuccessResponse(
                 message: "Password updated successfully"
             );
-
         } catch (\Throwable $th) {
-           return $this->handleApiException($th, $request, 'Update Password');
+            return $this->handleApiException($th, $request, 'Update Password');
         }
-
-        
     }
 
     /**
@@ -312,10 +303,10 @@ class UserAPIController extends Controller
      *     @OA\Response(response=404, description="User not found")
      * )
      */
-    public function destroy( Request $request, $id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
         try {
-           // Get authenticated user
+            // Get authenticated user
             $user = Auth::user();
 
             // Get user to delete
@@ -323,6 +314,7 @@ class UserAPIController extends Controller
 
             if (!$userToDelete) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_FOUND',
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -341,7 +333,6 @@ class UserAPIController extends Controller
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Delete User');
         }
-        
     }
 
     /**
@@ -364,7 +355,7 @@ class UserAPIController extends Controller
     public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
     {
         try {
-                // Get authenticated user
+            // Get authenticated user
             $user = Auth::user();
 
             // Check if user has permission to bulk delete users
@@ -380,18 +371,16 @@ class UserAPIController extends Controller
                 message: $result['deleted'] . ' users deleted successfully',
                 data: [
                     'deleted' => $result['deleted'],
-                    'failed'=> $result['failed'],
+                    'failed' => $result['failed'],
                     'total_attempted' => $result['attempted'],
-                    'self_delete_attempt' => $result['self_delete_attempt'] 
+                    'self_delete_attempt' => $result['self_delete_attempt']
                         ? 'Self-deletion was attempted and skipped'
-                        :null
+                        : null
                 ]
             );
-
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Delete Multiple Users');
         }
-        
     }
 
     /**
@@ -403,41 +392,49 @@ class UserAPIController extends Controller
             // Get authenticated user
             $user = Auth::user();
 
+            $response = $this->formatErrorResponse(
+                code: 'UNKNOWN_ERROR_ON_AVATAR_UPLOAD',
+                message: "An unknown error occurred while uploading the avatar.",
+                statusCode: 500
+            );
+
             // Check if user is authenticated
             if (!$user) {
-                return $this->formatErrorResponse(
+                $response = $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 401
                 );
+            } else {
+                // Check if user has permission to update their avatar
+                $this->authorize('update', $user);
+
+                // Upload avatar
+                /** @var UploadedFile $avatarFile */
+                $avatarFile = $request->file('avatar');
+                if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
+                    $response = $this->formatErrorResponse(
+                        code: 'AVATAR_FILE_REQUIRED',
+                        message: "Avatar file is required",
+                        statusCode: 400
+                    );
+                } else {
+                    $avatar = $this->userRepository->updateAvatar($user->id, $avatarFile);
+
+                    $response = $this->formatSuccessResponse(
+                        message: $avatar['message'],
+                        statusCode: $avatar['status'],
+                        data: [
+                            'avatar_url' =>  $avatar['avatar_url'] ?? null
+                        ]
+                    );
+                }
             }
 
-            // Check if user has permission to update their avatar
-            $this->authorize('update', $user);
-
-            // Upload avatar
-            /** @var UploadedFile $avatarFile */
-            $avatarFile = $request->file('avatar');
-            if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
-                return $this->formatErrorResponse(
-                    message: "Avatar file is required",
-                    statusCode: 400
-                );
-            }
-
-            $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
-
-            return $this->formatSuccessResponse(
-                message: $result['message'],
-                statusCode: $result['status'],
-                data: [
-                    'avatar_url' =>  $result['avatar_url']?? null
-                ]
-            );
+            return $response;
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Upload Avatar');
         }
-        
-
     }
 
     /**
@@ -446,16 +443,16 @@ class UserAPIController extends Controller
     public function deleteAvatar(Request $request): JsonResponse
     {
         try {
-                // Get authenticated user
+            // Get authenticated user
             $user = Auth::user();
 
             // Check if user is authenticated
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 401
                 );
-                
             }
 
             // Check if user has permission to update their avatar
@@ -464,13 +461,12 @@ class UserAPIController extends Controller
             // Delete avatar
             $result = $this->userRepository->deleteAvatar($user->id);
 
-        
+
             return $this->formatSuccessResponse(
-                message:$result['message']
+                message: $result['message']
             );
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Delete Avatar');
         }
-        
     }
 }
