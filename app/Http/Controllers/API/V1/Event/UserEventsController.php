@@ -22,12 +22,6 @@ class UserEventsController extends Controller
             $userEvents = User::with('events')->select('id', 'name')->has('events')->get();
           
 
-            if($userEvents->isEmpty()){
-                return $this->formatSuccessResponse(
-                    message: "No Events created"
-                );
-            }
-
             return $this->formatSuccessResponse(
                 data: $userEvents
             );
