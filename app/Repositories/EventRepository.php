@@ -31,7 +31,7 @@ class EventRepository extends BaseRepository {
 
     public function storeEvents($input):Events
     {
-        $event =  $this->model->create(
+       return $this->model->create(
             [
                 'title' => $input->title,
                 'description' => $input->description,
@@ -42,19 +42,19 @@ class EventRepository extends BaseRepository {
             ]
             );
 
-        return $event;
+ 
     }
 
     public function allUserEvents()
     {
-        $userEvents = User::with('events')>select('id', 'name')->has('events')->get();
-        return $userEvents;
+        return  User::with('events')>select('id', 'name')->has('events')->get();
+        
     }
 
     public function showUserEvent($id)
-    {   
-        $user = User::with('events')->select('id', 'name')->where('id', $id)->first();
-        return $user;
+    {
+        return User::with('events')->select('id', 'name')->where('id', $id)->first();
+      
     }
 
     public function getFilter($filters){
