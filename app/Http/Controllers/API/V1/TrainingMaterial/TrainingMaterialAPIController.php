@@ -165,9 +165,29 @@ class TrainingMaterialAPIController extends Controller
             // Check if user is authorized
             $this->authorize("create", self::TRAINING_MATERIAL);
 
-            $trainingMaterial = $this->trainingMaterialRepository->upload($request->all());
+            // Rturn file and thumbnail path after storing them
+            $filePath = $request->file('file')->store('training_materials');
+            $thumbnailPath = $request->hasFile('thumbnail')
+                ? $request->file('thumbnail')->store('thumbnails')
+                : null;
 
-            return $this->formatSuccessResponse($trainingMaterial, "Training material uploaded successfully!", 201, $request);
+            // Finalize the file metadata to store in db
+            $data = [
+                'user_id' => $request->user_id,
+                'category_id' => $request->category_id,
+                'language_id' => $request->language_id,
+                'expiration_date' => $request->expiration_date,
+                'title' => $request->title,
+                'description' => $request->description,
+                'duration' => $request->duration,
+                'path' => $filePath,
+                'thumbnail_path' => $thumbnailPath,
+            ];
+
+            // Upload the file metadata
+            $this->trainingMaterialRepository->upload($data);
+
+            return $this->formatSuccessResponse($data, "Training material uploaded successfully!", 201, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
