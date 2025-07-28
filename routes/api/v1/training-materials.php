@@ -9,4 +9,7 @@ Route::prefix("training-materials")->group(function () {
 
   // Upload training material
   Route::post("/", [TrainingMaterialAPIController::class, 'store'])->name("upload.training.materials");
+
+  // Edit training material
+  Route::put("/{id}", [TrainingMaterialAPIController::class, 'update'])->name("edit.training.material");
 });

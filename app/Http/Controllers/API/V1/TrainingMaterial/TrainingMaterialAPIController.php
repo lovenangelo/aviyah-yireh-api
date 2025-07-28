@@ -66,11 +66,12 @@ class TrainingMaterialAPIController extends Controller
      *                 @OA\Property(property="path", type="string", format="binary"),
      *                 @OA\Property(property="thumbnail_path", type="string", format="binary"),
      *                 @OA\Property(property="is_visible", type="boolean"),
-     *                 @OA\Property(property="duration", type="string", format="date")
+     *                 @OA\Property(property="duration", type="integer"),
+     *                 @OA\Property(property="expiration_date", type="string", format="date")
      *             )
      *         )
      *     ),
-     *     @OA\Response(response=201, description="Video uploaded successfully."),
+     *     @OA\Response(response=201, description="Training material uploaded successfully!"),
      *     @OA\Response(response=403, description="Unauthorized to perform action.")
      * )
      */
@@ -82,7 +83,59 @@ class TrainingMaterialAPIController extends Controller
 
             $trainingMaterial = $this->trainingMaterialRepository->upload($request->all());
 
-            return $this->formatSuccessResponse($trainingMaterial, "Video uploaded successfully!", 201, $request);
+            return $this->formatSuccessResponse($trainingMaterial, "Training material uploaded successfully!", 201, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request);
+        }
+    }
+
+    /**
+     * Upload a training material
+     *
+     * @OA\Put(
+     * path="/api/v1/training-materials/{id}",
+     *     summary="Edit a training material",
+     *     tags={"Training Materials"},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 required={"user_id", "category_id", "language_id", "title", "description", "path", "thumbnail_path", "is_visible", "duration"},
+     *                 @OA\Property(property="user_id", type="integer"),
+     *                 @OA\Property(property="category_id", type="integer"),
+     *                 @OA\Property(property="language_id", type="integer"),
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="path", type="string", format="binary"),
+     *                 @OA\Property(property="thumbnail_path", type="string", format="binary"),
+     *                 @OA\Property(property="is_visible", type="boolean"),
+     *                 @OA\Property(property="duration", type="string", format="date")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Training material updated successfully!"),
+     *     @OA\Response(response=403, description="Unauthorized to perform action."),
+     *     @OA\Response(response=404, description="Training material not found."),
+     * )
+     */
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            // Check if user is authorized
+            $this->authorize("update", self::TRAINING_MATERIAL);
+
+            $trainingMaterial = $this->trainingMaterialRepository->find($id);
+
+            // Check if trainng material exists
+            if (!$trainingMaterial) {
+                return $this->formatErrorResponse("404", "Training material not found.", [], 400);
+            }
+
+            $trainingMaterial->update($request->all());
+
+            return $this->formatSuccessResponse($trainingMaterial, "Training material updated successfully!", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }

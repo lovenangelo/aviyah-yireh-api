@@ -21,9 +21,9 @@ class TrainingMaterialRepository
     return TrainingMaterial::create($data);
   }
 
-  public function update(TrainingMaterial $trainingMaterial, array $data)
+  public function update(array $data)
   {
-    return $trainingMaterial->update($data);
+    return TrainingMaterial::update($data);
   }
 
   public function delete(TrainingMaterial $trainingMaterial)

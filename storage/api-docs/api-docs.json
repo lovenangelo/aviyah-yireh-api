@@ -1324,6 +1324,9 @@
                                         "type": "boolean"
                                     },
                                     "duration": {
+                                        "type": "integer"
+                                    },
+                                    "expiration_date": {
                                         "type": "string",
                                         "format": "date"
                                     }
@@ -1335,10 +1338,94 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Video uploaded successfully."
+                        "description": "Training material uploaded successfully!"
                     },
                     "403": {
                         "description": "Unauthorized to perform action."
+                    }
+                }
+            }
+        },
+        "/api/v1/training-materials/{id}": {
+            "put": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Edit a training material",
+                "description": "Upload a training material",
+                "operationId": "13ceeb6dfe7c8a1692ce59f85db6fb0f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "category_id",
+                                    "language_id",
+                                    "title",
+                                    "description",
+                                    "path",
+                                    "thumbnail_path",
+                                    "is_visible",
+                                    "duration"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "thumbnail_path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_visible": {
+                                        "type": "boolean"
+                                    },
+                                    "duration": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Training material updated successfully!"
+                    },
+                    "403": {
+                        "description": "Unauthorized to perform action."
+                    },
+                    "404": {
+                        "description": "Training material not found."
                     }
                 }
             }
