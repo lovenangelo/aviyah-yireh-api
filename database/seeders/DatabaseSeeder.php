@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Events;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -43,5 +44,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make($password),
             'role_id' => $userRole->id,
         ]);
+
+         $this->call(EventsSeeder::class);
+
     }
 }
