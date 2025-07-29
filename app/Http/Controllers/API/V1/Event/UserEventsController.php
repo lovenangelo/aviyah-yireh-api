@@ -5,7 +5,7 @@ use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Repositories\EventRepository;
+
 
 
 class UserEventsController extends Controller

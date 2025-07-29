@@ -12,6 +12,13 @@ use App\Http\Requests\Event\UpdateEventRequest;
 use App\Repositories\EventRepository;
 use App\Models\User;
 
+/**
+ * @OA\Tag(
+ *     name="Events",
+ *     description="Endpoints for managing events, including CRUD operations and retrieving events associated with users."
+ * )
+ */
+
 
 class EventController extends Controller
 {
@@ -25,6 +32,19 @@ class EventController extends Controller
 
     /**
      * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/api/v1/event",
+     *     summary="Get list of events",
+     *     security={{"bearer_token":{}}},
+     *     tags={"Events"},
+     *     @OA\Parameter(name="title", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="location", in="query", required=false, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="start_at", in="query", required=false, @OA\Schema(type="string",format="date-time")),
+     *     @OA\Parameter(name="end_at", in="query", required=false, @OA\Schema(type="string",format="date-time")),
+     *     @OA\Parameter(name="author_id", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="List of events")
+     * )
      */
     public function index(Request $request): JsonResponse
     {
@@ -55,6 +75,25 @@ class EventController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * @OA\Post(
+     *  path="/api/v1/event",
+     *  summary="Create Event",
+     *  security={{"bearer_token":{}}},
+     *  tags={"Events"},
+     *  @OA\RequestBody(
+     *      required=true,
+     *      @OA\JsonContent(
+     *          required={"title", "description","location", "start_at", "end_at"},
+     *          @OA\Property(property="title", type="string"),
+     *          @OA\Property(property="description", type="string"),
+     *          @OA\Property(property="location", type="string"),
+     *          @OA\Property(property="start_at", type="string", format="date-time"),
+     *          @OA\Property(property="end_at", type="string", format="date-time")
+     *      )
+     * ),
+     * @OA\Response(response=201, description="Event created successfully"),
+     * 
+     * )
      */
     public function store(StoreEventRequest $request): JsonResponse
     {
@@ -78,6 +117,15 @@ class EventController extends Controller
 
     /**
      * Display the specified resource.
+     * @OA\Get(
+     * path="/api/v1/event/{id}",
+     * summary="Get an event by ID",
+     * security={{"bearer_token":{}}},
+     * tags={"Events"},
+     * @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     * @OA\Response(response=200, description="Event Details"),
+     * @OA\Response(response=404, description="Event not found")
+     * )
      */
     public function show($id, Request $request): JsonResponse
     {
@@ -106,6 +154,27 @@ class EventController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @OA\Put(
+     *  path="/api/v1/event/{id}",
+     *  summary="Update an Event",
+     *  tags={"Events"},
+     * security={{"bearer_token":{}}},
+     * @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *  @OA\RequestBody(
+     *      required=true,
+     *      @OA\JsonContent(
+     *          required={},
+     *          @OA\Property(property="title", type="string"),
+     *          @OA\Property(property="description", type="string"),
+     *          @OA\Property(property="location", type="string"),
+     *          @OA\Property(property="start_at", type="string", format="date-time"),
+     *          @OA\Property(property="end_at", type="string", format="date-time")
+     *         )
+     *      ),
+     * @OA\Response(response=200, description="Event updated successfully"),
+     * @OA\Response(response=404, description="Event not found")
+     * 
+     * )
      */
     public function update(UpdateEventRequest $request,  $id)
     {
@@ -140,6 +209,17 @@ class EventController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @OA\Delete(
+     * path="/api/v1/event/{id}",
+     * summary="Delete an Event by ID",
+     * tags={"Events"},
+     * security={{"bearer_token":{}}},
+     * @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     * @OA\Response(response=200, description="Event deleted successfully. Contains details of the deleted event"),
+     * @OA\Response(response=404, description="Event not found")
+     * 
+     * 
+     * )
      */
     public function destroy($id, Request $request)
     {
