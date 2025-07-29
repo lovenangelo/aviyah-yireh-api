@@ -80,7 +80,7 @@ class TrainingMaterialRepository
 
   public function find($id)
   {
-    return TrainingMaterial::find($id);
+    return TrainingMaterial::with(['category', 'language', 'user'])->where("id", $id)->first();
   }
 
   public function upload(array $data)
