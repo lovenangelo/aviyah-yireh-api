@@ -23,7 +23,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * )
  *
  *
- * @OAS\SecurityScheme(
+ * @OA\SecurityScheme(
  *      securityScheme="bearer_token",
  *      type="http",
  *      scheme="bearer"

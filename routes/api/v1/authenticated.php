@@ -7,6 +7,9 @@ use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\API\V1\Event\EventController;
+use App\Http\Controllers\API\V1\Event\UserEventsController;
+
 // Logout
 Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
     ->name('api.verification.send');
@@ -63,4 +66,18 @@ Route::prefix("users")->group(function () {
     // User bulk delete
     Route::delete('/bulk-delete', [UserAPIController::class, 'bulkDestroy'])
         ->name('users.bulk-delete');
+});
+
+Route::prefix("event")->group(function(){
+    $eventIdRoute = "/{id}";
+    
+    Route::get('/users', [UserEventsController::class, 'index'])->name('users.events.list');
+    Route::get('/user/{id}', [UserEventsController::class, 'show'])->name('user.event.retrieve');
+    
+    Route::match(['put', 'patch'],'/bulk-delete', [EventController::class, 'bulkDestroy'])->name('event.bulk.delete');
+    Route::match(['put', 'patch'], $eventIdRoute, [EventController::class, 'update'])->name('event.update');
+
+    Route::get($eventIdRoute, [EventController::class, 'show'])->name('event.retrieve');
+    Route::delete($eventIdRoute,[EventController::class, 'destroy'])->name('event.delete');
+    Route::apiResource('/', EventController::class);
 });
