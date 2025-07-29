@@ -13,6 +13,13 @@ class UserEventsController extends Controller
     use ApiResponse;
     /**
      * Display all users and their associated created events
+     * @OA\Get(
+     * path="/api/v1/event/users",
+     * summary="List all users who have created events",
+     * tags={"Events"},
+     * security={{"bearer_token":{}}},
+     * @OA\Response(response=200, description="List users with their created events")
+     * )
      */
     public function index(Request $request)
     {
@@ -35,6 +42,15 @@ class UserEventsController extends Controller
 
     /**
      * Display specific user and their associated created events
+     * @OA\Get(
+     * path="/api/v1/event/user/{id}",
+     * summary="Get a specific User  with their events",
+     * tags={"Events"},
+     * security={{"bearer_token":{}}},
+     * @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     * @OA\Response(response=200, description="User with events details"),
+     * @OA\Response(response=404, description="User not found")
+     * )
      */
     public function show($id, Request $request)
     {
