@@ -47,19 +47,20 @@ trait ApiResponse
      */
     protected function handleApiException(\Throwable $e, Request $request, string $context = 'operation'): JsonResponse
     {
+        $response = $this->handleGeneralError($e, $request, $context);
+
         if ($e instanceof ValidationException) {
-            return $this->handleValidationError($e, $request);
+            $response = $this->handleValidationError($e, $request);
         }
 
         if ($e instanceof QueryException) {
-            return $this->handleDatabaseError($e, $request, $context);
+            $response = $this->handleDatabaseError($e, $request, $context);
         }
 
         if ($e instanceof AuthorizationException) {
-            return $this->handleAuthorizationError($e, $request);
+            $response = $this->handleAuthorizationError($e, $request);
         }
-
-        return $this->handleGeneralError($e, $request, $context);
+        return $response;
     }
 
     /**

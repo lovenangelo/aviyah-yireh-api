@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Mail\BrevoMail;
 use Laravel\Sanctum\HasApiTokens;
-use App\Notifications\VerifyEmail;
 use App\Notifications\TwoFactorCode;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +60,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'two_factor_code',
         'two_factor_expires_at',
+        'email_verification_code',
+        'email_verification_code_expires_at',
     ];
 
     /**
@@ -83,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
             'two_factor_expires_at' => 'datetime',
+            'email_verification_code_expires_at' => 'datetime',
         ];
     }
 
@@ -118,6 +121,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Generate a email verification code for the user.
+     *
+     * @return string
+     */
+    public function generateEmailVerificationCode(): string
+    {
+        // Generate a random 6-digit code
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Save the code and set expiration time (10 minutes from now)
+        $this->email_verification_code = $code;
+        $this->email_verification_code_expires_at = now()->addMinutes(10);
+        $this->save();
+
+        return $code;
+    }
+
+    /**
      * Reset the two-factor authentication code.
      *
      * @return void
@@ -126,6 +147,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->two_factor_code = null;
         $this->two_factor_expires_at = null;
+        $this->save();
+    }
+
+
+    /**
+     * Reset the email verification authentication code.
+     *
+     * @return void
+     */
+    public function resetEmailVerificationCode(): void
+    {
+        $this->email_verification_code = null;
+        $this->email_verification_code_expires_at = null;
         $this->save();
     }
 
@@ -152,6 +186,31 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return false;
     }
+
+    /**
+     * Verify if the provided two-factor authentication code is valid.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function verifyEmailVerificationCode(string $code): bool
+    {
+        // Check if code matches and has not expired
+        if (
+            $this->email_verification_code === $code &&
+            $this->email_verification_code_expires_at &&
+            now()->lt($this->email_verification_code_expires_at)
+        ) {
+
+            // Reset the code after successful verification
+            $this->resetEmailVerificationCode();
+
+            return true;
+        }
+
+        return false;
+    }
+
 
     /**
      * Scope a query to filter the users.
@@ -247,6 +306,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new VerifyEmail());
+        $details = [
+            'code' => $this->generateEmailVerificationCode(),
+            'name' => $this->name,
+        ];
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new BrevoMail($details));
     }
 }
