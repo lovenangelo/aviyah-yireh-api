@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponse;
 use App\Repositories\TrainingMaterialRepository;
+use getID3;
 
 /**
  * @OA\Tag(
@@ -14,9 +15,12 @@ use App\Repositories\TrainingMaterialRepository;
  *     description="Endpoints for managing training materials, including CRUD operations and sorting actions"
  * )
  */
+
+
 class TrainingMaterialAPIController extends Controller
 {
     use ApiResponse;
+
     private const TRAINING_MATERIAL = 'App\Models\TrainingMaterial';
     private TrainingMaterialRepository $trainingMaterialRepository;
 
@@ -162,6 +166,8 @@ class TrainingMaterialAPIController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
+            $getID3 = new getID3();
+            $duration = null;
             // Check if user is authorized
             $this->authorize("create", self::TRAINING_MATERIAL);
 
@@ -171,6 +177,13 @@ class TrainingMaterialAPIController extends Controller
                 ? $request->file('thumbnail')->store('thumbnails', 'public')
                 : null;
 
+            // Get the file type and the duration if filetype is video or audio
+            $fileType = $request->file('file')->getClientMimeType();
+            if (str_starts_with($fileType, 'video') || str_starts_with($fileType, 'audio')) {
+                $info = $getID3->analyze(storage_path("app/public/{$filePath}"));
+                $duration = $info['playtime_seconds'] ?? null;
+            }
+
             // Finalize the file metadata to store in db
             $data = [
                 'user_id' => $request->user_id,
@@ -179,7 +192,7 @@ class TrainingMaterialAPIController extends Controller
                 'expiration_date' => $request->expiration_date,
                 'title' => $request->title,
                 'description' => $request->description,
-                'duration' => $request->duration,
+                'duration' => $duration,
                 'path' => $filePath,
                 'thumbnail_path' => $thumbnailPath,
             ];
