@@ -20,5 +20,5 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('a
 Route::post('/two-factor/verify', [TwoFactorAuthController::class, 'verify'])->name('api.two-factor.verify');
 
 Route::get('/health', function () {
-    return $this->comment(Inspiring::quote());
+    return Inspiring::quote();
 });

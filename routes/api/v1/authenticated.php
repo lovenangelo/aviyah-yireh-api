@@ -6,8 +6,10 @@ use App\Http\Controllers\API\V1\User\UserAPIController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\API\V1\Event\EventController;
 use App\Http\Controllers\API\V1\Event\UserEventsController;
+
 // Logout
 Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
     ->name('api.verification.send');
@@ -35,9 +37,6 @@ Route::prefix("roles")->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
-
-    // Role API resource
-    Route::apiResource('/', RoleAPIController::class);
 });
 
 

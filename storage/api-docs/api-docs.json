@@ -235,6 +235,7 @@
                     },
                     "422": {
                         "description": "Validation error or rate limit exceeded",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -254,6 +255,7 @@
                                                 }
                                             },
                                             "type": "object"
+
                                         }
                                     },
                                     "type": "object"
@@ -414,6 +416,7 @@
                     },
                     "429": {
                         "description": "Too many requests (throttled)",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -421,6 +424,7 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Too many requests. Please try again later."
+
                                         }
                                     },
                                     "type": "object"
@@ -432,6 +436,7 @@
                 "security": [
                     {
                         "bearer_token": []
+
                     }
                 ]
             }
@@ -446,6 +451,7 @@
                 "operationId": "resetPassword",
                 "requestBody": {
                     "description": "Password reset data",
+
                     "required": true,
                     "content": {
                         "application/json": {
@@ -460,6 +466,7 @@
                                     "token": {
                                         "type": "string",
                                         "example": "reset-token-value"
+
                                     },
                                     "email": {
                                         "type": "string",
@@ -470,11 +477,13 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "newPassword123"
+
                                     },
                                     "password_confirmation": {
                                         "type": "string",
                                         "format": "password",
                                         "example": "newPassword123"
+
                                     }
                                 },
                                 "type": "object"
@@ -485,6 +494,7 @@
                 "responses": {
                     "200": {
                         "description": "Password reset successful",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -492,6 +502,7 @@
                                         "status": {
                                             "type": "string",
                                             "example": "Password reset successfully."
+
                                         }
                                     },
                                     "type": "object"
@@ -501,6 +512,7 @@
                     },
                     "422": {
                         "description": "Validation error or invalid token",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -516,6 +528,7 @@
                                                     "items": {
                                                         "type": "string",
                                                         "example": "This password reset token is invalid."
+
                                                     }
                                                 }
                                             },
@@ -540,6 +553,7 @@
                 "operationId": "sendPasswordResetLink",
                 "requestBody": {
                     "description": "Password reset link request data",
+
                     "required": true,
                     "content": {
                         "application/json": {
@@ -552,6 +566,7 @@
                                         "type": "string",
                                         "format": "email",
                                         "example": "user@example.com"
+
                                     }
                                 },
                                 "type": "object"
@@ -562,6 +577,7 @@
                 "responses": {
                     "200": {
                         "description": "Password reset link sent successfully",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -569,6 +585,7 @@
                                         "status": {
                                             "type": "string",
                                             "example": "We have emailed your password reset link!"
+
                                         }
                                     },
                                     "type": "object"
@@ -578,6 +595,7 @@
                     },
                     "422": {
                         "description": "Validation error or unable to send reset link",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -597,6 +615,7 @@
                                                 }
                                             },
                                             "type": "object"
+
                                         }
                                     },
                                     "type": "object"
@@ -604,7 +623,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
             }
         },
         "/api/v1/register": {
@@ -615,11 +639,13 @@
                 "summary": "Register a new user",
                 "description": "Registers a new user and returns user data and token for token-based requests, or no content for session-based requests.",
                 "operationId": "registerUser",
+
                 "parameters": [
                     {
                         "name": "X-Request-Token",
                         "in": "header",
                         "description": "Header to indicate token-based registration request",
+
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -629,6 +655,7 @@
                 ],
                 "requestBody": {
                     "description": "User registration data",
+
                     "required": true,
                     "content": {
                         "application/json": {
@@ -638,6 +665,7 @@
                                     "email",
                                     "password",
                                     "password_confirmation"
+
                                 ],
                                 "properties": {
                                     "name": {
@@ -658,6 +686,7 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "password123"
+
                                     }
                                 },
                                 "type": "object"
@@ -668,6 +697,7 @@
                 "responses": {
                     "200": {
                         "description": "Registration successful (token-based)",
+
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -700,11 +730,32 @@
                                         "token": {
                                             "type": "string",
                                             "example": "1|abc123def456..."
+
                                         }
                                     },
                                     "type": "object"
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/event": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get list of events",
+                "description": "Display a listing of the resource.",
+                "operationId": "4d0c981bc8f49b164d730e7d431121e7",
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "204": {
@@ -732,12 +783,28 @@
                                             },
                                             "type": "object"
                                         }
+
                                     },
-                                    "type": "object"
-                                }
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "start_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "end_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
+
                 }
             }
         },
@@ -755,9 +822,9 @@
                         "in": "header",
                         "description": "Header to indicate token-based request",
                         "required": false,
+
                         "schema": {
-                            "type": "string",
-                            "example": "true"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -813,12 +880,18 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Unauthenticated."
+
                                         }
-                                    },
-                                    "type": "object"
-                                }
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Users deleted successfully"
                     }
                 },
                 "security": [
@@ -842,9 +915,9 @@
                         "in": "header",
                         "description": "Header to indicate token-based request",
                         "required": false,
+
                         "schema": {
-                            "type": "string",
-                            "example": "true"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -973,6 +1046,7 @@
                         "schema": {
                             "type": "string",
                             "example": "true"
+
                         }
                     }
                 ],
@@ -1039,343 +1113,6 @@
                 }
             }
         },
-        "/api/v1/event": {
-            "get": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get list of events",
-                "description": "Display a listing of the resource.",
-                "operationId": "4d0c981bc8f49b164d730e7d431121e7",
-                "parameters": [
-                    {
-                        "name": "title",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "location",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "start_at",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "name": "end_at",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "name": "author_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of events"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Create Event",
-                "description": "Store a newly created resource in storage.",
-                "operationId": "dbea0e66a6e4d7d945569d0b5641db40",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "title",
-                                    "description",
-                                    "location",
-                                    "start_at",
-                                    "end_at"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "location": {
-                                        "type": "string"
-                                    },
-                                    "start_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "end_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Event created successfully"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/event/{id}": {
-            "get": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get an event by ID",
-                "description": "Display the specified resource.",
-                "operationId": "4b1da355b37ce4e659a4525f725f279d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event Details"
-                    },
-                    "404": {
-                        "description": "Event not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Update an Event",
-                "description": "Update the specified resource in storage.",
-                "operationId": "17259879f98af859a1874f53cab3ec77",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [],
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "location": {
-                                        "type": "string"
-                                    },
-                                    "start_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "end_at": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Event updated successfully"
-                    },
-                    "404": {
-                        "description": "Event not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Delete an Event by ID",
-                "description": "Remove the specified resource from storage.",
-                "operationId": "8a76b64112dcdaf8b4a5ec7080946915",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event deleted successfully. Contains details of the deleted event"
-                    },
-                    "404": {
-                        "description": "Event not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/event/bulk-delete": {
-            "post": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Bulk delete events",
-                "description": "Remove multiple events from storage.",
-                "operationId": "c6f778f4e1ccd0b210688211a327e7b2",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "ids"
-                                ],
-                                "properties": {
-                                    "ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Users deleted successfully"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/event/users": {
-            "get": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "List all users who have created events",
-                "description": "Display all users and their associated created events",
-                "operationId": "92eb335bce95120be149c77e64e4db5c",
-                "responses": {
-                    "200": {
-                        "description": "List users with their created events"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/event/user/{id}": {
-            "get": {
-                "tags": [
-                    "Events"
-                ],
-                "summary": "Get a specific User  with their events",
-                "description": "Display specific user and their associated created events",
-                "operationId": "251e57b00e5e76069111d104dc0f00b9",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "User with events details"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/v1/roles": {
             "get": {
                 "tags": [
@@ -1431,6 +1168,7 @@
                 "summary": "Create a new role",
                 "description": "Store a newly created resource in storage.",
                 "operationId": "78570eacc5af3e103164ae1017c1c1b7",
+
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1479,13 +1217,16 @@
                 ],
                 "responses": {
                     "200": {
+
                         "description": "Role details"
+
                     },
                     "404": {
                         "description": "Role not found"
                     }
                 }
             },
+
             "put": {
                 "tags": [
                     "Roles"
@@ -1493,6 +1234,7 @@
                 "summary": "Update a role",
                 "description": "Update the specified resource in storage.",
                 "operationId": "729a2c68021a0fdfe9de3f3ce6434ca9",
+
                 "parameters": [
                     {
                         "name": "id",
@@ -1527,11 +1269,13 @@
                 "responses": {
                     "200": {
                         "description": "Role updated successfully"
+
                     },
                     "404": {
                         "description": "Role not found"
                     }
                 }
+
             },
             "delete": {
                 "tags": [
@@ -1568,12 +1312,14 @@
                 "summary": "Bulk delete roles",
                 "description": "Remove multiple roles from storage.",
                 "operationId": "c860bbcbe7358115b910c8ca4c5e99e1",
+
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
+
                                     "ids"
                                 ],
                                 "properties": {
@@ -1582,6 +1328,7 @@
                                         "items": {
                                             "type": "integer"
                                         }
+
                                     }
                                 },
                                 "type": "object"
@@ -1597,6 +1344,7 @@
             }
         },
         "/api/v1/users": {
+
             "get": {
                 "tags": [
                     "Users"
@@ -1714,6 +1462,7 @@
                     }
                 ],
                 "responses": {
+
                     "200": {
                         "description": "User details"
                     },
@@ -1873,10 +1622,12 @@
             "description": "Endpoints for two-factor authentication (2FA) management and verification"
         },
         {
+
             "name": "Events",
             "description": "Endpoints for managing events, including CRUD operations and retrieving events associated with users."
         },
         {
+
             "name": "Roles",
             "description": "Endpoints for managing roles in the application"
         },
