@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Mail\BrevoMail;
-use App\Notifications\EmailVerificationCode;
 use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\TwoFactorCode;
 use Illuminate\Notifications\Notifiable;
@@ -311,6 +310,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'code' => $this->generateEmailVerificationCode(),
             'name' => $this->name,
         ];
-        \Mail::to($this->email)->send(new BrevoMail($details));
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new BrevoMail($details));
     }
 }

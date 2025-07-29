@@ -5,8 +5,8 @@ use App\Http\Controllers\API\V1\Auth\EmailVerificationNotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Email verification
-Route::post('/verify-email', VerifyEmailController::class)
-    ->middleware(['signed', 'throttle:6,1'])
+Route::post('/verify-email', [VerifyEmailController::class, 'store'])
+    ->middleware(['throttle:6,1'])
     ->name('api.verification.verify');
 
 // Email verification notification
