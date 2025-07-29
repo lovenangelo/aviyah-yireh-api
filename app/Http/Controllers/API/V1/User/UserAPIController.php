@@ -7,13 +7,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\BulkDestroyUsersRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserAvatarRequest;
-use Illuminate\Http\UploadedFile;
 use App\Traits\ApiResponse;
+use Illuminate\Http\UploadedFile;
 
 /**
  * @OA\Tag(
@@ -143,6 +142,7 @@ class UserAPIController extends Controller
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_FOUND',
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -393,30 +393,33 @@ class UserAPIController extends Controller
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 401
                 );
+            } else {
+                // Check if user has permission to update their avatar
+                $this->authorize('update', $user);
+
+                // Upload avatar
+                /** @var UploadedFile $avatarFile */
+                $avatarFile = $request->file('avatar');
+                if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
+                    $response = $this->formatErrorResponse(
+                        code: 'AVATAR_FILE_REQUIRED',
+                        message: "Avatar file is required",
+                        statusCode: 400
+                    );
+                } else {
+                    $avatar = $this->userRepository->updateAvatar($user->id, $avatarFile);
+
+                    $response = $this->formatSuccessResponse(
+                        message: $avatar['message'],
+                        statusCode: $avatar['status'],
+                        data: [
+                            'avatar_url' =>  $avatar['avatar_url'] ?? null
+                        ]
+                    );
+                }
             }
 
-            // Check if user has permission to update their avatar
-            $this->authorize('update', $user);
-
-            // Upload avatar
-            /** @var UploadedFile $avatarFile */
-            $avatarFile = $request->file('avatar');
-            if (!$avatarFile || !($avatarFile instanceof UploadedFile)) {
-                return $this->formatErrorResponse(
-                    message: "Avatar file is required",
-                    statusCode: 400
-                );
-            }
-
-            $result = $this->userRepository->updateAvatar($user->id, $avatarFile);
-
-            return $this->formatSuccessResponse(
-                message: $result['message'],
-                statusCode: $result['status'],
-                data: [
-                    'avatar_url' =>  $result['avatar_url'] ?? null
-                ]
-            );
+            return $response;
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Upload Avatar');
         }

@@ -718,7 +718,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The given data was invalid."
+                                            "example": "Two-factor authentication has been enabled."
                                         },
                                         "errors": {
                                             "properties": {
@@ -737,8 +737,32 @@
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "2FA toggled (session-based, no content)"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
             }
         },
         "/api/v1/two-factor/toggle": {
@@ -804,15 +828,31 @@
                     "204": {
                         "description": "2FA toggled (session-based, no content)"
                     },
-                    "401": {
-                        "description": "Unauthenticated",
+                    "404": {
+                        "description": "User not found",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Unauthenticated."
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or expired two-factor code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid or expired two-factor code."
                                         }
                                     },
                                     "type": "object"
@@ -820,12 +860,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
+                }
             }
         },
         "/api/v1/two-factor/verify": {
@@ -837,6 +872,26 @@
                 "description": "Verifies the 2FA code for the user and logs them in.",
                 "operationId": "verifyTwoFactorCode",
                 "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Email verification hash",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcdef123456"
+                        }
+                    },
                     {
                         "name": "X-Request-Token",
                         "in": "header",
@@ -916,6 +971,26 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/v1/roles": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Get list of roles",
+                "description": "Display a listing of the resource.",
+                "operationId": "93c2261fdff44d0b4b5323abfb48c31a",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
                     },
                     "422": {
                         "description": "Invalid or expired two-factor code",
@@ -928,8 +1003,83 @@
                                             "example": "Invalid or expired two-factor code."
                                         }
                                     },
-                                    "type": "object"
-                                }
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Role created successfully"
+                    }
+                }
+            }
+        },
+        "/api/v1/roles/{id}": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Get a role by ID",
+                "description": "Display the specified resource.",
+                "operationId": "62997b0b1345b6ac27bdf2e0c2a01be9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role details"
+                    },
+                    "404": {
+                        "description": "Role not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Update a role",
+                "description": "Update the specified resource in storage.",
+                "operationId": "729a2c68021a0fdfe9de3f3ce6434ca9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
@@ -1036,6 +1186,14 @@
                             }
                         }
                     }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of training materials"
+                    },
+                    "400": {
+                        "description": "Invalid filter type specified in query parameters."
+                    }
                 }
             }
         },
@@ -1100,6 +1258,27 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "user_id",
+                                    "category_id",
+                                    "language_id",
+                                    "title",
+                                    "description",
+                                    "path",
+                                    "thumbnail_path",
+                                    "is_visible",
+                                    "duration"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
                                     "name"
                                 ],
                                 "properties": {
@@ -1255,284 +1434,6 @@
                 "responses": {
                     "200": {
                         "description": "Roles deleted successfully"
-                    }
-                }
-            }
-        },
-        "/api/v1/training-materials": {
-            "get": {
-                "tags": [
-                    "Training Materials"
-                ],
-                "summary": "Get list of training materials",
-                "description": "Display a listing of the training materials.",
-                "operationId": "0b5ee88e755c2fc3b8e84b44c94c170f",
-                "parameters": [
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Set to true when filtering",
-                        "required": false,
-                        "style": "form",
-                        "explode": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filter",
-                        "in": "query",
-                        "description": "Filter type",
-                        "required": false,
-                        "style": "form",
-                        "explode": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "pdf",
-                                "video",
-                                "image",
-                                "audio",
-                                "english",
-                                "tagalog"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "sort",
-                        "in": "query",
-                        "description": "Sort to true when sorting",
-                        "required": false,
-                        "style": "form",
-                        "explode": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sortBy",
-                        "in": "query",
-                        "description": "Sort by field (used when sort is set)",
-                        "required": false,
-                        "style": "form",
-                        "explode": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "popularity",
-                                "dateUploaded"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of training materials"
-                    },
-                    "400": {
-                        "description": "Invalid filter type specified in query parameters."
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Training Materials"
-                ],
-                "summary": "Upload a training material",
-                "description": "Upload a training material",
-                "operationId": "746111b4dba8ed25f7cb72a2adafddb3",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "user_id",
-                                    "category_id",
-                                    "language_id",
-                                    "title",
-                                    "description",
-                                    "path",
-                                    "thumbnail_path",
-                                    "is_visible",
-                                    "duration"
-                                ],
-                                "properties": {
-                                    "user_id": {
-                                        "type": "integer"
-                                    },
-                                    "category_id": {
-                                        "type": "integer"
-                                    },
-                                    "language_id": {
-                                        "type": "integer"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "path": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "thumbnail_path": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "is_visible": {
-                                        "type": "boolean"
-                                    },
-                                    "duration": {
-                                        "type": "integer"
-                                    },
-                                    "expiration_date": {
-                                        "type": "string",
-                                        "format": "date"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Training material uploaded successfully!"
-                    },
-                    "403": {
-                        "description": "Unauthorized to perform action."
-                    }
-                }
-            }
-        },
-        "/api/v1/training-material/{id}": {
-            "get": {
-                "tags": [
-                    "Training Materials"
-                ],
-                "summary": "Get a training material by ID",
-                "description": "Display the specified training material.",
-                "operationId": "c1227773700f232eb17e1047c94c537b",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Training material details"
-                    },
-                    "404": {
-                        "description": "Training material not found"
-                    }
-                }
-            }
-        },
-        "/api/v1/training-materials/{id}": {
-            "put": {
-                "tags": [
-                    "Training Materials"
-                ],
-                "summary": "Edit a training material",
-                "description": "Update a training material",
-                "operationId": "13ceeb6dfe7c8a1692ce59f85db6fb0f",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "user_id",
-                                    "category_id",
-                                    "language_id",
-                                    "title",
-                                    "description",
-                                    "path",
-                                    "thumbnail_path",
-                                    "is_visible",
-                                    "duration"
-                                ],
-                                "properties": {
-                                    "user_id": {
-                                        "type": "integer"
-                                    },
-                                    "category_id": {
-                                        "type": "integer"
-                                    },
-                                    "language_id": {
-                                        "type": "integer"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "path": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "thumbnail_path": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "is_visible": {
-                                        "type": "boolean"
-                                    },
-                                    "duration": {
-                                        "type": "string",
-                                        "format": "date"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Training material updated successfully!"
-                    },
-                    "403": {
-                        "description": "Unauthorized to perform action."
-                    },
-                    "404": {
-                        "description": "Training material not found."
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Training Materials"
-                ],
-                "summary": "Delete a training material",
-                "description": "Remove the specified training material.",
-                "operationId": "54c7f07f460d9646be894d0dce6db279",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -1817,10 +1718,6 @@
         {
             "name": "Roles",
             "description": "Endpoints for managing roles in the application"
-        },
-        {
-            "name": "Training Materials",
-            "description": "Endpoints for managing training materials, including CRUD operations and sorting actions"
         },
         {
             "name": "Users",
