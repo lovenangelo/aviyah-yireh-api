@@ -295,6 +295,23 @@ class TrainingMaterialAPIController extends Controller
         }
     }
 
+    /**
+     * Remove multiple training materials from storage.
+     * @OA\Post(
+     *     path="/api/v1/training-materials/bulk-delete",
+     *     summary="Bulk delete training materials",
+     *     tags={"Training Materials"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ids"},
+     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Training materials deleted successfully")
+     *     @OA\Response(response=400, description="Bad request.")
+     * )
+     */
     public function bulkDestroy(BulkDestroyTrainingMaterialsRequest $request): JsonResponse
     {
         try {
