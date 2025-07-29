@@ -2,12 +2,13 @@
 
 use App\Http\Controllers\API\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\API\V1\Auth\EmailVerificationNotificationController;
+use Illuminate\Support\Facades\Route;
 
 // Email verification
-Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+Route::post('/verify-email', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('api.verification.verify');
 
 // Email verification notification
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+Route::get('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware(['throttle:6,1']);
