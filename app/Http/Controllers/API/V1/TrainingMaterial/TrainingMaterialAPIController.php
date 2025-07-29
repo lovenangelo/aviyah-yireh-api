@@ -166,41 +166,13 @@ class TrainingMaterialAPIController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $getID3 = new getID3();
-            $duration = null;
             // Check if user is authorized
             $this->authorize("create", self::TRAINING_MATERIAL);
 
-            // Rturn file and thumbnail path after storing them
-            $filePath = $request->file('file')->store('training_materials', 'public');
-            $thumbnailPath = $request->hasFile('thumbnail')
-                ? $request->file('thumbnail')->store('thumbnails', 'public')
-                : null;
+            // Upload the file data
+            $this->trainingMaterialRepository->upload($request->all());
 
-            // Get the file type and the duration if filetype is video or audio
-            $fileType = $request->file('file')->getClientMimeType();
-            if (str_starts_with($fileType, 'video') || str_starts_with($fileType, 'audio')) {
-                $info = $getID3->analyze(storage_path("app/public/{$filePath}"));
-                $duration = $info['playtime_seconds'] ?? null;
-            }
-
-            // Finalize the file metadata to store in db
-            $data = [
-                'user_id' => $request->user_id,
-                'category_id' => $request->category_id,
-                'language_id' => $request->language_id,
-                'expiration_date' => $request->expiration_date,
-                'title' => $request->title,
-                'description' => $request->description,
-                'duration' => $duration,
-                'path' => $filePath,
-                'thumbnail_path' => $thumbnailPath,
-            ];
-
-            // Upload the file metadata
-            $this->trainingMaterialRepository->upload($data);
-
-            return $this->formatSuccessResponse($data, "Training material uploaded successfully!", 201, $request);
+            return $this->formatSuccessResponse($request->all(), "Training material uploaded successfully!", 201, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
