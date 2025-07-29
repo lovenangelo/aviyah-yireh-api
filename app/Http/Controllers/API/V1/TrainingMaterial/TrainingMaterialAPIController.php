@@ -308,7 +308,7 @@ class TrainingMaterialAPIController extends Controller
      *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Training materials deleted successfully")
+     *     @OA\Response(response=200, description="Training materials deleted successfully"),
      *     @OA\Response(response=400, description="Bad request.")
      * )
      */
