@@ -76,7 +76,8 @@ Route::prefix("event")->group(function(){
     
     Route::get('/users', [UserEventsController::class, 'index'])->name('users.events.list');
     Route::get('/user/{id}', [UserEventsController::class, 'show'])->name('user.event.retrieve');
-
+    
+    Route::post('/bulk-delete', [EventController::class, 'bulkDestroy'])->name('event.bulk.delete');
     Route::get($eventIdRoute, [EventController::class, 'show'])->name('event.retrieve');
     Route::put($eventIdRoute, [EventController::class, 'update'])->name('event.update');
     Route::delete($eventIdRoute,[EventController::class, 'destroy'])->name('event.delete');

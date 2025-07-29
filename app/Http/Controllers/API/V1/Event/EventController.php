@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
+use App\Http\Requests\Event\BulkDeleteEventRequest;
 use App\Repositories\EventRepository;
 use App\Models\User;
 
@@ -251,6 +252,23 @@ class EventController extends Controller
 
         } catch (\Throwable $th) {
            return $this->handleApiException($th, $request, "Delete Event");
+        }
+    }
+
+    public function bulkDestroy(BulkDeleteEventRequest $request){
+        try {
+            
+            $this->authorize('bulkDelete', User::class);
+
+            $result = $this->eventRepository->bulkDestroy($request->validated('ids'));
+
+            return $this->formatSuccessResponse(
+                message: "Events deleted successfully",
+                data: $result
+            );
+
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'Bulk Delete Events');
         }
     }
 }

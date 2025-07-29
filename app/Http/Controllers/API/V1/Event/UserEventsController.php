@@ -5,12 +5,18 @@ use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use App\Repositories\EventRepository;
+use App\Repositories\UserRepository;
 
 
 class UserEventsController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(EventRepository $eventRepository,UserRepository $userRepository){
+        $this->eventRepository = $eventRepository;
+        $this->userRepository = $userRepository;
+    }
     /**
      * Display all users and their associated created events
      * @OA\Get(
@@ -27,8 +33,8 @@ class UserEventsController extends Controller
             $id = auth()->id();
             
             $this->authorize('viewAny', User::find($id));
-            $userEvents = User::with('events')->select('id', 'name')->has('events')->get();
-
+            $userEvents = $this->eventRepository->allUserEvent();
+            
             return $this->formatSuccessResponse(
                 data: $userEvents
             );
@@ -52,11 +58,11 @@ class UserEventsController extends Controller
      * @OA\Response(response=404, description="User not found")
      * )
      */
-    public function show($id, Request $request)
+    public function show(int $id, Request $request)
     {
         try {
-            $user = User::with('events')->select('id', 'name')->where('id', $id)->first();
-            $currentUser = auth()->id();
+            $user = $this->userRepository->find($id); 
+            $logInUser = auth()->id();
 
             if(!$user){
                 return $this->formatErrorResponse(
@@ -66,16 +72,18 @@ class UserEventsController extends Controller
                 );
             }
 
-            $this->authorize('view', User::find($currentUser));
-            return $this->formatSuccessResponse(
-                data: $user
-            );
-        
+            $this->authorize('view', User::find($logInUser));
+            $userEvents = $this->eventRepository->showUserEvent($id);
 
+            return $this->formatSuccessResponse(
+                data: $userEvents
+            );
+    
 
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Show User with Event');
         }
     }
+
 
 }

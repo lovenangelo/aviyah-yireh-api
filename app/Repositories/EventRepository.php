@@ -47,7 +47,7 @@ class EventRepository extends BaseRepository {
 
     public function allUserEvents()
     {
-        return  User::with('events')>select('id', 'name')->has('events')->get();
+        return  User::with('events')->select('id', 'name')->has('events')->get();
         
     }
 
@@ -61,6 +61,30 @@ class EventRepository extends BaseRepository {
        return $this->model->filter($filters)->get();
     }
 
+    public function bulkDestroy(array $eventIds)
+    {
+        $result = [
+            "deleted"=> 0,
+            "failed"=> 0,
+            "failed_details"=>[]
+        ];
+
+        foreach($eventIds as $eventId){
+            try{
+                $this->delete($eventId);
+                $result['deleted']++;
+            }catch(\Exception $e){
+                $result['failed']++;
+                $result['failed_details'][]=[
+                    'id'=> $eventId,
+                    'reason'=> $e
+                ];
+            }
+          
+        }
+        return $result;
+
+    }
 
 
 }
