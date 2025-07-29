@@ -4,6 +4,8 @@ use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\API\V1\Role\RoleAPIController;
 use App\Http\Controllers\API\V1\User\UserAPIController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;
 
 // Logout
 Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
