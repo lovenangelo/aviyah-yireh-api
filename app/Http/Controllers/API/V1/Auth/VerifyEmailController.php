@@ -6,9 +6,8 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Traits\ApiResponse;
-
 /**
  * @OA\Tag(
  *     name="Email Verification",
@@ -16,7 +15,7 @@ use App\Traits\ApiResponse;
  * )
  */
 class VerifyEmailController extends Controller
-{
+{   
     use ApiResponse;
     /**
      * Mark the authenticated user's email address as verified.
@@ -84,37 +83,25 @@ class VerifyEmailController extends Controller
      *     )
      * )
      */
-    public function store(Request $request): RedirectResponse|JsonResponse
-    {
+    public function __invoke(EmailVerificationRequest $request): RedirectResponse|JsonResponse
+    {   
         try {
-            $result = $this->formatSuccessResponse(message: "Email verified successfully");
-            // Check if email is already verified
+            
             if ($request->user()->hasVerifiedEmail()) {
+                // For token-based clients
                 return $this->formatSuccessResponse(message: "Email already verified");
             }
 
-            // Validate the request - ensure code is provided
-            $request->validate([
-                'code' => 'required|string|size:6'
-            ]);
-
-            // Get the verification code from the request
-            $code = $request->input('code');
-
-            // Verify the email verification code using the User model method
-            if (!$request->user()->verifyEmailVerificationCode($code)) {
-                $result = $this->formatErrorResponse(
-                    code: "INVALID_VERIFICATION_CODE",
-                    message: "Invalid or expired verification code",
-                    statusCode: 422
-                );
-            } else {
-                // Mark email as verified
-                $request->user()->markEmailAsVerified();
+            if ($request->user()->markEmailAsVerified()) {
+                event(new Verified($request->user()));
             }
-            return $result;
+
+            // For token-based clients
+            return $this->formatSuccessResponse(message: "Email verified successfully");
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'email_verification');
         }
+        ;
+        
     }
 }

@@ -4,8 +4,6 @@ use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\API\V1\Role\RoleAPIController;
 use App\Http\Controllers\API\V1\User\UserAPIController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\V1\Event\EventController;
 use App\Http\Controllers\API\V1\Event\UserEventsController;
@@ -37,6 +35,9 @@ Route::prefix("roles")->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
+
+    // Role API resource
+    Route::apiResource('/', RoleAPIController::class);
 });
 
 
@@ -66,6 +67,9 @@ Route::prefix("users")->group(function () {
     // User bulk delete
     Route::delete('/bulk-delete', [UserAPIController::class, 'bulkDestroy'])
         ->name('users.bulk-delete');
+
+    // User API resource
+    Route::apiResource('/', UserAPIController::class);
 });
 
 Route::prefix("event")->group(function(){

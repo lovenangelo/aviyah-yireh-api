@@ -1343,6 +1343,334 @@
                 }
             }
         },
+        "/api/v1/training-materials": {
+            "get": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Get list of training materials",
+                "description": "Display a listing of the training materials.",
+                "operationId": "0b5ee88e755c2fc3b8e84b44c94c170f",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Set to true when filtering",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "Filter type",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pdf",
+                                "video",
+                                "image",
+                                "audio",
+                                "english",
+                                "tagalog"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort to true when sorting",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Sort by field (used when sort is set)",
+                        "required": false,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "popularity",
+                                "dateUploaded"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of training materials"
+                    },
+                    "400": {
+                        "description": "Invalid filter type specified in query parameters."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Upload a training material",
+                "description": "Upload a training material",
+                "operationId": "746111b4dba8ed25f7cb72a2adafddb3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "category_id",
+                                    "language_id",
+                                    "title",
+                                    "description",
+                                    "path",
+                                    "thumbnail_path",
+                                    "is_visible",
+                                    "duration"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "thumbnail_path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_visible": {
+                                        "type": "boolean"
+                                    },
+                                    "duration": {
+                                        "type": "integer"
+                                    },
+                                    "expiration_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Training material uploaded successfully!"
+                    },
+                    "403": {
+                        "description": "Unauthorized to perform action."
+                    }
+                }
+            }
+        },
+        "/api/v1/training-material/{id}": {
+            "get": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Get a training material by ID",
+                "description": "Display the specified training material.",
+                "operationId": "c1227773700f232eb17e1047c94c537b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training material details"
+                    },
+                    "404": {
+                        "description": "Training material not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/training-materials/{id}": {
+            "put": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Edit a training material",
+                "description": "Update a training material",
+                "operationId": "13ceeb6dfe7c8a1692ce59f85db6fb0f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "category_id",
+                                    "language_id",
+                                    "title",
+                                    "description",
+                                    "path",
+                                    "thumbnail_path",
+                                    "is_visible",
+                                    "duration"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    },
+                                    "language_id": {
+                                        "type": "integer"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "thumbnail_path": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_visible": {
+                                        "type": "boolean"
+                                    },
+                                    "duration": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Training material updated successfully!"
+                    },
+                    "403": {
+                        "description": "Unauthorized to perform action."
+                    },
+                    "404": {
+                        "description": "Training material not found."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Delete a training material",
+                "description": "Remove the specified training material.",
+                "operationId": "54c7f07f460d9646be894d0dce6db279",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Training material deleted successfully!"
+                    },
+                    "404": {
+                        "description": "Training material not found."
+                    },
+                    "403": {
+                        "description": "Unauthorized action."
+                    }
+                }
+            }
+        },
+        "/api/v1/training-materials/bulk-delete": {
+            "post": {
+                "tags": [
+                    "Training Materials"
+                ],
+                "summary": "Bulk delete training materials",
+                "description": "Remove multiple training materials from storage.",
+                "operationId": "2ffaa4a69f49fbe43dd8255a7dc9c310",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ids"
+                                ],
+                                "properties": {
+                                    "ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Training materials deleted successfully"
+                    },
+                    "400": {
+                        "description": "Bad request."
+                    }
+                }
+            }
+        },
         "/api/v1/users": {
 
             "get": {
@@ -1630,6 +1958,10 @@
 
             "name": "Roles",
             "description": "Endpoints for managing roles in the application"
+        },
+        {
+            "name": "Training Materials",
+            "description": "Endpoints for managing training materials, including CRUD operations and sorting actions"
         },
         {
             "name": "Users",
