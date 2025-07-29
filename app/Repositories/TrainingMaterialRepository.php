@@ -97,4 +97,29 @@ class TrainingMaterialRepository
   {
     return $trainingMaterial->delete();
   }
+
+
+  public function bulkDestroy(array $ids): array
+  {
+    $result = [
+      'deleted' => 0,
+      'failed' => 0,
+      'attempted' => count($ids),
+      'has_users' => []
+    ];
+
+    foreach ($ids as $id) {
+      $trainingMaterial = $this->find($id);
+
+      if ($trainingMaterial) {
+        try {
+          $this->delete($trainingMaterial);
+          $result['deleted']++;
+        } catch (\Exception $e) {
+          $result['failed']++;
+        }
+      }
+    }
+    return $result;
+  }
 }

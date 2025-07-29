@@ -5,9 +5,9 @@ namespace App\Http\Controllers\API\V1\TrainingMaterial;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TrainingMaterial\BulkDestroyTrainingMaterialsRequest;
 use App\Traits\ApiResponse;
 use App\Repositories\TrainingMaterialRepository;
-use getID3;
 
 /**
  * @OA\Tag(
@@ -290,6 +290,32 @@ class TrainingMaterialAPIController extends Controller
             return $this->formatSuccessResponse(null, "Training material deleted successfully!", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
+        }
+    }
+
+    public function bulkDestroy(BulkDestroyTrainingMaterialsRequest $request): JsonResponse
+    {
+        try {
+            // Check if user is authorized
+            $this->authorize("bulkDelete", self::TRAINING_MATERIAL);
+
+            // Get validated data
+            $ids = $request->validated('ids');
+
+            // Delete multiple roles
+            $result = $this->trainingMaterialRepository->bulkDestroy($ids);
+
+            $message = $result['deleted'] . ' training materials deleted successfully';
+            $data = [
+                'deleted' => $result['deleted'],
+                'failed' => $result['failed'],
+                'total_attempted' => $result['attempted'],
+                'roles_with_users' => $result['has_users'],
+            ];
+
+            return $this->formatSuccessResponse($data, $message, 200, $request);
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, $request, "Training material delete many");
         }
     }
 }

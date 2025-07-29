@@ -18,4 +18,7 @@ Route::prefix("training-materials")->group(function () {
 
   // Delete training material
   Route::delete("/{id}", [TrainingMaterialAPIController::class, 'destroy'])->name("delete.training.material");
+
+  // Delete training material
+  Route::post("/bulk-delete", [TrainingMaterialAPIController::class, 'bulkDestroy'])->name("bulk.delete.training.material");
 });
