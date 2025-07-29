@@ -255,6 +255,26 @@ class EventController extends Controller
         }
     }
 
+
+    /**
+     * Remove multiple events from storage.
+     *
+     * @OA\Post(
+     *     path="/api/v1/event/bulk-delete",
+     *     summary="Bulk delete events",
+     *     tags={"Events"},
+     *     security={{"bearer_token":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ids"},
+     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Users deleted successfully")
+     * )
+     */
+
     public function bulkDestroy(BulkDeleteEventRequest $request){
         try {
             

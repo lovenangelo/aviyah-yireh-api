@@ -1282,6 +1282,47 @@
                 ]
             }
         },
+        "/api/v1/event/bulk-delete": {
+            "post": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Bulk delete events",
+                "description": "Remove multiple events from storage.",
+                "operationId": "c6f778f4e1ccd0b210688211a327e7b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ids"
+                                ],
+                                "properties": {
+                                    "ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Users deleted successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/event/users": {
             "get": {
                 "tags": [
