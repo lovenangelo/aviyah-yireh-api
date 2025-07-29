@@ -38,7 +38,6 @@ class UpdateRoleRequest extends FormRequest
         ];
     }
 
-
     protected function failedValidation(Validator $validator)
     {
         $response = $this->formatErrorResponse(422, 'Operation failed.', $validator->errors()->toArray());

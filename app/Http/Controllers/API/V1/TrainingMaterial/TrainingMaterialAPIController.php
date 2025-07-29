@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TrainingMaterial\BulkDestroyTrainingMaterialsRequest;
+use App\Http\Requests\TrainingMaterial\StoreTrainingMaterialRequest;
+use App\Http\Requests\TrainingMaterial\UpdateTrainingMaterialRequest;
 use App\Traits\ApiResponse;
 use App\Repositories\TrainingMaterialRepository;
 
@@ -163,7 +165,7 @@ class TrainingMaterialAPIController extends Controller
      *     @OA\Response(response=403, description="Unauthorized to perform action.")
      * )
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreTrainingMaterialRequest $request): JsonResponse
     {
         try {
             // Check if user is authorized
@@ -237,7 +239,7 @@ class TrainingMaterialAPIController extends Controller
      *     @OA\Response(response=404, description="Training material not found."),
      * )
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateTrainingMaterialRequest $request, $id): JsonResponse
     {
         try {
             // Check if user is authorized
