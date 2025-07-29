@@ -20,7 +20,7 @@ use getID3;
 class TrainingMaterialAPIController extends Controller
 {
     use ApiResponse;
-
+    private const TRAINING_MATERIAL_NOT_FOUND = 'Training material not found.';
     private const TRAINING_MATERIAL = 'App\Models\TrainingMaterial';
     private TrainingMaterialRepository $trainingMaterialRepository;
 
@@ -197,7 +197,7 @@ class TrainingMaterialAPIController extends Controller
 
             // Check if training material exists
             if (!$trainingMaterial) {
-                return $this->formatErrorResponse("404", "Training material not found.", [], 404);
+                return $this->formatErrorResponse("404", self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
             }
 
             return $this->formatSuccessResponse($trainingMaterial, "Training material retrieved successfully!", 200, $request);
@@ -247,7 +247,7 @@ class TrainingMaterialAPIController extends Controller
 
             // Check if trainng material exists
             if (!$trainingMaterial) {
-                return $this->formatErrorResponse("404", "Training material not found.", [], 400);
+                return $this->formatErrorResponse("404", self::TRAINING_MATERIAL_NOT_FOUND, [], 400);
             }
 
             // Prepare update data
@@ -283,7 +283,7 @@ class TrainingMaterialAPIController extends Controller
             $trainingMaterial = $this->trainingMaterialRepository->find($id);
 
             if (!$trainingMaterial) {
-                return $this->formatErrorResponse("404", "Training material not found.", [], 404);
+                return $this->formatErrorResponse("404", self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
             }
 
             $this->trainingMaterialRepository->delete($trainingMaterial);
