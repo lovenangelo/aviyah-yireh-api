@@ -18,10 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Use web middleware group and replace VerifyCsrfToken with our custom middleware
-        $middleware->web(replace: [
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class => \App\Http\Middleware\SkipCsrfToken::class,
-        ]);
+        // $middleware->web(replace: [
+        //     \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class => \App\Http\Middleware\SkipCsrfToken::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        return response()->json([
+            'message' => 'An error occurred while processing your request.',
+            'error' => $exceptions,
+        ], 500);
     })->create();
