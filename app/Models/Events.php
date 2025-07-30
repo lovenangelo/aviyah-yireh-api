@@ -16,7 +16,8 @@ class Events extends Model
         'location',
         'start_at',
         'end_at',
-        'author_id'
+        'author_id',
+        'image_url'
     ];
 
     public static array $rules = [
@@ -25,6 +26,7 @@ class Events extends Model
         'location'=>'required|string',
         'start_at' => 'required|date',
         'end_at' => 'required|date',
+        'image_url'=>'nullable|string'
     ];
 
     public function author()
