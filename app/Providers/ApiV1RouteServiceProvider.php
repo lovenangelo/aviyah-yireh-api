@@ -21,7 +21,7 @@ class ApiV1RouteServiceProvider extends ServiceProvider
     {
         Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', self::AUTH_SANCTUM, 'verified'])
-            ->group(base_path('routes/api/v1/authenticated.php'));
+            ->group(base_path('routes/api/v1/auth.php'));
 
         Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', self::AUTH_SANCTUM])
@@ -30,6 +30,10 @@ class ApiV1RouteServiceProvider extends ServiceProvider
         Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', 'guest'])
             ->group(base_path('routes/api/v1/guest.php'));
+
+        Route::prefix(self::API_V1_PREFIX)
+            ->middleware(['api', self::AUTH_SANCTUM])
+            ->group(base_path('routes/api/v1/events.php'));
 
         Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', self::AUTH_SANCTUM])

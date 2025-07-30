@@ -25,6 +25,7 @@ class EventsFactory extends Factory
             'location' => $this->faker->city,
             'start_at' => $this->faker->dateTimeBetween('+1 days', '+1 month'),
             'end_at' => $this->faker->dateTimeBetween('+2 days', '+2 months'),
+            'image_url' => $this->faker->imageUrl()
         ];
     }
 }
