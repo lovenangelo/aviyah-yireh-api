@@ -89,7 +89,8 @@ class EventController extends Controller
      *          @OA\Property(property="description", type="string"),
      *          @OA\Property(property="location", type="string"),
      *          @OA\Property(property="start_at", type="string", format="date-time"),
-     *          @OA\Property(property="end_at", type="string", format="date-time")
+     *          @OA\Property(property="end_at", type="string", format="date-time"),
+     *          @OA\Property(property="image_url", type="string", format="date-time", nullable=true)
      *      )
      * ),
      * @OA\Response(response=201, description="Event created successfully"),
@@ -169,7 +170,8 @@ class EventController extends Controller
      *          @OA\Property(property="description", type="string"),
      *          @OA\Property(property="location", type="string"),
      *          @OA\Property(property="start_at", type="string", format="date-time"),
-     *          @OA\Property(property="end_at", type="string", format="date-time")
+     *          @OA\Property(property="end_at", type="string", format="date-time"),
+     *          @OA\Property(property="image_url", type="string")
      *         )
      *      ),
      * @OA\Response(response=200, description="Event updated successfully"),

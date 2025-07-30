@@ -38,6 +38,7 @@ class EventRepository extends BaseRepository {
                 'location' => $input->location,
                 'start_at' => $input->start_at,
                 'end_at' => $input->end_at,
+                'image_url'=> $input->image_url,
                 'author_id' => auth()->id()
             ]
             );
