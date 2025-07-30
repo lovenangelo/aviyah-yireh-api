@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Mail\BrevoMail;
 use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\TwoFactorCode;
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -111,10 +113,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Generate a random 6-digit code
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expirationTime = Carbon::now()->addMinutes(10);
 
         // Save the code and set expiration time (10 minutes from now)
         $this->two_factor_code = $code;
-        $this->two_factor_expires_at = now()->addMinutes(10);
+        $this->two_factor_expires_at = $expirationTime;
         $this->save();
 
         return $code;
@@ -175,7 +178,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (
             $this->two_factor_code === $code &&
             $this->two_factor_expires_at &&
-            now()->lt($this->two_factor_expires_at)
+            Carbon::now()->lt($this->two_factor_expires_at)
         ) {
 
             // Reset the code after successful verification

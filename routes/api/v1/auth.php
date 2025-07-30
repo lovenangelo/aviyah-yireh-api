@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Logout
-Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
-    ->name('api.verification.send');
+Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 // Roles-related Routes
 Route::prefix("roles")->group(function () {
@@ -42,7 +41,7 @@ Route::prefix("roles")->group(function () {
 
 
 // Two-factor authentication toggle
-Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle'])->name('api.two-factor.toggle');
+Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle']);
 
 // User info
 Route::get('/me', function (Request $request) {
