@@ -8,6 +8,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 class ApiV1RouteServiceProvider extends ServiceProvider
 {
     private const API_V1_PREFIX = 'api/v1';
+    private const AUTH_SANCTUM = 'auth:sanctum';
 
     public function boot()
     {
@@ -19,11 +20,11 @@ class ApiV1RouteServiceProvider extends ServiceProvider
     protected function mapApiV1Routes()
     {
         Route::prefix(self::API_V1_PREFIX)
-            ->middleware(['api', 'auth:sanctum', 'verified'])
-            ->group(base_path('routes/api/v1/authenticated.php'));
+            ->middleware(['api', self::AUTH_SANCTUM, 'verified'])
+            ->group(base_path('routes/api/v1/auth.php'));
 
         Route::prefix(self::API_V1_PREFIX)
-            ->middleware(['api', 'verified'])
+            ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/email.php'));
 
         Route::prefix(self::API_V1_PREFIX)
@@ -31,7 +32,11 @@ class ApiV1RouteServiceProvider extends ServiceProvider
             ->group(base_path('routes/api/v1/guest.php'));
 
         Route::prefix(self::API_V1_PREFIX)
-            ->middleware(['api', 'auth:sanctum'])
+            ->middleware(['api', self::AUTH_SANCTUM])
+            ->group(base_path('routes/api/v1/events.php'));
+
+        Route::prefix(self::API_V1_PREFIX)
+            ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/training-materials.php'));
     }
 }
