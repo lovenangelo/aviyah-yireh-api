@@ -463,4 +463,30 @@ class UserAPIController extends Controller
             return $this->handleApiException($th, $request, 'Delete Avatar');
         }
     }
+
+    public function me(Request $request): JsonResponse
+    {
+        try {
+            // Get authenticated user
+            $user = Auth::user();
+
+            // Check if user is authenticated
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
+                    message: self::USER_NOT_AUTHENTICATED,
+                    statusCode: 401
+                );
+            }
+
+            // Load related data
+            $user->load('role');
+
+            return $this->formatSuccessResponse(
+                data: $user
+            );
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'Get Authenticated User');
+        }
+    }
 }
