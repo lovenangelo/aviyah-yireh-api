@@ -56,7 +56,7 @@ Route::prefix("users")->group(function () {
         ->name('user.password.update');
 
     // User avatar
-    Route::match(['put', 'patch'], '/upload-avatar', [UserAPIController::class, 'uploadAvatar'])
+    Route::post('/upload-avatar', [UserAPIController::class, 'uploadAvatar'])
         ->name('user.avatar.upload');
     Route::delete('/delete-avatar', [UserAPIController::class, 'deleteAvatar'])
         ->name('user.avatar.delete');
