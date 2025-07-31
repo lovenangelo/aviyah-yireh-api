@@ -9,6 +9,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\BulkDestroyUsersRequest;
+use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserAvatarRequest;
 use App\Traits\ApiResponse;
@@ -194,6 +195,7 @@ class UserAPIController extends Controller
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: "USER_NOT_FOUND",
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -231,6 +233,7 @@ class UserAPIController extends Controller
             // Check if user exists
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: "USER_NOT_FOUND",
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -268,6 +271,7 @@ class UserAPIController extends Controller
             // Check if user is authenticated
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 404
                 );
@@ -310,6 +314,7 @@ class UserAPIController extends Controller
 
             if (!$userToDelete) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_FOUND',
                     message: self::USER_NOT_FOUND,
                     statusCode: 404
                 );
@@ -390,6 +395,7 @@ class UserAPIController extends Controller
             // Check if user is authenticated
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 401
                 );
@@ -437,6 +443,7 @@ class UserAPIController extends Controller
             // Check if user is authenticated
             if (!$user) {
                 return $this->formatErrorResponse(
+                    code: "USER_NOT_AUTHENTICATED",
                     message: self::USER_NOT_AUTHENTICATED,
                     statusCode: 401
                 );
@@ -454,6 +461,32 @@ class UserAPIController extends Controller
             );
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Delete Avatar');
+        }
+    }
+
+    public function me(Request $request): JsonResponse
+    {
+        try {
+            // Get authenticated user
+            $user = Auth::user();
+
+            // Check if user is authenticated
+            if (!$user) {
+                return $this->formatErrorResponse(
+                    code: 'USER_NOT_AUTHENTICATED',
+                    message: self::USER_NOT_AUTHENTICATED,
+                    statusCode: 401
+                );
+            }
+
+            // Load related data
+            $user->load('role');
+
+            return $this->formatSuccessResponse(
+                data: $user
+            );
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'Get Authenticated User');
         }
     }
 }

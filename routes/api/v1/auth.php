@@ -44,9 +44,7 @@ Route::prefix("roles")->group(function () {
 Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle']);
 
 // User info
-Route::get('/me', function (Request $request) {
-    return $request->user();
-})->name('api.user');
+Route::get('/me', [UserAPIController::class, 'me'])->name('api.user');
 
 Route::prefix("users")->group(function () {
     // User profile
