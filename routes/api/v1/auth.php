@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Logout
-Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.logout')
-    ->name('api.verification.send');
+Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 // Roles-related Routes
 Route::prefix("roles")->group(function () {
@@ -42,12 +41,10 @@ Route::prefix("roles")->group(function () {
 
 
 // Two-factor authentication toggle
-Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle'])->name('api.two-factor.toggle');
+Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle']);
 
 // User info
-Route::get('/me', function (Request $request) {
-    return $request->user();
-})->name('api.user');
+Route::get('/me', [UserAPIController::class, 'me'])->name('api.user');
 
 Route::prefix("users")->group(function () {
     // User profile
@@ -59,7 +56,7 @@ Route::prefix("users")->group(function () {
         ->name('user.password.update');
 
     // User avatar
-    Route::match(['put', 'patch'], '/upload-avatar', [UserAPIController::class, 'uploadAvatar'])
+    Route::post('/upload-avatar', [UserAPIController::class, 'uploadAvatar'])
         ->name('user.avatar.upload');
     Route::delete('/delete-avatar', [UserAPIController::class, 'deleteAvatar'])
         ->name('user.avatar.delete');

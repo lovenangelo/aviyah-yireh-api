@@ -26,6 +26,7 @@ class UpdateEventRequest extends FormRequest
             'location' => ['sometimes', 'nullable', 'string'],
             'start_at' => ['sometimes',  'date'],
             'end_at' => ['sometimes', 'date'],
+            'image_url'=>['sometimes','nullable','string'],
         ];
     }
 }
