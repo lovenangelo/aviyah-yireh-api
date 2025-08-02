@@ -34,9 +34,6 @@ Route::prefix("roles")->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
-
-    // Role API resource
-    Route::apiResource('/', RoleAPIController::class);
 });
 
 
@@ -47,6 +44,9 @@ Route::post('/two-factor/toggle', [TwoFactorAuthController::class, 'toggle']);
 Route::get('/me', [UserAPIController::class, 'me'])->name('api.user');
 
 Route::prefix("users")->group(function () {
+    // Define a constant for the ID route segment
+    $userIdRoute = '/{id}';
+
     // User profile
     Route::match(['put', 'patch'], '/update-profile', [UserAPIController::class, 'updateProfile'])
         ->name('user.profile.update');
@@ -65,6 +65,12 @@ Route::prefix("users")->group(function () {
     Route::delete('/bulk-delete', [UserAPIController::class, 'bulkDestroy'])
         ->name('users.bulk-delete');
 
-    // User API resource
-    Route::apiResource('/', UserAPIController::class);
+    // User list
+    Route::get("/", [UserAPIController::class, 'index'])->name('users.list');
+
+    // User retrieve
+    Route::get($userIdRoute, [UserAPIController::class, 'show'])->name("user.retrieve");
+
+    // User delete
+    Route::delete($userIdRoute, [UserAPIController::class, 'destroy'])->name("users.delete");
 });
