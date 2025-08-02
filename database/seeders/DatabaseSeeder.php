@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
             'role_id' => $userRole->id,
         ]);
 
-         $this->call(EventsSeeder::class);
-
+        $this->call(EventsSeeder::class);
+        $this->call(TrainingMaterialSeeder::class);
     }
 }
