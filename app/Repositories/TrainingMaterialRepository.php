@@ -6,53 +6,41 @@ use App\Models\TrainingMaterial;
 
 class TrainingMaterialRepository
 {
-    public function getAll($withAuthor = false)
+    public function getAll()
     {
-        $trainingMaterials = TrainingMaterial::with(['category', 'language'])->get();
-        if ($withAuthor) {
-            return $trainingMaterials->load('user');
-        }
-        return $trainingMaterials;
+        return TrainingMaterial::with(['category', 'language',])->get();
     }
 
-    public function getAllDocuments()
+    public function getAllPdf()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
-            ->whereHas('category', function ($q) {
-                $q->where('name', 'document');
-            })
+        return TrainingMaterial::with(['category', 'language',])
+            ->where('file_type', 'document')
             ->get();
     }
     public function getAllVideos()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
-            ->whereHas('category', function ($q) {
-                $q->where('name', 'video');
-            })
+        return TrainingMaterial::with(['category', 'language',])
+            ->where('file_type', 'video')
             ->get();
     }
 
     public function getAllImage()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
-            ->whereHas('category', function ($q) {
-                $q->where('name', 'image');
-            })
+        return TrainingMaterial::with(['category', 'language',])
+            ->where('file_type', 'image')
             ->get();
     }
 
     public function getAllAudio()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
-            ->whereHas('category', function ($q) {
-                $q->where('name', 'audio');
-            })
+        return TrainingMaterial::with(['category', 'language',])
+            ->where('file_type', 'audio')
             ->get();
     }
 
     public function getAllEnglish()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
+        return TrainingMaterial::with(['category', 'language',])
             ->whereHas('language', function ($q) {
                 $q->where('name', 'english');
             })
@@ -61,7 +49,7 @@ class TrainingMaterialRepository
 
     public function getAllTagalog()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
+        return TrainingMaterial::with(['category', 'language',])
             ->whereHas('language', function ($q) {
                 $q->where('name', 'tagalog');
             })
@@ -70,21 +58,21 @@ class TrainingMaterialRepository
 
     public function getVideosByPopularity()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
+        return TrainingMaterial::with(['category', 'language',])
             ->orderBy('views', 'desc')
             ->get();
     }
 
     public function getVideosByDateUploaded()
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])
+        return TrainingMaterial::with(['category', 'language',])
             ->orderBy('created_at', 'desc')
             ->get();
     }
 
     public function find($id)
     {
-        return TrainingMaterial::with(['category', 'language', 'user'])->where("id", $id)->first();
+        return TrainingMaterial::with(['category', 'language',])->where("id", $id)->first();
     }
 
     public function upload(array $data)

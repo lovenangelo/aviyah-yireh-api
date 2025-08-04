@@ -23,6 +23,7 @@ class TrainingMaterial extends Model
 
     protected $casts = [
         'duration' => 'double',
+        'is_visible' => "boolean"
     ];
 
     public function category()

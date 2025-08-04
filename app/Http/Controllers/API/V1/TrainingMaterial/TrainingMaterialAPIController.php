@@ -45,22 +45,22 @@ class TrainingMaterialAPIController extends Controller
                 $type = $request->query('type');
                 switch ($type) {
                     case "document":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllDocuments();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllDocuments($withAuthor);
                         break;
                     case "video":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllVideos();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllVideos($withAuthor);
                         break;
                     case "image":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllImage();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllImage($withAuthor);
                         break;
                     case "audio":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllAudio();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllAudio($withAuthor);
                         break;
                     case "english":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllEnglish();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllEnglish($withAuthor);
                         break;
                     case "tagalog":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllTagalog();
+                        $trainingMaterials = $this->trainingMaterialRepository->getAllTagalog($withAuthor);
                         break;
                     default:
                         $response = $this->formatErrorResponse(400, 'Invalid filter type specified in query parameters.', [], 400);
@@ -71,10 +71,10 @@ class TrainingMaterialAPIController extends Controller
                 $sortBy = $request->query('sortBy');
                 switch ($sortBy) {
                     case 'popularity':
-                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByPopularity();
+                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByPopularity($withAuthor);
                         break;
                     case 'dateUploaded':
-                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByDateUploaded();
+                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByDateUploaded($withAuthor);
                         break;
                     default:
                         $response = $this->formatErrorResponse(400, 'Invalid sort type specified in query parameters.', [], 400);
@@ -85,6 +85,9 @@ class TrainingMaterialAPIController extends Controller
             }
 
             if ($response === null) {
+                if ($withAuthor) {
+                    $trainingMaterials = $trainingMaterials->load('user');
+                }
                 $response = $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
             }
             return $response;
@@ -96,7 +99,8 @@ class TrainingMaterialAPIController extends Controller
     public function show(Request $request, $id): JsonResponse
     {
         try {
-            $trainingMaterial = $this->trainingMaterialRepository->find($id);
+            $withAuthor = $request->query('with_author');
+            $trainingMaterial = $this->trainingMaterialRepository->find($id, $withAuthor);
 
             // Check if training material exists
             if (!$trainingMaterial) {
