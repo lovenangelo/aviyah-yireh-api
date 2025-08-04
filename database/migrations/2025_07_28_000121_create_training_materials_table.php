@@ -36,6 +36,7 @@ return new class extends Migration
             $table->text("description");
             $table->integer("duration")->nullable();
             $table->string("path");
+            $table->enum("file_type", ['document', 'video', 'audio'])->default('document');
             $table->string("thumbnail_path");
             $table->unsignedInteger("views")->default(0);
             $table->boolean("is_visible")->default(true);

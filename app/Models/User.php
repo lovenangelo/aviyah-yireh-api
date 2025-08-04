@@ -64,6 +64,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'two_factor_expires_at',
         'email_verification_code',
         'email_verification_code_expires_at',
+        'created_at',
+        'updated_at',
     ];
 
     /**

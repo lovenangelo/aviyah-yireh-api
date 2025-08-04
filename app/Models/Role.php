@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Role extends Model
 {
+
+    protected $hidden = ['created_at', 'updated_at'];
+
     use HasFactory;
 
     /**
@@ -49,7 +52,7 @@ class Role extends Model
         return $query
             ->when(
                 !array_key_exists('sort', $filters) ?? false,
-                fn ($query) => $query->orderBy('created_at', 'desc')
+                fn($query) => $query->orderBy('created_at', 'desc')
             )
             ->when(
                 $filters['sort'] ?? false,
