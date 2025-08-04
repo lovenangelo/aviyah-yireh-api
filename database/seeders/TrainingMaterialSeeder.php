@@ -97,6 +97,7 @@ class TrainingMaterialSeeder extends Seeder
                 'description' => 'A beginner-friendly introduction to JavaScript programming.',
                 'duration' => 420,
                 'path' => 'video1.mp4',
+                'file_type' => 'video',
                 'thumbnail_path' => 'thumbnail.jpg',
                 'is_visible' => true,
                 'views' => 0,

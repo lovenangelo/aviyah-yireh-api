@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TrainingMaterial extends Model
 {
+
+    protected $hidden = ['created_at', 'category_id', 'language_id', 'user_id'];
     protected $fillable = [
         'user_id',
         'category_id',
@@ -17,6 +19,10 @@ class TrainingMaterial extends Model
         'path',
         'thumbnail_path',
         'is_visible',
+    ];
+
+    protected $casts = [
+        'duration' => 'double',
     ];
 
     public function category()
