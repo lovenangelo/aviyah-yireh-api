@@ -22,7 +22,7 @@ class TrainingMaterialRepository
         return $this->executeQuery($this->baseQuery(), $perPage);
     }
 
-    public function getAllPdf($perPage = null)
+    public function getAllDocuments($perPage = null)
     {
         $query = $this->baseQuery()->where('file_type', 'document');
         return $this->executeQuery($query, $perPage);

@@ -18,11 +18,14 @@ class CustomPaginatedCollection extends ResourceCollection
     {
         $paginated = $this->resource->toArray();
 
-        $paginated['items'] = $paginated['data'];
-        unset($paginated['data']);
+        if (isset($paginated['data'])) {
 
-        if (!$this->includeLinks) {
-            unset($paginated['links']);
+            $paginated['items'] = $paginated['data'];
+            unset($paginated['data']);
+
+            if (!$this->includeLinks) {
+                unset($paginated['links']);
+            }
         }
 
         return $paginated;
