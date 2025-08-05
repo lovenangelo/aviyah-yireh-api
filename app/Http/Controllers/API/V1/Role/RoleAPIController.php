@@ -9,15 +9,10 @@ use App\Repositories\RoleRepository;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Requests\Role\BulkDestroyRolesRequest;
+use App\Http\Resources\CustomPaginatedCollection;
 use App\Models\Role;
 use App\Traits\ApiResponse;
 
-/**
- * @OA\Tag(
- *     name="Roles",
- *     description="Endpoints for managing roles in the application",
- * )
- */
 class RoleAPIController extends Controller
 {
     use ApiResponse;
@@ -31,22 +26,10 @@ class RoleAPIController extends Controller
         $this->roleRepository = $roleRepository;
     }
 
-    /**
-     * Display a listing of the resource.
-     * @OA\Get(
-     *     path="/api/v1/roles",
-     *     summary="Get list of roles",
-     *     tags={"Roles"},
-     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="sort", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="List of roles")
-     * )
-     */
     public function index(Request $request): JsonResponse
     {
         try {
+            $perPage = $request->query('per_page', null);
             // Check if user has permission to view all roles
             $this->authorize('viewAny', self::ROLE);
 
@@ -59,37 +42,17 @@ class RoleAPIController extends Controller
 
             if ($filters) {
                 $roles = $this->roleRepository
-                    ->getFilter($filters)
-                    ->withCount('users')
-                    ->paginate($filters['per_page'] ?? 10)
-                    ->withQueryString();
+                    ->getFilter($filters, $perPage);
             } else {
-                $roles = $this->roleRepository->getAll();
+                $roles = $this->roleRepository->getAll($perPage);
             }
-
-            return $this->formatSuccessResponse($roles, "Roles retrieved successfuly!", 200);
+            $response = new CustomPaginatedCollection($roles, $request->query('include_links', false));
+            return $this->formatSuccessResponse($response, "Roles retrieved successfuly!", 200);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Roles Fetching');
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @OA\Post(
-     *     path="/api/v1/roles",
-     *     summary="Create a new role",
-     *     tags={"Roles"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Role created successfully")
-     * )
-     */
     public function store(StoreRoleRequest $request): JsonResponse
     {
         try {
@@ -103,17 +66,6 @@ class RoleAPIController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     * @OA\Get(
-     *     path="/api/v1/roles/{id}",
-     *     summary="Get a role by ID",
-     *     tags={"Roles"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Role details"),
-     *     @OA\Response(response=404, description="Role not found")
-     * )
-     */
     public function show(Request $request, $id): JsonResponse
     {
         try {
@@ -137,25 +89,6 @@ class RoleAPIController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     * @OA\Put(
-     *     path="/api/v1/roles/{id}",
-     *     summary="Update a role",
-     *     tags={"Roles"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Role updated successfully"),
-     *     @OA\Response(response=404, description="Role not found")
-     * )
-     */
     public function update(UpdateRoleRequest $request, $id): JsonResponse
     {
         try {
@@ -182,17 +115,6 @@ class RoleAPIController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @OA\Delete(
-     *     path="/api/v1/roles/{id}",
-     *     summary="Delete a role",
-     *     tags={"Roles"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Role deleted successfully"),
-     *     @OA\Response(response=404, description="Role not found")
-     * )
-     */
     public function destroy(Request $request, $id): JsonResponse
     {
         try {
@@ -215,22 +137,6 @@ class RoleAPIController extends Controller
         }
     }
 
-    /**
-     * Remove multiple roles from storage.
-     * @OA\Post(
-     *     path="/api/v1/roles/bulk-destroy",
-     *     summary="Bulk delete roles",
-     *     tags={"Roles"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"ids"},
-     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Roles deleted successfully")
-     * )
-     */
     public function bulkDestroy(BulkDestroyRolesRequest $request): JsonResponse
     {
         try {

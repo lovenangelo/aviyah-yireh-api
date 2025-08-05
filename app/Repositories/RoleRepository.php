@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Role;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Builder;
 
 class RoleRepository extends BaseRepository
 {
@@ -22,19 +23,87 @@ class RoleRepository extends BaseRepository
         return Role::class;
     }
 
-    public function getFilter($filters)
+    private function baseQuery(): Builder
     {
-        return $this->model->filter($filters);
+        return $this->model->newQuery();
+    }
+
+    private function executeQuery(Builder $query, $perPage = null)
+    {
+        return $perPage ? $query->paginate($perPage) : $query->get();
+    }
+
+    public function getFilter($filters, $perPage = null)
+    {
+        $query = $this->baseQuery()->filter($filters);
+        return $this->executeQuery($query, $perPage);
     }
 
     /**
      * Get all roles with their associated users count.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>
+     * @param int|null $perPage Number of items per page for pagination
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getAll()
+    public function getAll($perPage = null)
     {
-        return $this->model->withCount('users')->get();
+        $query = $this->baseQuery()->withCount('users');
+        return $this->executeQuery($query, $perPage);
+    }
+
+    /**
+     * Get roles with users relationship loaded.
+     *
+     * @param int|null $perPage Number of items per page for pagination
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getAllWithUsers($perPage = null)
+    {
+        $query = $this->baseQuery()->with('users')->withCount('users');
+        return $this->executeQuery($query, $perPage);
+    }
+
+    /**
+     * Get roles that have users assigned.
+     *
+     * @param int|null $perPage Number of items per page for pagination
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getRolesWithUsers($perPage = null)
+    {
+        $query = $this->baseQuery()->has('users')->withCount('users');
+        return $this->executeQuery($query, $perPage);
+    }
+
+    /**
+     * Get roles that have no users assigned.
+     *
+     * @param int|null $perPage Number of items per page for pagination
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getEmptyRoles($perPage = null)
+    {
+        $query = $this->baseQuery()->doesntHave('users')->withCount('users');
+        return $this->executeQuery($query, $perPage);
+    }
+
+    /**
+     * Search roles by name or description.
+     *
+     * @param string $searchTerm
+     * @param int|null $perPage Number of items per page for pagination
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function searchRoles($searchTerm, $perPage = null)
+    {
+        $query = $this->baseQuery()
+            ->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('description', 'like', "%{$searchTerm}%");
+            })
+            ->withCount('users');
+
+        return $this->executeQuery($query, $perPage);
     }
 
     /**
@@ -48,12 +117,10 @@ class RoleRepository extends BaseRepository
     public function createNewRole(array $inputs): Role
     {
         // Create role
-        $role = $this->model->create([
+        return $this->model->create([
             'name' => $inputs['name'],
             'description' => $inputs['description'],
         ]);
-
-        return $role;
     }
 
     /**
@@ -107,18 +174,29 @@ class RoleRepository extends BaseRepository
             'deleted' => 0,
             'failed' => 0,
             'attempted' => count($ids),
-            'has_users' => []
+            'has_users' => [],
+            'failed_details' => []
         ];
 
         foreach ($ids as $id) {
             $role = $this->find($id);
 
+            if (!$role) {
+                $result['failed']++;
+                $result['failed_details'][] = [
+                    'id' => $id,
+                    'reason' => 'Role not found'
+                ];
+                continue;
+            }
+
             // Skip if role has associated users
-            if ($role && $role->users()->count() > 0) {
+            if ($role->users()->count() > 0) {
                 $result['failed']++;
                 $result['has_users'][] = [
                     'id' => $role->id,
-                    'name' => $role->name
+                    'name' => $role->name,
+                    'users_count' => $role->users()->count()
                 ];
                 continue;
             }
@@ -128,6 +206,10 @@ class RoleRepository extends BaseRepository
                 $result['deleted']++;
             } catch (\Exception $e) {
                 $result['failed']++;
+                $result['failed_details'][] = [
+                    'id' => $id,
+                    'reason' => $e->getMessage()
+                ];
             }
         }
 
