@@ -63,7 +63,7 @@ class TrainingMaterialAPIController extends Controller
 
     private function handleSortedResults(Request $request, $perPage = null)
     {
-        $sortBy = $request->query('sortBy');
+        $sortBy = $request->query('sort_by');
 
         return match ($sortBy) {
             'popularity' => $this->trainingMaterialRepository->getVideosByPopularity($perPage),
