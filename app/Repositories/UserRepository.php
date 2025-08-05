@@ -2,16 +2,19 @@
 
 namespace App\Repositories;
 
-use Str;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Repositories\BaseRepository;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository
 {
+    public const USER_NOT_FOUND_MESSAGE = 'User not found.';
+
     protected $fieldSearchable = [
         'name',
         'email',
@@ -30,19 +33,29 @@ class UserRepository extends BaseRepository
         return User::class;
     }
 
-    public function getFilter($filters)
+    private function baseQuery(): Builder
     {
-        return $this->model->filter($filters);
+        return $this->model->newQuery();
+    }
+
+    private function executeQuery(Builder $query, $perPage = null)
+    {
+        return $perPage ? $query->paginate($perPage) : $query->get();
+    }
+
+    public function getFilter($filters, $perPage = null)
+    {
+        $query = $this->baseQuery()->filter($filters);
+        return $this->executeQuery($query, $perPage);
     }
 
     /**
      * Get all users with their associated roles.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>
      */
-    public function getAll()
+    public function getAll($perPage = null)
     {
-        return $this->model->with('role')->get();
+        $query = $this->baseQuery()->with('role');
+        return $this->executeQuery($query, $perPage);
     }
 
     /**
@@ -97,12 +110,10 @@ class UserRepository extends BaseRepository
     {
         // Get user to delete
         $userToDelete = $this->find($idToDelete);
-
-        // Check if user exists
         if (!$userToDelete) {
             return [
                 'success' => false,
-                'message' => 'User not found.',
+                'message' => self::USER_NOT_FOUND_MESSAGE,
                 'status' => 404
             ];
         }
@@ -171,11 +182,10 @@ class UserRepository extends BaseRepository
     public function updateAvatar(int $userId, UploadedFile $avatar): array
     {
         $user = $this->find($userId);
-
         if (!$user) {
             return [
                 'success' => false,
-                'message' => 'User not found.',
+                'message' => self::USER_NOT_FOUND_MESSAGE,
                 'status' => 404
             ];
         }

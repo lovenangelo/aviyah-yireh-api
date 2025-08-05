@@ -12,15 +12,10 @@ use App\Http\Requests\User\BulkDestroyUsersRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserAvatarRequest;
+use App\Http\Resources\CustomPaginatedCollection;
 use App\Traits\ApiResponse;
 use Illuminate\Http\UploadedFile;
 
-/**
- * @OA\Tag(
- *     name="Users",
- *     description="Endpoints for managing users, including CRUD operations, bulk actions, and profile management."
- * )
- */
 class UserAPIController extends Controller
 {
     use ApiResponse;
@@ -34,23 +29,10 @@ class UserAPIController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @OA\Get(
-     *     path="/api/v1/users",
-     *     summary="Get list of users",
-     *     tags={"Users"},
-     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="sort", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Parameter(name="roles", in="query", required=false, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="List of users")
-     * )
-     */
     public function index(Request $request): JsonResponse
     {
+
+        $perPage = $request->query('per_page', null);
 
         try {
             // Check if user has permission to view all users
@@ -66,42 +48,22 @@ class UserAPIController extends Controller
 
             if ($filters) {
                 $users = $this->userRepository
-                    ->getFilter($filters)
-                    ->with('role')
-                    ->paginate($filters['per_page'] ?? 10)
-                    ->withQueryString();
+                    ->getFilter($filters, $perPage);
             } else {
-                $users = $this->userRepository->getAll();
+                $users = $this->userRepository->getAll($perPage);
             }
 
+            $response = new CustomPaginatedCollection($users, $request->query('include_links', false));
+
             return $this->formatSuccessResponse(
-                data: $users
+                data: $response,
+                message: 'Users retrieved successfully.'
             );
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Show Users');
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @OA\Post(
-     *     path="/api/v1/users",
-     *     summary="Create a new user",
-     *     tags={"Users"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name", "email", "role_id"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="role_id", type="integer")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="User created successfully")
-     * )
-     */
     public function store(StoreUserRequest $request): JsonResponse
     {
         try {
@@ -122,18 +84,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @OA\Get(
-     *     path="/api/v1/users/{id}",
-     *     summary="Get a user by ID",
-     *     tags={"Users"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="User details"),
-     *     @OA\Response(response=404, description="User not found")
-     * )
-     */
     public function show($id, Request $request): JsonResponse
     {
         try {
@@ -163,28 +113,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @OA\Put(
-     *     path="/api/v1/users/{id}",
-     *     summary="Update a user",
-     *     tags={"Users"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name", "email", "role_id"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="role_id", type="integer")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="User updated successfully"),
-     *     @OA\Response(response=404, description="User not found")
-     * )
-     */
     public function update(UpdateUserRequest $request, $id): JsonResponse
     {
 
@@ -221,9 +149,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function updateProfile(UpdateUserRequest $request, ?int $id = null): JsonResponse
     {
         try {
@@ -259,9 +184,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Update the password of the specified user.
-     */
     public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
     {
         try {
@@ -291,18 +213,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @OA\Delete(
-     *     path="/api/v1/users/{id}",
-     *     summary="Delete a user",
-     *     tags={"Users"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="User deleted successfully"),
-     *     @OA\Response(response=404, description="User not found")
-     * )
-     */
     public function destroy(Request $request, $id): JsonResponse
     {
         try {
@@ -335,23 +245,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Remove multiple users from storage.
-     *
-     * @OA\Post(
-     *     path="/api/v1/users/bulk-destroy",
-     *     summary="Bulk delete users",
-     *     tags={"Users"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"ids"},
-     *             @OA\Property(property="ids", type="array", @OA\Items(type="integer"))
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Users deleted successfully")
-     * )
-     */
     public function bulkDestroy(BulkDestroyUsersRequest $request): JsonResponse
     {
         try {
@@ -383,9 +276,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Upload or update user avatar.
-     */
     public function uploadAvatar(UpdateUserAvatarRequest $request): JsonResponse
     {
         try {
@@ -431,9 +321,6 @@ class UserAPIController extends Controller
         }
     }
 
-    /**
-     * Delete user avatar.
-     */
     public function deleteAvatar(Request $request): JsonResponse
     {
         try {
