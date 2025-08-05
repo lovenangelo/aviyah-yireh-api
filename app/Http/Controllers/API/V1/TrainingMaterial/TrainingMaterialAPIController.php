@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TrainingMaterial\BulkDestroyTrainingMaterialsRequest;
-use App\Http\Requests\TrainingMaterial\StoreTrainingMaterialRequest;
-use App\Http\Requests\TrainingMaterial\UpdateTrainingMaterialRequest;
+use App\Http\Resources\CustomPaginatedCollection;
 use App\Traits\ApiResponse;
 use App\Repositories\TrainingMaterialRepository;
 
@@ -31,66 +30,67 @@ class TrainingMaterialAPIController extends Controller
         $this->trainingMaterialRepository = $trainingMaterialRepository;
     }
 
+    private function getTrainingMaterials(Request $request, $perPage = null)
+    {
+        $filter = $request->query('filter');
+        $sort = $request->query('sort');
+
+        if ($filter) {
+            return $this->handleFilteredResults($request, $perPage);
+        }
+
+        if ($sort) {
+            return $this->handleSortedResults($request, $perPage);
+        }
+
+        return $this->trainingMaterialRepository->getAll($perPage);
+    }
+
+    private function handleFilteredResults(Request $request, $perPage = null)
+    {
+        $type = $request->query('type');
+
+        return match ($type) {
+            'document' => $this->trainingMaterialRepository->getAllDocuments($perPage),
+            'video' => $this->trainingMaterialRepository->getAllVideos($perPage),
+            'image' => $this->trainingMaterialRepository->getAllImage($perPage),
+            'audio' => $this->trainingMaterialRepository->getAllAudio($perPage),
+            'english' => $this->trainingMaterialRepository->getAllEnglish($perPage),
+            'tagalog' => $this->trainingMaterialRepository->getAllTagalog($perPage),
+            default => $this->formatErrorResponse(400, 'Invalid filter type specified in query parameters.', [], 400)
+        };
+    }
+
+    private function handleSortedResults(Request $request, $perPage = null)
+    {
+        $sortBy = $request->query('sortBy');
+
+        return match ($sortBy) {
+            'popularity' => $this->trainingMaterialRepository->getVideosByPopularity($perPage),
+            'dateUploaded' => $this->trainingMaterialRepository->getVideosByDateUploaded($perPage),
+            default => $this->formatErrorResponse(400, 'Invalid sort type specified in query parameters.', [], 400)
+        };
+    }
+
     public function index(Request $request): JsonResponse
     {
         try {
-            $trainingMaterials = null;
-            $filter = $request->query('filter');
-            $sort = $request->query('sort');
+            $perPage = $request->query('per_page');
             $withAuthor = $request->query('with_author');
-            $response = null;
 
-            // Retrieve training material based on filter
-            if ($filter) {
-                $type = $request->query('type');
-                switch ($type) {
-                    case "document":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllDocuments($withAuthor);
-                        break;
-                    case "video":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllVideos($withAuthor);
-                        break;
-                    case "image":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllImage($withAuthor);
-                        break;
-                    case "audio":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllAudio($withAuthor);
-                        break;
-                    case "english":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllEnglish($withAuthor);
-                        break;
-                    case "tagalog":
-                        $trainingMaterials = $this->trainingMaterialRepository->getAllTagalog($withAuthor);
-                        break;
-                    default:
-                        $response = $this->formatErrorResponse(400, 'Invalid filter type specified in query parameters.', [], 400);
-                        break;
-                }
-                // Retrieve training material based on sort
-            } elseif ($sort) {
-                $sortBy = $request->query('sortBy');
-                switch ($sortBy) {
-                    case 'popularity':
-                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByPopularity($withAuthor);
-                        break;
-                    case 'dateUploaded':
-                        $trainingMaterials = $this->trainingMaterialRepository->getVideosByDateUploaded($withAuthor);
-                        break;
-                    default:
-                        $response = $this->formatErrorResponse(400, 'Invalid sort type specified in query parameters.', [], 400);
-                        break;
-                }
-            } else {
-                $trainingMaterials = $this->trainingMaterialRepository->getAll($withAuthor);
+            $trainingMaterials = $this->getTrainingMaterials($request, $perPage);
+
+            if ($trainingMaterials instanceof JsonResponse) {
+                return $trainingMaterials;
             }
 
-            if ($response === null) {
-                if ($withAuthor) {
-                    $trainingMaterials = $trainingMaterials->load('user');
-                }
-                $response = $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
+            if ($withAuthor && !$trainingMaterials instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+                $trainingMaterials = $trainingMaterials->load('user');
             }
-            return $response;
+
+            $trainingMaterials = new CustomPaginatedCollection($trainingMaterials);
+
+            return $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }

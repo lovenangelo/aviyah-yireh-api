@@ -3,76 +3,80 @@
 namespace App\Repositories;
 
 use App\Models\TrainingMaterial;
+use Illuminate\Database\Eloquent\Builder;
 
 class TrainingMaterialRepository
 {
-    public function getAll()
+    private function baseQuery(): Builder
     {
-        return TrainingMaterial::with(['category', 'language',])->get();
+        return TrainingMaterial::with(['category', 'language']);
     }
 
-    public function getAllPdf()
+    private function executeQuery(Builder $query, $perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->where('file_type', 'document')
-            ->get();
-    }
-    public function getAllVideos()
-    {
-        return TrainingMaterial::with(['category', 'language',])
-            ->where('file_type', 'video')
-            ->get();
+        return $perPage ? $query->paginate($perPage) : $query->get();
     }
 
-    public function getAllImage()
+    public function getAll($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->where('file_type', 'image')
-            ->get();
+        return $this->executeQuery($this->baseQuery(), $perPage);
     }
 
-    public function getAllAudio()
+    public function getAllPdf($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->where('file_type', 'audio')
-            ->get();
+        $query = $this->baseQuery()->where('file_type', 'document');
+        return $this->executeQuery($query, $perPage);
     }
 
-    public function getAllEnglish()
+    public function getAllVideos($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->whereHas('language', function ($q) {
-                $q->where('name', 'english');
-            })
-            ->get();
+        $query = $this->baseQuery()->where('file_type', 'video');
+        return $this->executeQuery($query, $perPage);
     }
 
-    public function getAllTagalog()
+    public function getAllImage($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->whereHas('language', function ($q) {
-                $q->where('name', 'tagalog');
-            })
-            ->get();
+        $query = $this->baseQuery()->where('file_type', 'image');
+        return $this->executeQuery($query, $perPage);
     }
 
-    public function getVideosByPopularity()
+    public function getAllAudio($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->orderBy('views', 'desc')
-            ->get();
+        $query = $this->baseQuery()->where('file_type', 'audio');
+        return $this->executeQuery($query, $perPage);
     }
 
-    public function getVideosByDateUploaded()
+    public function getAllEnglish($perPage = null)
     {
-        return TrainingMaterial::with(['category', 'language',])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = $this->baseQuery()->whereHas('language', function ($q) {
+            $q->where('name', 'english');
+        });
+        return $this->executeQuery($query, $perPage);
+    }
+
+    public function getAllTagalog($perPage = null)
+    {
+        $query = $this->baseQuery()->whereHas('language', function ($q) {
+            $q->where('name', 'tagalog');
+        });
+        return $this->executeQuery($query, $perPage);
+    }
+
+    public function getVideosByPopularity($perPage = null)
+    {
+        $query = $this->baseQuery()->orderBy('views', 'desc');
+        return $this->executeQuery($query, $perPage);
+    }
+
+    public function getVideosByDateUploaded($perPage = null)
+    {
+        $query = $this->baseQuery()->orderBy('created_at', 'desc');
+        return $this->executeQuery($query, $perPage);
     }
 
     public function find($id)
     {
-        return TrainingMaterial::with(['category', 'language',])->where("id", $id)->first();
+        return $this->baseQuery()->where("id", $id)->first();
     }
 
     public function upload(array $data)
@@ -90,7 +94,6 @@ class TrainingMaterialRepository
         return $trainingMaterial->delete();
     }
 
-
     public function bulkDestroy(array $ids): array
     {
         $result = [
@@ -102,7 +105,6 @@ class TrainingMaterialRepository
 
         foreach ($ids as $id) {
             $trainingMaterial = $this->find($id);
-
             if ($trainingMaterial) {
                 try {
                     $this->delete($trainingMaterial);
@@ -112,6 +114,7 @@ class TrainingMaterialRepository
                 }
             }
         }
+
         return $result;
     }
 }
