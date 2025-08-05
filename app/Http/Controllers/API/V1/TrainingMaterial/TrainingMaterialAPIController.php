@@ -88,8 +88,7 @@ class TrainingMaterialAPIController extends Controller
                 $trainingMaterials = $trainingMaterials->load('user');
             }
 
-            $trainingMaterials = new CustomPaginatedCollection($trainingMaterials);
-
+            $trainingMaterials = new CustomPaginatedCollection($trainingMaterials, $request->query('include_links', false));
             return $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
