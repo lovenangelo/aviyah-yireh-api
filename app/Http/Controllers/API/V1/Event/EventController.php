@@ -43,10 +43,14 @@ class EventController extends Controller
             }
 
             $event = new CustomPaginatedCollection($event, $request->query('include_links', false));
-
+            activity()
+                ->causedBy(auth()->user())
+                ->log('User Created Event');
             return $this->formatSuccessResponse(
                 data: $event
             );
+
+
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Show Events');
         }

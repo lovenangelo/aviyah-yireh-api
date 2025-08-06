@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Spatie\Activitylog\LogOptions;
 class Events extends Model
 {
     use HasFactory;
@@ -56,5 +56,15 @@ class Events extends Model
             $query->where('author_id', $filters['author_id']);
         }
         return $query;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('events')
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 }

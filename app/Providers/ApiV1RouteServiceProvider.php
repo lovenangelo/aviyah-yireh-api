@@ -38,5 +38,8 @@ class ApiV1RouteServiceProvider extends ServiceProvider
         Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/training-materials.php'));
+        Route::prefix(self::API_V1_PREFIX)
+            ->middleware(['api', self::AUTH_SANCTUM])
+            ->group(base_path('routes/api/v1/logs.php'));
     }
 }

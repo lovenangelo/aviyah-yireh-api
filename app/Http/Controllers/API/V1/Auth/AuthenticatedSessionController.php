@@ -13,7 +13,11 @@ use Illuminate\Support\Facades\Auth;
 class AuthenticatedSessionController extends Controller
 {
     use ApiResponse;
-
+    public function getAllLogs()
+    {
+        $activities = Activity::all();
+        return response()->json($activities);
+    }
     public function store(LoginRequest $request): Response|JsonResponse
     {
         $user = null;
@@ -21,6 +25,12 @@ class AuthenticatedSessionController extends Controller
             $request->authenticate();
 
             $user = Auth::user();
+            $user->logActivity('User authentication successful', [
+                'action_type' => 'auth_success',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'login_method' => 'email_password',
+            ]);
             $response = null;
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Two-factor Authentication");
