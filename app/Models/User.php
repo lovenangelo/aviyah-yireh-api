@@ -15,7 +15,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -350,5 +351,19 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $this->logActivity($description, $properties);
+    }
+
+
+     public function logRegister(bool $successful = true)
+    {
+        activity('user')
+            ->causedBy($this)
+            ->withProperties([
+                'action_type' => 'register',
+                'status' => $successful ? 'success' : 'failed',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log('User registered' . ($successful ? ' successfully' : ' with failure'));
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Spatie\Activitylog\LogOptions;
 class TrainingMaterial extends Model
 {
 
@@ -39,5 +39,16 @@ class TrainingMaterial extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+      public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly($this->fillable) // log only fillable attributes
+            ->logOnlyDirty()           // log only changed values
+            ->useLogName('training_material') // custom log name
+            ->setDescriptionForEvent(function (string $eventName) {
+                return "Training Material was {$eventName}";
+            });
     }
 }

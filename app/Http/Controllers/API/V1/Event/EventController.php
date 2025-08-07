@@ -65,6 +65,10 @@ class EventController extends Controller
 
             $event = $this->eventRepository->storeEvents($request);
 
+            activity('event')
+            ->performedOn($event)
+            ->causedBy(auth()->user())
+            ->log("Created event: {$event->title}");
 
             return $this->formatSuccessResponse(
                 message: "Event created successfully",
@@ -118,7 +122,11 @@ class EventController extends Controller
 
 
             $this->eventRepository->update($request->all(), $event->id);
-
+            activity('event')
+            ->performedOn($event)
+            ->causedBy(auth()->user())
+            ->withProperties(['changes' => $request->all()])
+            ->log("Updated event: {$event->title}");
             return $this->formatSuccessResponse(
                 message: "Event update successfully",
                 data: [
@@ -148,6 +156,12 @@ class EventController extends Controller
             $this->authorize('delete', $event);
 
             $this->eventRepository->delete($event->id);
+
+            activity('event')
+            ->performedOn($event)
+            ->causedBy(auth()->user())
+            ->log("Deleted event: {$event->title}");
+
 
             return $this->formatSuccessResponse(
                 message: "Event successfully deleted",

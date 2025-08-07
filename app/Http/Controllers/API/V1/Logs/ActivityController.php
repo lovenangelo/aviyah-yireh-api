@@ -16,10 +16,14 @@ use App\Models\User;
 use Spatie\Activitylog\Models\Activity;
 class ActivityController extends Controller
 {
-    public function getAllLogs()
+    public function getAllLogs(): JsonResponse
     {
-        $activities = Activity::all();
-        return response()->json($activities);
+        try {
+            $activities = Activity::all();
+            return $this->formatSuccessResponse($activities, "Activity logs retrieved successfully");
+        } catch (\Throwable $e) {
+            return $this->handleApiException($e, request(), "Fetching Activity Logs");
+        }
     }
 
 

@@ -61,10 +61,9 @@ class Events extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logFillable()
+            ->logOnly($this->fillable)
+            ->useLogName('event')         
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('events')
-            ->dontLogIfAttributesChangedOnly(['updated_at']);
+            ->setDescriptionForEvent(fn(string $eventName) => "Event {$this->title} was {$eventName}");
     }
 }
