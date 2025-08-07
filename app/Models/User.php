@@ -15,7 +15,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -316,5 +317,53 @@ class User extends Authenticatable implements MustVerifyEmail
             'name' => $this->name,
         ];
         \Illuminate\Support\Facades\Mail::to($this->email)->send(new BrevoMail($details));
+    }
+
+    public function logActivity(string $description, array $properties = [])
+    {
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($this)
+            ->withProperties(array_merge([
+                'user_name' => $this->name,
+                'user_email' => $this->email,
+                'user_role' => $this->role?->name,
+            ], $properties))
+            ->log($description);
+    }
+
+    /**
+     * Log user login attempt
+     */
+    public function logLogin(bool $successful = true, string $reason = null)
+    {
+        $description = $successful ? 'User logged in successfully' : 'User login attempt failed';
+
+        $properties = [
+            'action_type' => $successful ? 'login_success' : 'login_failed',
+            'login_time' => now()->toDateTimeString(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
+        ];
+
+        if (!$successful && $reason) {
+            $properties['failure_reason'] = $reason;
+        }
+
+        $this->logActivity($description, $properties);
+    }
+
+
+     public function logRegister(bool $successful = true)
+    {
+        activity('user')
+            ->causedBy($this)
+            ->withProperties([
+                'action_type' => 'register',
+                'status' => $successful ? 'success' : 'failed',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ])
+            ->log('User registered' . ($successful ? ' successfully' : ' with failure'));
     }
 }

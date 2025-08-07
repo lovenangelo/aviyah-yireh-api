@@ -43,10 +43,11 @@ class EventController extends Controller
             }
 
             $event = new CustomPaginatedCollection($event, $request->query('include_links', false));
-
             return $this->formatSuccessResponse(
                 data: $event
             );
+
+
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Show Events');
         }
@@ -57,7 +58,6 @@ class EventController extends Controller
         try {
 
 
-            $this->authorize('create', Events::class);
 
             $event = $this->eventRepository->storeEvents($request);
 
@@ -114,7 +114,7 @@ class EventController extends Controller
 
 
             $this->eventRepository->update($request->all(), $event->id);
-
+          
             return $this->formatSuccessResponse(
                 message: "Event update successfully",
                 data: [
@@ -132,7 +132,7 @@ class EventController extends Controller
         try {
 
             $event = $this->eventRepository->find($id);
-
+          
             if (!$event) {
                 return $this->formatErrorResponse(
                     code: "NOT_FOUND",

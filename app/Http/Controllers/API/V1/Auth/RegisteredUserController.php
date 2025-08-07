@@ -111,6 +111,8 @@ class RegisteredUserController extends Controller
 
             Auth::login($user);
 
+            $userLogin = Auth::user();
+            $userLogin->logRegister(true);
             $token = $user->createToken('auth-token')->plainTextToken;
             $data = ["user" => $user, "token" => $token];
             return $this->formatSuccessResponse($data, "Successfully registered new user", 201);

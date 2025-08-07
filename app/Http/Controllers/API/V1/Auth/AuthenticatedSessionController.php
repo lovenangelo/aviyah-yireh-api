@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
             $request->authenticate();
 
             $user = Auth::user();
+            $user->logLogin(true);
             $response = null;
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, "Two-factor Authentication");
