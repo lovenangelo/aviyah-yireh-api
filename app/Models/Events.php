@@ -89,4 +89,14 @@ class Events extends Model
 
         $this->logActivity($description, $properties);
     }
+
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'description', 'start_date']) // specify fields to log
+            ->logOnlyDirty() // only log changed attributes
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Event \"{$this->title}\" was {$eventName}");
+    }
+
 }
