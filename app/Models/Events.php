@@ -97,6 +97,22 @@ class Events extends Model
             ->logOnlyDirty() // only log changed attributes
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn(string $eventName) => "Event \"{$this->title}\" was {$eventName}");
-    }
 
+        }
+        protected static function boot()
+        {
+            parent::boot();
+
+            static::created(function ($event) {
+                $event->logEventAction('created');
+            });
+
+            static::updated(function ($event) {
+                $event->logEventAction('updated');
+            });
+
+            static::deleted(function ($event) {
+                $event->logEventAction('deleted');
+            });
+        }
 }

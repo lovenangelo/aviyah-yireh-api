@@ -43,9 +43,6 @@ class EventController extends Controller
             }
 
             $event = new CustomPaginatedCollection($event, $request->query('include_links', false));
-            activity()
-                ->causedBy(auth()->user())
-                ->log('User Created Event');
             return $this->formatSuccessResponse(
                 data: $event
             );
@@ -64,7 +61,7 @@ class EventController extends Controller
 
             $event = $this->eventRepository->storeEvents($request);
 
-            $event->logEventAction('created');
+
             return $this->formatSuccessResponse(
                 message: "Event created successfully",
                 data: $event
