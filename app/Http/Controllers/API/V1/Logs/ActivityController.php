@@ -16,10 +16,8 @@ class ActivityController extends Controller
         try {
             $perPage = request()->get('per_page', 15);
             $activities = Activity::paginate($perPage);
-
-            // Assuming you have a CustomPaginatedCollection resource
             return $this->formatSuccessResponse(
-                new CustomPaginatedCollection($activities),
+                new CustomPaginatedCollection($activities, request()->get('include_links', false)),
                 "Activity logs retrieved successfully"
             );
         } catch (\Throwable $e) {
