@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes; // Optional
 use Illuminate\Support\Str;
+use Spatie\Activitylog\LogOptions;
 
 class Post extends Model
 {
@@ -37,12 +39,12 @@ class Post extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);
-                
-         
+
+
                 $originalSlug = $model->slug;
                 $count = 1;
                 while (static::where('slug', $model->slug)->exists()) {
@@ -57,6 +59,18 @@ class Post extends Model
                 $model->slug = Str::slug($model->title);
             }
         });
+
+        static::created(function ($event) {
+            $event->logEventAction('created');
+        });
+
+        static::updated(function ($event) {
+            $event->logEventAction('updated');
+        });
+
+        static::deleted(function ($event) {
+            $event->logEventAction('deleted');
+        });
     }
 
 
@@ -69,8 +83,8 @@ class Post extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
     }
 
     public function scopeDraft($query)
@@ -86,7 +100,7 @@ class Post extends Model
     public function scopeSearch($query, $term)
     {
         return $query->where('title', 'like', "%{$term}%")
-                    ->orWhere('content', 'like', "%{$term}%");
+            ->orWhere('content', 'like', "%{$term}%");
     }
 
     public function scopeByUser($query, $userId)
@@ -102,16 +116,16 @@ class Post extends Model
     // Accessors
     public function getIsPublishedAttribute()
     {
-        return $this->status === 'published' && 
-               $this->published_at && 
-               $this->published_at->isPast();
+        return $this->status === 'published' &&
+            $this->published_at &&
+            $this->published_at->isPast();
     }
 
     // Mutators
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = $value;
-        
+
         // Only auto-generate slug if it's empty
         if (empty($this->attributes['slug'])) {
             $this->attributes['slug'] = Str::slug($value);
@@ -122,5 +136,44 @@ class Post extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    public function logActivity(string $description, array $properties = []): void
+    {
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($this)
+            ->withProperties(array_merge([
+                'user_name' =>  Auth::user()?->name,
+                'user_email' =>  Auth::user()?->email,
+                'user_role' =>  Auth::user()?->role?->name,
+            ], $properties))
+            ->log($description);
+    }
+
+
+    public function logEventAction(string $actionType): void
+    {
+        $description = "Event \"{$this->title}\" was {$actionType}";
+
+        $properties = [
+            'action_type' => $actionType,
+            'event_id' => $this->id,
+            'event_title' => $this->title,
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
+            'action_time' => now()->toDateTimeString(),
+        ];
+
+        $this->logActivity($description, $properties);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'description', 'start_date']) // specify fields to log
+            ->logOnlyDirty() // only log changed attributes
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Event \"{$this->title}\" was {$eventName}");
     }
 }

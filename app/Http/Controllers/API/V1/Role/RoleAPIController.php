@@ -10,7 +10,6 @@ use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Requests\Role\BulkDestroyRolesRequest;
 use App\Http\Resources\CustomPaginatedCollection;
-use App\Models\Role;
 use App\Traits\ApiResponse;
 
 class RoleAPIController extends Controller
