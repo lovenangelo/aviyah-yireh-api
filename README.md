@@ -18,6 +18,7 @@ Example: Place the ff code in the Module Controller.
 
 ```
 <?php
+
 use App\Exports\CsvExport;
 
 $data = [
