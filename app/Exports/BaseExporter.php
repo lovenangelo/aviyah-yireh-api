@@ -4,7 +4,14 @@ namespace App\Exports;
 
 abstract class BaseExporter
 {
+    /**
+     * The data to be exported
+     */
     protected $data;
+    
+    /**
+     * The name of the file that will contain the exported data
+     */
     protected $fileName;
 
     public function __construct(array $data = [])
@@ -47,7 +54,7 @@ abstract class BaseExporter
     }
 
     /**
-     * Export the data (must be implemented in child class).
+     * Export the data.
      */
     abstract public function export(): mixed;
 }

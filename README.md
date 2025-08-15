@@ -33,6 +33,25 @@ return $exporter->export();
 
 When executed, this code will download a csv file, which can then be imported to different spreadsheet softwares.
 
+You can also pre declare the Exporter Class, and set the data later.
+
+```
+<?php
+
+use App\Exports\CsvExport;
+
+$data = [
+    ['name' => 'Alice', 'email' => 'alice@example.com'],
+    ['name' => 'Bob', 'email' => 'bob@example.com'],
+];
+
+$exporter = new CsvExport();
+$exporter->setFileName('custom-file-name.csv');
+$exporter->setData($data);
+return $exporter->export();
+```
+
+
 Code for this is available inside the App\Exports namespace.
 
 ---
