@@ -65,6 +65,9 @@ Route::prefix("users")->group(function () {
     Route::delete('/bulk-delete', [UserAPIController::class, 'bulkDestroy'])
         ->name('users.bulk-delete');
 
+    // User Csv list
+    Route::get("/csv", [UserAPIController::class, 'downloadCsv'])->name('users.csv');
+
     // User list
     Route::get("/", [UserAPIController::class, 'index'])->name('users.list');
 

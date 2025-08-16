@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1\User;
 
+use App\Exports\CsvExport;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -13,6 +14,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserAvatarRequest;
 use App\Http\Resources\CustomPaginatedCollection;
+use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\UploadedFile;
 
@@ -374,6 +376,28 @@ class UserAPIController extends Controller
             );
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Get Authenticated User');
+        }
+    }
+
+    public function downloadCsv(Request $request)
+    {
+        try {
+            // Check if user has permission to export users
+            //$this->authorize('export', self::USER);
+
+            // Get export data
+            $users = $this->userRepository->getAll();
+
+            // Get export data for all users
+            $exportData = $users->map(function ($user) {
+                return $user->getExportData();
+            });
+
+            $exporter = new CsvExport($exportData->toArray());
+            $exporter->setFileName('users.csv');
+            return $exporter->export();
+        } catch (\Throwable $th) {
+            return $this->handleApiException($th, $request, 'Export Users to CSV');
         }
     }
 }
