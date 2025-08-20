@@ -17,7 +17,7 @@ class CsvExport extends BaseExporter
     public function export(): StreamedResponse
     {
 
-        $fileName =isset($this->fileName) ? $this->fileName : $this->fileNameGenerator();
+        $fileName = isset($this->fileName) ? $this->fileName : $this->fileNameGenerator();
 
         $headers = [
             'Content-Type' => 'text/csv',
