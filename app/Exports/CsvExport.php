@@ -29,6 +29,8 @@ class CsvExport extends BaseExporter
 
             if (!empty($this->data)) {
                 fputcsv($handle, array_keys($this->data[0]));
+            } else {
+                throw new \InvalidArgumentException("CSV export requires non-empty data. Call setData() before export.");
             }
 
             foreach ($this->data as $row) {
