@@ -45,7 +45,7 @@ class UserRepository extends BaseRepository
 
     public function getFilter($filters, $perPage = null)
     {
-        $query = $this->baseQuery()->filter($filters);
+        $query = $this->baseQuery()->with('role')->filter($filters);
         return $this->executeQuery($query, $perPage);
     }
 
