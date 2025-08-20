@@ -9,12 +9,22 @@ trait Exportable
         $fields = $this->getExportFields();
         $data = $this->only(array_keys($fields));
 
-        // Apply any transformations defined in the model
-        if (method_exists($this, 'transformExportData')) {
-            $data = $this->transformExportData($data);
+        return $this->renameKeys($data, $fields);
+
+    }
+
+    private function renameKeys(array $data, array $keys)
+    {
+
+        $newData = [];
+
+        foreach ($data as $key => $value) {
+            $newKey = $keys[$key] ?? $key;
+            $newData[$newKey] = $value;
         }
 
-        return $data;
+        return $newData;
+
     }
 
     public static function getExportHeaders()
