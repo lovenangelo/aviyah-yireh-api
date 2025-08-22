@@ -6,6 +6,7 @@ use App\Mail\BrevoMail;
 use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\TwoFactorCode;
 use Carbon\Carbon;
+use App\Traits\Exportable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -13,14 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Exportable;
 
     /**
      * The attributes that are mass assignable.
@@ -105,6 +104,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone' => 'nullable|string|max:20|regex:/^[\+]?[0-9\-\(\)\s]+$/',
         'password' => 'required|string|min:8|max:255',
         'role_id' => 'required|exists:roles,id',
+    ];
+
+    protected static $exportFields = [
+        'name' => 'Full Name',
+        'email' => 'Email Address',
+        'phone' => 'Phone Number',
+        'role.name' => 'Role',
+        'two_factor_enabled' => '2FA Enabled',
+        'created_at' => 'Member Since',
+        'updated_at' => 'Last Updated',
     ];
 
     /**
@@ -354,7 +363,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-     public function logRegister(bool $successful = true)
+    public function logRegister(bool $successful = true)
     {
         activity('user')
             ->causedBy($this)
