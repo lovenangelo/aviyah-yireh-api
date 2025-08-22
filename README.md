@@ -11,7 +11,7 @@ your-domain/api/documentation#/
 
 ## Features
 
-### Exporter
+### CSV Exporter
 
 
 Example: Place the ff code in the Module Controller.
@@ -51,8 +51,30 @@ $exporter->setData($data);
 return $exporter->export();
 ```
 
+### PDF Exporter
 
-Code for this is available inside the App\Exports namespace.
+First, create a blade file that will serve as a template for the pdf.
+
+Then place the ff code in the Module Controller.
+
+The ff example assumes that a blade file named test.blade.php exists inside resources/view/pdf directory.
+
+```
+<?php
+
+use App\Exports\PdfExport;
+
+$data = ['name' => 'User Name', 'age' => '23 Years Old'];
+
+$exporter = new PdfExport();
+$exporter->setFileName('custom-file-name.pdf');
+$exporter->setTemplate('pdf.test');
+$exporter->setData($data);
+
+return $exporter->export();
+```
+
+Code for both CSV and PDF Export Classes are all available inside the App\Exports namespace.
 
 ---
 
