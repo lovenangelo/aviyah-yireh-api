@@ -39,6 +39,11 @@ class RoleRepository extends BaseRepository
         return $this->executeQuery($query, $perPage);
     }
 
+    public function find($id, $columns = ['*'])
+    {
+        return $this->baseQuery()->find($id, $columns);
+    }
+
     /**
      * Get all roles with their associated users count.
      *

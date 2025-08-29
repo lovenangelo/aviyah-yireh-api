@@ -75,12 +75,14 @@ class RoleAPIController extends Controller
             $role = $this->roleRepository->find($id);
 
             // Check if role exists
-            if (! $role) {
+            if (!$role) {
                 return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
+            $user = $request->user();
+
             // Check if user has permission to view the role
-            $this->authorize('view', $role);
+            $this->authorize('view', $user);
 
             // Load related data
             $role->loadCount('users');
