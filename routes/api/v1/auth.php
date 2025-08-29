@@ -15,6 +15,10 @@ Route::prefix('roles')->group(function () {
     // Define a constant for the ID route segment
     $roleIdRoute = '/{id}';
 
+    // Permission routes
+    Route::get('permissions', [PermissionAPIController::class, 'index']);
+    Route::get('permissions/matrix', [PermissionAPIController::class, 'matrix']);
+
     // Roles list
     Route::get('/', [RoleAPIController::class, 'index'])->name('roles.list');
 
@@ -33,10 +37,6 @@ Route::prefix('roles')->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
-
-    // Permission routes
-    Route::get('permissions', [PermissionAPIController::class, 'index']);
-    Route::get('permissions/matrix', [PermissionAPIController::class, 'matrix']);
 });
 
 // Two-factor authentication toggle

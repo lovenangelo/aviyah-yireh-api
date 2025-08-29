@@ -18,9 +18,7 @@ class PermissionAPIController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-
             $permissions = Permission::all();
-
             // Group permissions by module
             $groupedPermissions = $this->groupPermissionsByModule($permissions);
 
