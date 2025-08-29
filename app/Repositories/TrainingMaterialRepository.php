@@ -12,89 +12,64 @@ class TrainingMaterialRepository
         return TrainingMaterial::with(['category', 'language']);
     }
 
-    private function executeQuery(Builder $query, $perPage = null)
+    private function executeQuery(Builder $query, $perPage = null, $published = null)
     {
+        if (!is_null($published)) {
+            $query->where('is_visible', $published);
+        }
+
         return $perPage ? $query->paginate($perPage) : $query->get();
     }
 
-    public function getAll($perPage = null)
+    public function getAll($perPage = null, $published = null)
     {
-        return $this->executeQuery($this->baseQuery(), $perPage);
+        return $this->executeQuery($this->baseQuery(), $perPage, $published);
     }
 
-    public function getAllDocuments($perPage = null)
-    {
-        $query = $this->baseQuery()->where('file_type', 'document');
-
-        return $this->executeQuery($query, $perPage);
-    }
-
-    public function getAllVideos($perPage = null)
-    {
-        $query = $this->baseQuery()->where('file_type', 'video');
-
-        return $this->executeQuery($query, $perPage);
-    }
-
-    public function getAllImage($perPage = null)
-    {
-        $query = $this->baseQuery()->where('file_type', 'image');
-
-        return $this->executeQuery($query, $perPage);
-    }
-
-    public function getAllAudio($perPage = null)
-    {
-        $query = $this->baseQuery()->where('file_type', 'audio');
-
-        return $this->executeQuery($query, $perPage);
-    }
-
-    public function getAllEnglish($perPage = null)
+    public function getAllEnglish($perPage = null, $published = null)
     {
         $query = $this->baseQuery()->whereHas('language', function ($q) {
-            $q->where('name', 'english');
+            $q->where('name', 'English');
         });
-
-        return $this->executeQuery($query, $perPage);
+        return $this->executeQuery($query, $perPage, $published);
     }
 
-    public function getAllTagalog($perPage = null)
+    public function getAllTagalog($perPage = null, $published = null)
     {
         $query = $this->baseQuery()->whereHas('language', function ($q) {
-            $q->where('name', 'tagalog');
+            $q->where('name', 'Tagalog');
         });
-
-        return $this->executeQuery($query, $perPage);
+        return $this->executeQuery($query, $perPage, $published);
     }
 
-    public function getVideosByPopularity($perPage = null)
+    public function getVideosByPopularity($perPage = null, $published = null)
     {
         $query = $this->baseQuery()->orderBy('views', 'desc');
-
-        return $this->executeQuery($query, $perPage);
+        return $this->executeQuery($query, $perPage, $published);
     }
 
-    public function getVideosByDateUploaded($perPage = null)
+    public function getVideosByDateUploaded($perPage = null, $published = null)
     {
         $query = $this->baseQuery()->orderBy('created_at', 'desc');
-
-        return $this->executeQuery($query, $perPage);
+        return $this->executeQuery($query, $perPage, $published);
     }
 
     public function find($id)
     {
-        return $this->baseQuery()->where('id', $id)->first();
+        return $this->baseQuery()->where("id", $id)->first();
     }
 
-    public function upload(array $data)
+    public function create(array $data)
     {
         return TrainingMaterial::create($data);
     }
 
     public function update(array $data, $id)
     {
-        TrainingMaterial::find($id)->update($data);
+        unset($data["path"]);
+        $tm = TrainingMaterial::find($id);
+        $tm->update($data);
+        return $tm;
     }
 
     public function delete(TrainingMaterial $trainingMaterial)
@@ -108,7 +83,7 @@ class TrainingMaterialRepository
             'deleted' => 0,
             'failed' => 0,
             'attempted' => count($ids),
-            'has_users' => [],
+            'has_users' => []
         ];
 
         foreach ($ids as $id) {
@@ -124,5 +99,25 @@ class TrainingMaterialRepository
         }
 
         return $result;
+    }
+
+
+    /**
+     * Get filtered training materials using the scope filter
+     *
+     * @param array $filters
+     * @param int|null $perPage
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getFiltered(array $filters, $perPage = null)
+    {
+        $query = TrainingMaterial::with(['category', 'language', 'user'])
+            ->filter($filters);
+
+        if ($perPage) {
+            return $query->paginate($perPage);
+        }
+
+        return $query->get();
     }
 }
