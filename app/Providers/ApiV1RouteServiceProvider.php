@@ -21,7 +21,7 @@ class ApiV1RouteServiceProvider extends ServiceProvider
     protected function mapApiV1Routes()
     {
         Route::prefix(self::API_V1_PREFIX)
-            ->middleware(['api', self::AUTH_SANCTUM, 'verified'])
+            ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/auth.php'));
 
         Route::prefix(self::API_V1_PREFIX)
