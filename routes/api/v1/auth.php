@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
+use App\Http\Controllers\API\V1\Permission\PermissionAPIController;
 use App\Http\Controllers\API\V1\Role\RoleAPIController;
 use App\Http\Controllers\API\V1\User\UserAPIController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,10 @@ Route::prefix('roles')->group(function () {
     // Role bulk delete
     Route::post('/bulk-destroy', [RoleAPIController::class, 'bulkDestroy'])
         ->name('roles.bulk-delete');
+
+    // Permission routes
+    Route::get('permissions', [PermissionAPIController::class, 'index']);
+    Route::get('permissions/matrix', [PermissionAPIController::class, 'matrix']);
 });
 
 // Two-factor authentication toggle

@@ -49,5 +49,6 @@ class DatabaseSeeder extends Seeder
         $this->call(EventsSeeder::class);
         $this->call(TrainingMaterialSeeder::class);
         $this->call(CompanySeeder::class);
+        $this->call(PermissionsSeeder::class);
     }
 }

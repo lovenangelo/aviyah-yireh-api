@@ -105,11 +105,8 @@ class RoleAPIController extends Controller
             // Check if user has permission to update the role
             $this->authorize('update', $role);
 
-            // Prepare update data
-            $data = $request->only(['name', 'description']);
-
-            // Update role
-            $updatedRole = $this->roleRepository->update($data, $role->id);
+            // Update role with permissions
+            $updatedRole = $this->roleRepository->updateRoleWithPermissions($request->validated(), $role->id);
 
             return $this->formatSuccessResponse($updatedRole, 'Role updated successfully.', 200, $request);
         } catch (\Throwable $e) {
@@ -151,7 +148,7 @@ class RoleAPIController extends Controller
             // Delete multiple roles
             $result = $this->roleRepository->bulkDestroy($ids);
 
-            $message = $result['deleted'].' roles deleted successfully';
+            $message = $result['deleted'] . ' roles deleted successfully';
             $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],

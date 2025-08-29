@@ -2,45 +2,60 @@
 
 namespace App\Http\Requests\Role;
 
-use App\Traits\ApiResponse;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class UpdateRoleRequest extends FormRequest
 {
-    use ApiResponse;
-
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $roleId = $this->route('id');
+
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('roles')->ignore($this->route('role')),
+                Rule::unique('roles', 'name')->ignore($roleId)
             ],
-            'description' => 'nullable|string|max:1000',
+            'description' => [
+                'nullable',
+                'string',
+                'max:1000'
+            ],
+            'permissions' => [
+                'nullable',
+                'array'
+            ],
+            'permissions.*' => [
+                'string',
+                'exists:permissions,name'
+            ]
         ];
     }
 
-    protected function failedValidation(Validator $validator)
+    public function messages(): array
     {
-        $response = $this->formatErrorResponse(422, 'Operation failed.', $validator->errors()->toArray());
-        throw new HttpResponseException($response);
+        return [
+            'name.required' => 'Role name is required.',
+            'name.unique' => 'A role with this name already exists.',
+            'permissions.array' => 'Permissions must be an array.',
+            'permissions.*.exists' => 'One or more selected permissions do not exist.',
+        ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // Ensure permissions is always an array
+        if ($this->has('permissions') && !is_array($this->permissions)) {
+            $this->merge([
+                'permissions' => []
+            ]);
+        }
     }
 }

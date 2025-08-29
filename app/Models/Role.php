@@ -2,79 +2,67 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Role extends Model
+class Role extends SpatieRole
 {
-    protected $hidden = ['created_at', 'updated_at'];
-
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'description',
+        'guard_name',
     ];
 
-    /**
-     * The attributes that should be sortable.
-     *
-     * @var list<string>
-     */
-    protected $sortable = [
-        'name.asc',
-        'name.desc',
-        'description.asc',
-        'description.desc',
-        'users_count.asc',
-        'users_count.desc',
-        'created_at.asc',
-        'created_at.desc',
+    protected $hidden = [
+        'pivot',
     ];
 
-    /**
-     * Scope a query to filter the roles.
-     */
-    public function scopeFilter(Builder $query, array $filters): Builder
+    protected $appends = [
+        'permissions_list',
+        'users_count'
+    ];
+
+    // Filterable fields for your existing filter system
+    public function scopeFilter($query, array $filters)
     {
-        return $query
-            ->when(
-                ! array_key_exists('sort', $filters) ?? false,
-                fn ($query) => $query->orderBy('created_at', 'desc')
-            )
-            ->when(
-                $filters['sort'] ?? false,
-                function ($query, $value) {
-                    $sortArr = explode('.', $value);
-
-                    // Handle relationship sorting
-                    if ($sortArr[0] === 'users_count') {
-                        return $query->withCount('users')
-                            ->orderBy('users_count', $sortArr[1]);
-                    }
-
-                    // Regular column sorting
-                    $query->orderBy($sortArr[0], $sortArr[1]);
-                }
-            )
-            ->when(! empty($filters['search']), function ($query) use ($filters) {
-                $query->where('roles.name', 'LIKE', "%{$filters['search']}%")
-                    ->orWhere('roles.description', 'LIKE', "%{$filters['search']}%");
+        // Search functionality
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
+        }
+
+        // Sorting
+        if (!empty($filters['sort'])) {
+            $sortField = $filters['sort'];
+            $sortDirection = 'asc';
+
+            if (str_starts_with($sortField, '-')) {
+                $sortDirection = 'desc';
+                $sortField = substr($sortField, 1);
+            }
+
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        return $query;
     }
 
-    /**
-     * Get the users associated with this role.
-     */
-    public function users(): HasMany
+    // Accessor to get permissions as array
+    public function getPermissionsListAttribute()
     {
-        return $this->hasMany(User::class);
+        return $this->permissions->pluck('name')->toArray();
+    }
+
+    // Accessor to get users count
+    public function getUsersCountAttribute()
+    {
+        return $this->users()->count();
     }
 }

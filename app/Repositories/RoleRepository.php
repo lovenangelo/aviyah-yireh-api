@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Role;
 use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Role;
 
 class RoleRepository extends BaseRepository
 {
@@ -107,23 +107,6 @@ class RoleRepository extends BaseRepository
     }
 
     /**
-     * Create a new role with the given inputs.
-     *
-     * @param array $inputs Array containing role data with keys:
-     *                     - name: string Role's name
-     *                     - description: string Role's description
-     * @return Role The newly created role model
-     */
-    public function createNewRole(array $inputs): Role
-    {
-        // Create role
-        return $this->model->create([
-            'name' => $inputs['name'],
-            'description' => $inputs['description'],
-        ]);
-    }
-
-    /**
      * Delete a role with validation.
      *
      * @param int $id ID of the role to delete
@@ -214,5 +197,62 @@ class RoleRepository extends BaseRepository
         }
 
         return $result;
+    }
+
+    /**
+     * Create a new role with the given inputs and permissions.
+     *
+     * @param array $inputs Array containing role data with keys:
+     *                     - name: string Role's name
+     *                     - description: string Role's description
+     *                     - permissions: array Optional array of permission names
+     * @return Role The newly created role model with permissions
+     */
+    public function createNewRole(array $inputs): Role
+    {
+        // Create role
+        $role = $this->model->create([
+            'name' => $inputs['name'],
+            'description' => $inputs['description'] ?? null,
+            'guard_name' => 'web',
+        ]);
+
+        // Assign permissions if provided
+        if (!empty($inputs['permissions'])) {
+            $role->syncPermissions($inputs['permissions']);
+        }
+
+        // Load permissions for response
+        $role->load('permissions');
+
+        return $role;
+    }
+
+    /**
+     * Update a role with the given inputs and permissions.
+     *
+     * @param array $inputs Array containing role data
+     * @param int $id Role ID
+     * @return Role The updated role model
+     */
+    public function updateRoleWithPermissions(array $inputs, int $id): Role
+    {
+        // Find and update role
+        $role = $this->find($id);
+
+        $role->update([
+            'name' => $inputs['name'],
+            'description' => $inputs['description'] ?? $role->description,
+        ]);
+
+        // Sync permissions if provided
+        if (array_key_exists('permissions', $inputs)) {
+            $role->syncPermissions($inputs['permissions'] ?? []);
+        }
+
+        // Load permissions for response
+        $role->load('permissions');
+
+        return $role;
     }
 }
