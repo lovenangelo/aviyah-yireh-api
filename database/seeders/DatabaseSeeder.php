@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Events;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,26 +25,36 @@ class DatabaseSeeder extends Seeder
 
         // Create users with roles
         User::factory()->create([
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'suffix' => 'Sr.',
             'email' => 'johndoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $adminRole->id,
         ]);
 
         User::factory()->create([
-            'name' => 'Jane Doe',
+            'first_name' => 'Jane',
+            'middle_name' => 'Taylor',
+            'last_name' => 'Doe',
+            'suffix' => null,
             'email' => 'janedoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $adminRole->id,
         ]);
 
         User::factory()->create([
-            'name' => 'Jack Doe',
+            'first_name' => 'Jack',
+            'last_name' => 'Doe',
+            'middle_name' => null,
+            'suffix' => null,
             'email' => 'jackdoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $userRole->id,
         ]);
 
+        $this->call(CategorySeeder::class);
+        $this->call(LanguageSeeder::class);
         $this->call(EventsSeeder::class);
         $this->call(TrainingMaterialSeeder::class);
     }

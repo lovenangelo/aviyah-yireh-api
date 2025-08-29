@@ -6,7 +6,6 @@ use App\Mail\BrevoMail;
 use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\TwoFactorCode;
 use Carbon\Carbon;
-use App\Traits\Exportable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -19,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, Exportable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +26,10 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'suffix',
         'email',
         'phone',
         'password',
@@ -42,8 +44,14 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $sortable = [
-        'name.asc',
-        'name.desc',
+        'first_name.asc',
+        'first_name.desc',
+        'last_name.asc',
+        'last_name.desc',
+        'middle_name.asc',
+        'middle_name.desc',
+        'suffix.asc',
+        'suffix.desc',
         'email.asc',
         'email.desc',
         'role.asc',
@@ -66,7 +74,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verification_code_expires_at',
         'created_at',
         'updated_at',
+        'role_id'
     ];
+
+    public function getNameAttribute()
+    {
+        $nameParts = collect([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+            $this->suffix
+        ])->filter()->implode(' ');
+
+        return trim($nameParts);
+    }
 
     /**
      * The accessors to append to the model's array form.
@@ -75,6 +96,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'avatar_url',
+        'name'
     ];
 
     /**
@@ -99,21 +121,12 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     public static array $rules = [
-        'name' => 'required|string|max:255',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
         'email' => 'required|string|max:255|email|unique:users,email',
         'phone' => 'nullable|string|max:20|regex:/^[\+]?[0-9\-\(\)\s]+$/',
         'password' => 'required|string|min:8|max:255',
         'role_id' => 'required|exists:roles,id',
-    ];
-
-    protected static $exportFields = [
-        'name' => 'Full Name',
-        'email' => 'Email Address',
-        'phone' => 'Phone Number',
-        'role.name' => 'Role',
-        'two_factor_enabled' => '2FA Enabled',
-        'created_at' => 'Member Since',
-        'updated_at' => 'Last Updated',
     ];
 
     /**
@@ -258,7 +271,10 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
             )
             ->when(!empty($filters['search']), function ($query) use ($filters) {
-                $query->where('users.name', 'LIKE', "%{$filters['search']}%")
+                $query->where('users.first_name', 'LIKE', "%{$filters['search']}%")
+                    ->orWhere('users.middle_name', 'LIKE', "%{$filters['search']}%")
+                    ->orWhere('users.last_name', 'LIKE', "%{$filters['search']}%")
+                    ->orWhere('users.suffix', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.email', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.phone', 'LIKE', "%{$filters['search']}%");
             })
@@ -323,56 +339,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $details = [
             'code' => $this->generateEmailVerificationCode(),
-            'name' => $this->name,
+            'name' => $this->first_name,
         ];
         \Illuminate\Support\Facades\Mail::to($this->email)->send(new BrevoMail($details));
-    }
-
-    public function logActivity(string $description, array $properties = [])
-    {
-        activity()
-            ->causedBy(auth()->user())
-            ->performedOn($this)
-            ->withProperties(array_merge([
-                'user_name' => $this->name,
-                'user_email' => $this->email,
-                'user_role' => $this->role?->name,
-            ], $properties))
-            ->log($description);
-    }
-
-    /**
-     * Log user login attempt
-     */
-    public function logLogin(bool $successful = true, string $reason = null)
-    {
-        $description = $successful ? 'User logged in successfully' : 'User login attempt failed';
-
-        $properties = [
-            'action_type' => $successful ? 'login_success' : 'login_failed',
-            'login_time' => now()->toDateTimeString(),
-            'ip_address' => request()?->ip(),
-            'user_agent' => request()?->userAgent(),
-        ];
-
-        if (!$successful && $reason) {
-            $properties['failure_reason'] = $reason;
-        }
-
-        $this->logActivity($description, $properties);
-    }
-
-
-    public function logRegister(bool $successful = true)
-    {
-        activity('user')
-            ->causedBy($this)
-            ->withProperties([
-                'action_type' => 'register',
-                'status' => $successful ? 'success' : 'failed',
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ])
-            ->log('User registered' . ($successful ? ' successfully' : ' with failure'));
     }
 }

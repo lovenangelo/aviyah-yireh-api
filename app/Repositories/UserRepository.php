@@ -71,7 +71,10 @@ class UserRepository extends BaseRepository
     {
         // Create user with role
         $user = $this->model->create([
-            'name' => $inputs['name'],
+            'first_name' => $inputs['first_name'],
+            'middle_name' => isset($inputs['middle_name']) ? $inputs['middle_name'] : null,
+            'last_name' => $inputs['last_name'],
+            'suffix' => isset($inputs['suffix']) ? $inputs['suffix'] : null,
             'email' => $inputs['email'],
             'password' => Hash::make(Str::random(8)),
             'role_id' => $inputs['role_id'],

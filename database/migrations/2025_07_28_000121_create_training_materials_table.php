@@ -11,18 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create("categories", function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string("name")->unique()->index();
-        });
-
-        Schema::create("languages", function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string("name")->unique()->index();
-        });
-
         Schema::create('training_materials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
@@ -30,21 +18,23 @@ return new class extends Migration
             $table->foreignId("language_id")->constrained();
 
             $table->timestamps();
-            $table->date("expiration_date");
+            $table->date("expiration_date")->nullable();
 
             $table->string("title");
             $table->text("description");
             $table->integer("duration")->nullable();
-            $table->string("path");
-            $table->enum("file_type", ['document', 'video', 'audio'])->default('document');
+            $table->json("files");
             $table->string("thumbnail_path");
             $table->unsignedInteger("views")->default(0);
             $table->boolean("is_visible")->default(true);
+            $table->boolean("is_featured")->default(false);
+            $table->integer("status")->default(0);
 
             $table->index('views');
             $table->index('category_id');
             $table->index('created_at');
             $table->index('language_id');
+            $table->index('is_visible');
         });
     }
 
