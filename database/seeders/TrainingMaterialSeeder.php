@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\TrainingMaterial;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 
 class TrainingMaterialSeeder extends Seeder
 {
@@ -17,10 +15,10 @@ class TrainingMaterialSeeder extends Seeder
                 'category_id' => 2,
                 'language_id' => 1,
                 'expiration_date' => '2025-12-31',
-                'title' => 'Sample title ' . $i,
+                'title' => 'Sample title '.$i,
                 'description' => 'A beginner-friendly introduction to JavaScript programming.',
                 'duration' => 420,
-                'files' => ['video' . $i . '.mp4'],
+                'files' => ['video'.$i.'.mp4'],
                 'thumbnail_path' => 'thumbnail.jpg',
                 'is_visible' => true,
                 'views' => 0,
@@ -33,10 +31,10 @@ class TrainingMaterialSeeder extends Seeder
                 'category_id' => 1,
                 'language_id' => 1,
                 'expiration_date' => '2025-12-31',
-                'title' => 'Sample PDF ' . $i,
+                'title' => 'Sample PDF '.$i,
                 'description' => 'A beginner-friendly introduction in PDF to JavaScript programming.',
                 'duration' => 0,
-                'files' => ['sample-pdf' . $i . '.pdf', 'sample-pdf' . $i . '.pdf'],
+                'files' => ['sample-pdf'.$i.'.pdf', 'sample-pdf'.$i.'.pdf'],
                 'is_visible' => true,
                 'views' => 0,
             ]);

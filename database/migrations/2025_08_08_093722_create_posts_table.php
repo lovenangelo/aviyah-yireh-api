@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('content')->nullable();
-            $table->string('status')->default('draft'); 
+            $table->string('status')->default('draft');
             $table->string('slug')->unique();
-            $table->json('meta_data')->nullable(); 
+            $table->json('meta_data')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();

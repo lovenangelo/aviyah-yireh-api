@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\API\V1\Logs;
 
-use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CustomPaginatedCollection;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityController extends Controller
 {
     use ApiResponse;
+
     public function getAllLogs(): JsonResponse
     {
         try {
             $perPage = request()->get('per_page', 15);
             $activities = Activity::paginate($perPage);
+
             return $this->formatSuccessResponse(
                 new CustomPaginatedCollection($activities, request()->get('include_links', false)),
-                "Activity logs retrieved successfully"
+                'Activity logs retrieved successfully'
             );
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, request(), "Fetching Activity Logs");
+            return $this->handleApiException($e, request(), 'Fetching Activity Logs');
         }
     }
 }

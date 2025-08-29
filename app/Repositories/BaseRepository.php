@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseRepository
 {
@@ -35,15 +35,15 @@ abstract class BaseRepository
     /**
      * Make Model instance
      *
-     * @throws \Exception
-     *
      * @return Model
+     *
+     * @throws \Exception
      */
     public function makeModel()
     {
         $model = app($this->model());
 
-        if (!$model instanceof Model) {
+        if (! $model instanceof Model) {
             throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
 
@@ -63,7 +63,7 @@ abstract class BaseRepository
     /**
      * Build a query for retrieving all records.
      */
-    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
         $query = $this->model->newQuery();
 
@@ -76,11 +76,11 @@ abstract class BaseRepository
             }
         }
 
-        if (!is_null($skip)) {
+        if (! is_null($skip)) {
             $query->skip($skip);
         }
 
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $query->limit($limit);
         }
 
@@ -90,7 +90,7 @@ abstract class BaseRepository
     /**
      * Build a query for retrieving all records.
      */
-    public function allQueryLike(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQueryLike(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
         $query = $this->model->newQuery();
 
@@ -98,16 +98,16 @@ abstract class BaseRepository
             foreach ($search as $key => $value) {
                 if (in_array($key, $this->getFieldsSearchable())) {
 
-                    $query->where($key, 'LIKE', '%' . $value . '%');
+                    $query->where($key, 'LIKE', '%'.$value.'%');
                 }
             }
         }
 
-        if (!is_null($skip)) {
+        if (! is_null($skip)) {
             $query->skip($skip);
         }
 
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $query->limit($limit);
         }
 
@@ -117,16 +117,17 @@ abstract class BaseRepository
     /**
      * Retrieve all records with given filter criteria
      */
-    public function allLike(array $search = [], int $skip = null, int $limit = null, array $columns = ['*']): Collection
+    public function allLike(array $search = [], ?int $skip = null, ?int $limit = null, array $columns = ['*']): Collection
     {
         $query = $this->allQueryLike($search, $skip, $limit);
 
         return $query->get($columns);
     }
+
     /**
      * Retrieve all records with given filter criteria
      */
-    public function all(array $search = [], int $skip = null, int $limit = null, array $columns = ['*']): Collection
+    public function all(array $search = [], ?int $skip = null, ?int $limit = null, array $columns = ['*']): Collection
     {
         $query = $this->allQuery($search, $skip, $limit);
 
@@ -176,9 +177,9 @@ abstract class BaseRepository
     }
 
     /**
-     * @throws \Exception
-     *
      * @return bool|mixed|null
+     *
+     * @throws \Exception
      */
     public function delete(int $id)
     {

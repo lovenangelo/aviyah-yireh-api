@@ -10,10 +10,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
  * This class is a PDF Export Functionality built around barryvdh's Laravel DOMPDF Package
  * https://github.com/barryvdh/laravel-dompdf
  */
-
 class PdfExport extends BaseExporter
 {
-
     /**
      * The view file that will be used as a template
      */
@@ -30,15 +28,15 @@ class PdfExport extends BaseExporter
     public function export(): mixed
     {
         if (empty($this->template)) {
-            throw new \InvalidArgumentException("PDF template view is not set. Call setTemplate() before export.");
+            throw new \InvalidArgumentException('PDF template view is not set. Call setTemplate() before export.');
         }
 
         if (empty($this->data)) {
-            throw new \InvalidArgumentException("PDF data is not set. Call setData() before export.");
+            throw new \InvalidArgumentException('PDF data is not set. Call setData() before export.');
         }
 
         $pdf = Pdf::loadView($this->template, $this->data);
+
         return $pdf->download($this->fileName);
     }
-
 }

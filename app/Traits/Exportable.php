@@ -40,6 +40,7 @@ trait Exportable
     public static function getExportCollection($query = null)
     {
         $query = $query ?? static::query();
+
         return $query->get()->map(function ($item) {
             return $item->getExportData();
         });

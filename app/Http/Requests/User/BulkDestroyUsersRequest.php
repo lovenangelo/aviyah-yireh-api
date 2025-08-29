@@ -23,7 +23,7 @@ class BulkDestroyUsersRequest extends FormRequest
     {
         return [
             'ids' => ['required', 'array', 'min:1'],
-            'ids.*' => ['required', 'integer', 'exists:users,id']
+            'ids.*' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 
@@ -38,7 +38,7 @@ class BulkDestroyUsersRequest extends FormRequest
             'ids.required' => 'Please provide user IDs to delete.',
             'ids.array' => 'User IDs must be provided as an array.',
             'ids.min' => 'At least one user ID must be provided.',
-            'ids.*.exists' => 'One or more user IDs do not exist in the database.'
+            'ids.*.exists' => 'One or more user IDs do not exist in the database.',
         ];
     }
 }

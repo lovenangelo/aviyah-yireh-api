@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\API\V1\TrainingMaterial;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TrainingMaterial\BulkDestroyTrainingMaterialsRequest;
 use App\Http\Resources\CustomPaginatedCollection;
-use App\Traits\ApiResponse;
 use App\Repositories\TrainingMaterialRepository;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
@@ -16,13 +16,14 @@ use App\Repositories\TrainingMaterialRepository;
  *     description="Endpoints for managing training materials, including CRUD operations and sorting actions"
  * )
  */
-
-
 class TrainingMaterialAPIController extends Controller
 {
     use ApiResponse;
+
     private const TRAINING_MATERIAL_NOT_FOUND = 'Training material not found.';
+
     private const TRAINING_MATERIAL = 'App\Models\TrainingMaterial';
+
     private TrainingMaterialRepository $trainingMaterialRepository;
 
     public function __construct(TrainingMaterialRepository $trainingMaterialRepository)
@@ -84,12 +85,13 @@ class TrainingMaterialAPIController extends Controller
                 return $trainingMaterials;
             }
 
-            if ($withAuthor && !$trainingMaterials instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            if ($withAuthor && ! $trainingMaterials instanceof \Illuminate\Pagination\LengthAwarePaginator) {
                 $trainingMaterials = $trainingMaterials->load('user');
             }
 
             $trainingMaterials = new CustomPaginatedCollection($trainingMaterials, $request->query('include_links', false));
-            return $this->formatSuccessResponse($trainingMaterials, "Training materials retrieved successfully.", 200, $request);
+
+            return $this->formatSuccessResponse($trainingMaterials, 'Training materials retrieved successfully.', 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
@@ -102,11 +104,11 @@ class TrainingMaterialAPIController extends Controller
             $trainingMaterial = $this->trainingMaterialRepository->find($id, $withAuthor);
 
             // Check if training material exists
-            if (!$trainingMaterial) {
-                return $this->formatErrorResponse("404", self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
+            if (! $trainingMaterial) {
+                return $this->formatErrorResponse('404', self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
             }
 
-            return $this->formatSuccessResponse($trainingMaterial, "Training material retrieved successfully!", 200, $request);
+            return $this->formatSuccessResponse($trainingMaterial, 'Training material retrieved successfully!', 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
@@ -116,17 +118,18 @@ class TrainingMaterialAPIController extends Controller
     {
         try {
             // Check if user is authorized
-            $this->authorize("delete", self::TRAINING_MATERIAL);
+            $this->authorize('delete', self::TRAINING_MATERIAL);
 
             // Get training material to delete
             $trainingMaterial = $this->trainingMaterialRepository->find($id);
 
-            if (!$trainingMaterial) {
-                return $this->formatErrorResponse("404", self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
+            if (! $trainingMaterial) {
+                return $this->formatErrorResponse('404', self::TRAINING_MATERIAL_NOT_FOUND, [], 404);
             }
 
             $this->trainingMaterialRepository->delete($trainingMaterial);
-            return $this->formatSuccessResponse(null, "Training material deleted successfully!", 200, $request);
+
+            return $this->formatSuccessResponse(null, 'Training material deleted successfully!', 200, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request);
         }
@@ -136,7 +139,7 @@ class TrainingMaterialAPIController extends Controller
     {
         try {
             // Check if user is authorized
-            $this->authorize("bulkDelete", self::TRAINING_MATERIAL);
+            $this->authorize('bulkDelete', self::TRAINING_MATERIAL);
 
             // Get validated data
             $ids = $request->validated('ids');
@@ -144,7 +147,7 @@ class TrainingMaterialAPIController extends Controller
             // Delete multiple roles
             $result = $this->trainingMaterialRepository->bulkDestroy($ids);
 
-            $message = $result['deleted'] . ' training materials deleted successfully';
+            $message = $result['deleted'].' training materials deleted successfully';
             $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],
@@ -154,7 +157,7 @@ class TrainingMaterialAPIController extends Controller
 
             return $this->formatSuccessResponse($data, $message, 200, $request);
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, $request, "Training material delete many");
+            return $this->handleApiException($e, $request, 'Training material delete many');
         }
     }
 }

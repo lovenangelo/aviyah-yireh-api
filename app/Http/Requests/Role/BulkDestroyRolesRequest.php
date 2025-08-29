@@ -2,14 +2,15 @@
 
 namespace App\Http\Requests\Role;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BulkDestroyRolesRequest extends FormRequest
 {
     use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,7 +28,7 @@ class BulkDestroyRolesRequest extends FormRequest
     {
         return [
             'ids' => ['required', 'array', 'min:1'],
-            'ids.*' => ['required', 'integer', 'exists:roles,id']
+            'ids.*' => ['required', 'integer', 'exists:roles,id'],
         ];
     }
 
@@ -42,7 +43,7 @@ class BulkDestroyRolesRequest extends FormRequest
             'ids.required' => 'Please provide role IDs to delete.',
             'ids.array' => 'Role IDs must be provided as an array.',
             'ids.min' => 'At least one role ID must be provided.',
-            'ids.*.exists' => 'One or more role IDs do not exist in the database.'
+            'ids.*.exists' => 'One or more role IDs do not exist in the database.',
         ];
     }
 

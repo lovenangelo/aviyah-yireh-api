@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use App\Traits\ApiResponse;
 
 /**
  * @OA\Tag(
@@ -22,6 +22,7 @@ use App\Traits\ApiResponse;
 class NewPasswordController extends Controller
 {
     use ApiResponse;
+
     /**
      * Handle an incoming new password request.
      *
@@ -31,28 +32,37 @@ class NewPasswordController extends Controller
      *     description="Resets the user's password using a valid token.",
      *     operationId="resetPassword",
      *     tags={"Password Reset"},
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         description="Password reset data",
+     *
      *         @OA\JsonContent(
      *             required={"token", "email", "password", "password_confirmation"},
+     *
      *             @OA\Property(property="token", type="string", example="reset-token-value"),
      *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
      *             @OA\Property(property="password", type="string", format="password", example="newPassword123"),
      *             @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword123")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Password reset successful",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="status", type="string", example="Password reset successfully.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error or invalid token",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="The given data was invalid."),
      *             @OA\Property(
      *                 property="errors",
@@ -60,6 +70,7 @@ class NewPasswordController extends Controller
      *                 @OA\Property(
      *                     property="email",
      *                     type="array",
+     *
      *                     @OA\Items(type="string", example="This password reset token is invalid.")
      *                 )
      *             )
@@ -98,7 +109,8 @@ class NewPasswordController extends Controller
                     'email' => [__($status)],
                 ]);
             }
-            return $this->formatSuccessResponse(null, "Password reset is successful!", 200, $request);
+
+            return $this->formatSuccessResponse(null, 'Password reset is successful!', 200, $request);
         } catch (ValidationException $e) {
             return $this->handleValidationError($e, $request);
         }

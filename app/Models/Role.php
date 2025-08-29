@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Role extends Model
 {
-
     protected $hidden = ['created_at', 'updated_at'];
 
     use HasFactory;
@@ -37,22 +36,18 @@ class Role extends Model
         'users_count.asc',
         'users_count.desc',
         'created_at.asc',
-        'created_at.desc'
+        'created_at.desc',
     ];
 
     /**
      * Scope a query to filter the roles.
-     *
-     * @param Builder $query
-     * @param array $filters
-     * @return Builder
      */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
             ->when(
-                !array_key_exists('sort', $filters) ?? false,
-                fn($query) => $query->orderBy('created_at', 'desc')
+                ! array_key_exists('sort', $filters) ?? false,
+                fn ($query) => $query->orderBy('created_at', 'desc')
             )
             ->when(
                 $filters['sort'] ?? false,
@@ -69,7 +64,7 @@ class Role extends Model
                     $query->orderBy($sortArr[0], $sortArr[1]);
                 }
             )
-            ->when(!empty($filters['search']), function ($query) use ($filters) {
+            ->when(! empty($filters['search']), function ($query) use ($filters) {
                 $query->where('roles.name', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('roles.description', 'LIKE', "%{$filters['search']}%");
             });
@@ -77,8 +72,6 @@ class Role extends Model
 
     /**
      * Get the users associated with this role.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function users(): HasMany
     {

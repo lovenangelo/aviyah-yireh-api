@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\LogOptions;
+
 class Events extends Model
 {
     use HasFactory;
@@ -18,7 +19,7 @@ class Events extends Model
         'start_at',
         'end_at',
         'author_id',
-        'image_url'
+        'image_url',
     ];
 
     public static array $rules = [
@@ -27,22 +28,22 @@ class Events extends Model
         'location' => 'required|string',
         'start_at' => 'required|date',
         'end_at' => 'required|date',
-        'image_url' => 'nullable|string'
+        'image_url' => 'nullable|string',
     ];
 
     public function author()
     {
-        return $this->belongsTo(User::class, "author_id");
+        return $this->belongsTo(User::class, 'author_id');
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         if (isset($filters['title'])) {
-            $query->where('title', 'like', '%' . $filters['title'] . '%');
+            $query->where('title', 'like', '%'.$filters['title'].'%');
         }
 
         if (isset($filters['location'])) {
-            $query->where('location', 'like', '%' . $filters['location'] . '%');
+            $query->where('location', 'like', '%'.$filters['location'].'%');
         }
 
         if (isset($filters['start_at'])) {
@@ -56,23 +57,22 @@ class Events extends Model
         if (isset($filters['author_id'])) {
             $query->where('author_id', $filters['author_id']);
         }
+
         return $query;
     }
-
 
     public function logActivity(string $description, array $properties = []): void
     {
         activity()
-          ->causedBy(Auth::user())
+            ->causedBy(Auth::user())
             ->performedOn($this)
             ->withProperties(array_merge([
-                'user_name' =>  Auth::user()?->name,
-                'user_email' =>  Auth::user()?->email,
-                'user_role' =>  Auth::user()?->role?->name,
+                'user_name' => Auth::user()?->name,
+                'user_email' => Auth::user()?->email,
+                'user_role' => Auth::user()?->role?->name,
             ], $properties))
             ->log($description);
     }
-
 
     public function logEventAction(string $actionType): void
     {
@@ -90,29 +90,30 @@ class Events extends Model
         $this->logActivity($description, $properties);
     }
 
-        public function getActivitylogOptions(): LogOptions
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['title', 'description', 'start_date']) // specify fields to log
             ->logOnlyDirty() // only log changed attributes
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => "Event \"{$this->title}\" was {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => "Event \"{$this->title}\" was {$eventName}");
 
-        }
-        protected static function boot()
-        {
-            parent::boot();
+    }
 
-            static::created(function ($event) {
-                $event->logEventAction('created');
-            });
+    protected static function boot()
+    {
+        parent::boot();
 
-            static::updated(function ($event) {
-                $event->logEventAction('updated');
-            });
+        static::created(function ($event) {
+            $event->logEventAction('created');
+        });
 
-            static::deleted(function ($event) {
-                $event->logEventAction('deleted');
-            });
-        }
+        static::updated(function ($event) {
+            $event->logEventAction('updated');
+        });
+
+        static::deleted(function ($event) {
+            $event->logEventAction('deleted');
+        });
+    }
 }

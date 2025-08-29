@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers\API\V1\Role;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Repositories\RoleRepository;
+use App\Http\Requests\Role\BulkDestroyRolesRequest;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
-use App\Http\Requests\Role\BulkDestroyRolesRequest;
 use App\Http\Resources\CustomPaginatedCollection;
+use App\Repositories\RoleRepository;
 use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RoleAPIController extends Controller
 {
     use ApiResponse;
 
     private RoleRepository $roleRepository;
+
     private const ROLE = 'App\Models\Role';
+
     private const ROLE_NOT_FOUND = 'Role not found.';
 
     public function __construct(RoleRepository $roleRepository)
@@ -46,7 +48,8 @@ class RoleAPIController extends Controller
                 $roles = $this->roleRepository->getAll($perPage);
             }
             $response = new CustomPaginatedCollection($roles, $request->query('include_links', false));
-            return $this->formatSuccessResponse($response, "Roles retrieved successfuly!", 200);
+
+            return $this->formatSuccessResponse($response, 'Roles retrieved successfuly!', 200);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Roles Fetching');
         }
@@ -59,7 +62,7 @@ class RoleAPIController extends Controller
             $this->authorize('create', self::ROLE);
             $role = $this->roleRepository->createNewRole($request->all());
 
-            return $this->formatSuccessResponse($role, "Role created successfully.", 201, $request);
+            return $this->formatSuccessResponse($role, 'Role created successfully.', 201, $request);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Role Creation');
         }
@@ -72,8 +75,8 @@ class RoleAPIController extends Controller
             $role = $this->roleRepository->find($id);
 
             // Check if role exists
-            if (!$role) {
-                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
+            if (! $role) {
+                return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to view the role
@@ -82,9 +85,9 @@ class RoleAPIController extends Controller
             // Load related data
             $role->loadCount('users');
 
-            return $this->formatSuccessResponse($role, "Role with associated users retrieved successfuly.", 200);
+            return $this->formatSuccessResponse($role, 'Role with associated users retrieved successfuly.', 200);
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, $request, "Role retrieval");
+            return $this->handleApiException($e, $request, 'Role retrieval');
         }
     }
 
@@ -95,8 +98,8 @@ class RoleAPIController extends Controller
             $role = $this->roleRepository->find($id);
 
             // Check if role exists
-            if (!$role) {
-                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
+            if (! $role) {
+                return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to update the role
@@ -108,9 +111,9 @@ class RoleAPIController extends Controller
             // Update role
             $updatedRole = $this->roleRepository->update($data, $role->id);
 
-            return $this->formatSuccessResponse($updatedRole, "Role updated successfully.", 200, $request);
+            return $this->formatSuccessResponse($updatedRole, 'Role updated successfully.', 200, $request);
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, $request, "Role update");
+            return $this->handleApiException($e, $request, 'Role update');
         }
     }
 
@@ -120,19 +123,19 @@ class RoleAPIController extends Controller
             // Get role to delete
             $roleToDelete = $this->roleRepository->find($id);
 
-            if (!$roleToDelete) {
-                return $this->formatErrorResponse("404", self::ROLE_NOT_FOUND, [], 404);
+            if (! $roleToDelete) {
+                return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to delete the role
             $this->authorize('delete', $roleToDelete);
 
             // Delete role
-            $result = $this->roleRepository->destroyRole((int)$id);
+            $result = $this->roleRepository->destroyRole((int) $id);
 
-            return $this->formatSuccessResponse(null, $result["message"], $result['status'], $request);
+            return $this->formatSuccessResponse(null, $result['message'], $result['status'], $request);
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, $request, "Role delete");
+            return $this->handleApiException($e, $request, 'Role delete');
         }
     }
 
@@ -148,7 +151,7 @@ class RoleAPIController extends Controller
             // Delete multiple roles
             $result = $this->roleRepository->bulkDestroy($ids);
 
-            $message = $result['deleted'] . ' roles deleted successfully';
+            $message = $result['deleted'].' roles deleted successfully';
             $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],
@@ -158,7 +161,7 @@ class RoleAPIController extends Controller
 
             return $this->formatSuccessResponse($data, $message, 200, $request);
         } catch (\Throwable $e) {
-            return $this->handleApiException($e, $request, "Role delete many");
+            return $this->handleApiException($e, $request, 'Role delete many');
         }
     }
 }

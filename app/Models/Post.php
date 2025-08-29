@@ -35,7 +35,6 @@ class Post extends Model
         // Add any fields you want to hide from API responses
     ];
 
-
     protected static function boot()
     {
         parent::boot();
@@ -44,11 +43,10 @@ class Post extends Model
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);
 
-
                 $originalSlug = $model->slug;
                 $count = 1;
                 while (static::where('slug', $model->slug)->exists()) {
-                    $model->slug = $originalSlug . '-' . $count;
+                    $model->slug = $originalSlug.'-'.$count;
                     $count++;
                 }
             }
@@ -73,12 +71,10 @@ class Post extends Model
         });
     }
 
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 
     public function scopePublished($query)
     {
@@ -144,13 +140,12 @@ class Post extends Model
             ->causedBy(Auth::user())
             ->performedOn($this)
             ->withProperties(array_merge([
-                'user_name' =>  Auth::user()?->name,
-                'user_email' =>  Auth::user()?->email,
-                'user_role' =>  Auth::user()?->role?->name,
+                'user_name' => Auth::user()?->name,
+                'user_email' => Auth::user()?->email,
+                'user_role' => Auth::user()?->role?->name,
             ], $properties))
             ->log($description);
     }
-
 
     public function logEventAction(string $actionType): void
     {
@@ -174,6 +169,6 @@ class Post extends Model
             ->logOnly(['title', 'description', 'start_date']) // specify fields to log
             ->logOnlyDirty() // only log changed attributes
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => "Event \"{$this->title}\" was {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => "Event \"{$this->title}\" was {$eventName}");
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Events;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -25,7 +24,7 @@ class EventsFactory extends Factory
             'location' => $this->faker->city,
             'start_at' => $this->faker->dateTimeBetween('+1 days', '+1 month'),
             'end_at' => $this->faker->dateTimeBetween('+2 days', '+2 months'),
-            'image_url' => $this->faker->imageUrl()
+            'image_url' => $this->faker->imageUrl(),
         ];
     }
 }

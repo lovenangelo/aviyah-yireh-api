@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
 /**
  * @OA\Info(
@@ -21,7 +21,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  *          url="https://www.apache.org/licenses/LICENSE-2.0.html"
  *      ),
  * )
- *
  *
  * @OA\SecurityScheme(
  *      securityScheme="bearer_token",

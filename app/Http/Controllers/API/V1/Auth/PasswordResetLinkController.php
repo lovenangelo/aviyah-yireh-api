@@ -18,6 +18,7 @@ use Illuminate\Validation\ValidationException;
 class PasswordResetLinkController extends Controller
 {
     use ApiResponse;
+
     /**
      * Handle an incoming password reset link request.
      *
@@ -27,25 +28,34 @@ class PasswordResetLinkController extends Controller
      *     description="Sends a password reset link to the user's email address.",
      *     operationId="sendPasswordResetLink",
      *     tags={"Password Reset"},
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         description="Password reset link request data",
+     *
      *         @OA\JsonContent(
      *             required={"email"},
+     *
      *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Password reset link sent successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="status", type="string", example="We have emailed your password reset link!")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Validation error or unable to send reset link",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="The given data was invalid."),
      *             @OA\Property(
      *                 property="errors",
@@ -53,6 +63,7 @@ class PasswordResetLinkController extends Controller
      *                 @OA\Property(
      *                     property="email",
      *                     type="array",
+     *
      *                     @OA\Items(type="string", example="We can't find a user with that email address.")
      *                 )
      *             )
@@ -81,7 +92,8 @@ class PasswordResetLinkController extends Controller
                     'email' => [__($status)],
                 ]);
             }
-            return $this->formatSuccessResponse(null, "Password reset link successfuly sent!", 200, $request);
+
+            return $this->formatSuccessResponse(null, 'Password reset link successfuly sent!', 200, $request);
         } catch (ValidationException $e) {
             return $this->handleValidationError($e, $request);
         }

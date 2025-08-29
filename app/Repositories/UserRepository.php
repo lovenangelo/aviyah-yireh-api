@@ -2,14 +2,13 @@
 
 namespace App\Repositories;
 
-use Illuminate\Support\Str;
 use App\Models\User;
-use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class UserRepository extends BaseRepository
 {
@@ -20,7 +19,7 @@ class UserRepository extends BaseRepository
         'email',
         'phone',
         'email_verified_at',
-        'password'
+        'password',
     ];
 
     public function getFieldsSearchable(): array
@@ -46,6 +45,7 @@ class UserRepository extends BaseRepository
     public function getFilter($filters, $perPage = null)
     {
         $query = $this->baseQuery()->with('role')->filter($filters);
+
         return $this->executeQuery($query, $perPage);
     }
 
@@ -55,16 +55,17 @@ class UserRepository extends BaseRepository
     public function getAll($perPage = null)
     {
         $query = $this->baseQuery()->with('role');
+
         return $this->executeQuery($query, $perPage);
     }
 
     /**
      * Create a new user with the given inputs.
      *
-     * @param array $inputs Array containing user data with keys:
-     *                     - name: string User's name
-     *                     - email: string User's email
-     *                     - role_id: int Role ID to assign
+     * @param  array  $inputs  Array containing user data with keys:
+     *                         - name: string User's name
+     *                         - email: string User's email
+     *                         - role_id: int Role ID to assign
      * @return User The newly created user model
      */
     public function createNewUser(array $inputs): User
@@ -89,9 +90,8 @@ class UserRepository extends BaseRepository
     /**
      * Update a user's password.
      *
-     * @param int $id The ID of the user to update
-     * @param string $password The new password to set
-     * @return void
+     * @param  int  $id  The ID of the user to update
+     * @param  string  $password  The new password to set
      */
     public function updateUserPassword(int $id, string $password): void
     {
@@ -105,19 +105,19 @@ class UserRepository extends BaseRepository
     /**
      * Delete a user with validation.
      *
-     * @param int $idToDelete ID of the user to delete
-     * @param int $currentUserId ID of the authenticated user
+     * @param  int  $idToDelete  ID of the user to delete
+     * @param  int  $currentUserId  ID of the authenticated user
      * @return array Associative array with result and message
      */
     public function destroyUser(int $idToDelete, int $currentUserId): array
     {
         // Get user to delete
         $userToDelete = $this->find($idToDelete);
-        if (!$userToDelete) {
+        if (! $userToDelete) {
             return [
                 'success' => false,
                 'message' => self::USER_NOT_FOUND_MESSAGE,
-                'status' => 404
+                'status' => 404,
             ];
         }
 
@@ -126,7 +126,7 @@ class UserRepository extends BaseRepository
             return [
                 'success' => false,
                 'message' => 'You cannot delete yourself.',
-                'status' => 400
+                'status' => 400,
             ];
         }
 
@@ -136,15 +136,15 @@ class UserRepository extends BaseRepository
         return [
             'success' => true,
             'message' => 'User deleted successfully',
-            'status' => 200
+            'status' => 200,
         ];
     }
 
     /**
      * Delete multiple users by IDs.
      *
-     * @param array $ids Array of user IDs to delete
-     * @param int $currentUserId ID of the authenticated user
+     * @param  array  $ids  Array of user IDs to delete
+     * @param  int  $currentUserId  ID of the authenticated user
      * @return array Associative array with results
      */
     public function bulkDestroy(array $ids, int $currentUserId): array
@@ -153,7 +153,7 @@ class UserRepository extends BaseRepository
             'deleted' => 0,
             'failed' => 0,
             'attempted' => count($ids),
-            'self_delete_attempt' => false
+            'self_delete_attempt' => false,
         ];
 
         foreach ($ids as $id) {
@@ -161,6 +161,7 @@ class UserRepository extends BaseRepository
             if ($id == $currentUserId) {
                 $result['self_delete_attempt'] = true;
                 $result['failed']++;
+
                 continue;
             }
 
@@ -177,19 +178,15 @@ class UserRepository extends BaseRepository
 
     /**
      * Update user avatar.
-     *
-     * @param int $userId
-     * @param UploadedFile $avatar
-     * @return array
      */
     public function updateAvatar(int $userId, UploadedFile $avatar): array
     {
         $user = $this->find($userId);
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => false,
                 'message' => self::USER_NOT_FOUND_MESSAGE,
-                'status' => 404
+                'status' => 404,
             ];
         }
 
@@ -210,32 +207,29 @@ class UserRepository extends BaseRepository
                 'success' => true,
                 'message' => 'Avatar updated successfully.',
                 'avatar_url' => Storage::disk('public')->url($avatarPath),
-                'status' => 200
+                'status' => 200,
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to upload avatar: ' . $e->getMessage(),
-                'status' => 500
+                'message' => 'Failed to upload avatar: '.$e->getMessage(),
+                'status' => 500,
             ];
         }
     }
 
     /**
      * Delete user avatar.
-     *
-     * @param int $userId
-     * @return array
      */
     public function deleteAvatar(int $userId): array
     {
         $user = $this->find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => false,
                 'message' => 'User not found.',
-                'status' => 404
+                'status' => 404,
             ];
         }
 
@@ -252,13 +246,13 @@ class UserRepository extends BaseRepository
             return [
                 'success' => true,
                 'message' => 'Avatar deleted successfully.',
-                'status' => 200
+                'status' => 200,
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to delete avatar: ' . $e->getMessage(),
-                'status' => 500
+                'message' => 'Failed to delete avatar: '.$e->getMessage(),
+                'status' => 500,
             ];
         }
     }

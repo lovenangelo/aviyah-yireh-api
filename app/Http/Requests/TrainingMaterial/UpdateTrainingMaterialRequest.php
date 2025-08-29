@@ -2,15 +2,16 @@
 
 namespace App\Http\Requests\TrainingMaterial;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class UpdateTrainingMaterialRequest extends FormRequest
 {
     use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */

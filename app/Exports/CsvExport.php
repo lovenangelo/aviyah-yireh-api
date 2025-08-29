@@ -7,12 +7,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CsvExport extends BaseExporter
 {
-
     private function fileNameGenerator(): string
     {
-        return date('Y-m-d_H-i-s') . "_export.csv";
+        return date('Y-m-d_H-i-s').'_export.csv';
     }
-
 
     public function export(): StreamedResponse
     {
@@ -21,16 +19,16 @@ class CsvExport extends BaseExporter
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
         ];
-        
+
         $callback = function () {
             $handle = fopen('php://output', 'w');
 
-            if (!empty($this->data)) {
+            if (! empty($this->data)) {
                 fputcsv($handle, array_keys($this->data[0]));
             } else {
-                throw new \InvalidArgumentException("CSV export requires non-empty data. Call setData() before export.");
+                throw new \InvalidArgumentException('CSV export requires non-empty data. Call setData() before export.');
             }
 
             foreach ($this->data as $row) {

@@ -25,24 +25,28 @@ class TrainingMaterialRepository
     public function getAllDocuments($perPage = null)
     {
         $query = $this->baseQuery()->where('file_type', 'document');
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function getAllVideos($perPage = null)
     {
         $query = $this->baseQuery()->where('file_type', 'video');
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function getAllImage($perPage = null)
     {
         $query = $this->baseQuery()->where('file_type', 'image');
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function getAllAudio($perPage = null)
     {
         $query = $this->baseQuery()->where('file_type', 'audio');
+
         return $this->executeQuery($query, $perPage);
     }
 
@@ -51,6 +55,7 @@ class TrainingMaterialRepository
         $query = $this->baseQuery()->whereHas('language', function ($q) {
             $q->where('name', 'english');
         });
+
         return $this->executeQuery($query, $perPage);
     }
 
@@ -59,24 +64,27 @@ class TrainingMaterialRepository
         $query = $this->baseQuery()->whereHas('language', function ($q) {
             $q->where('name', 'tagalog');
         });
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function getVideosByPopularity($perPage = null)
     {
         $query = $this->baseQuery()->orderBy('views', 'desc');
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function getVideosByDateUploaded($perPage = null)
     {
         $query = $this->baseQuery()->orderBy('created_at', 'desc');
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function find($id)
     {
-        return $this->baseQuery()->where("id", $id)->first();
+        return $this->baseQuery()->where('id', $id)->first();
     }
 
     public function upload(array $data)
@@ -100,7 +108,7 @@ class TrainingMaterialRepository
             'deleted' => 0,
             'failed' => 0,
             'attempted' => count($ids),
-            'has_users' => []
+            'has_users' => [],
         ];
 
         foreach ($ids as $id) {

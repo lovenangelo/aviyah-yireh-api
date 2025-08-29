@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class ApiV1RouteServiceProvider extends ServiceProvider
 {
     private const API_V1_PREFIX = 'api/v1';
+
     private const AUTH_SANCTUM = 'auth:sanctum';
 
     public function boot()

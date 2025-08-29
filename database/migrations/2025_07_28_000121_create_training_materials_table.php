@@ -14,21 +14,21 @@ return new class extends Migration
         Schema::create('training_materials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId("category_id")->constrained();
-            $table->foreignId("language_id")->constrained();
+            $table->foreignId('category_id')->constrained();
+            $table->foreignId('language_id')->constrained();
 
             $table->timestamps();
-            $table->date("expiration_date")->nullable();
+            $table->date('expiration_date')->nullable();
 
-            $table->string("title");
-            $table->text("description");
-            $table->integer("duration")->nullable();
-            $table->json("files");
-            $table->string("thumbnail_path");
-            $table->unsignedInteger("views")->default(0);
-            $table->boolean("is_visible")->default(true);
-            $table->boolean("is_featured")->default(false);
-            $table->integer("status")->default(0);
+            $table->string('title');
+            $table->text('description');
+            $table->integer('duration')->nullable();
+            $table->json('files');
+            $table->string('thumbnail_path');
+            $table->unsignedInteger('views')->default(0);
+            $table->boolean('is_visible')->default(true);
+            $table->boolean('is_featured')->default(false);
+            $table->integer('status')->default(0);
 
             $table->index('views');
             $table->index('category_id');

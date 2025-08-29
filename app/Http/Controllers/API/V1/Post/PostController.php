@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 class PostController extends Controller
 {
     use ApiResponse;
+
     protected $postRepository;
 
     private const POST_NOT_FOUND_MESSAGE = 'Post not found';
@@ -40,11 +41,12 @@ class PostController extends Controller
                 'include',
                 'sort',
                 'direction',
-                'per_page'
+                'per_page',
             ]);
 
             $posts = $this->postRepository->getFiltered($params);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve posts');
@@ -65,10 +67,11 @@ class PostController extends Controller
                 $includes = explode(',', $request->include);
                 $allowedIncludes = ['user'];
                 $validIncludes = array_intersect($includes, $allowedIncludes);
-                if (!empty($validIncludes)) {
+                if (! empty($validIncludes)) {
                     $post->load($validIncludes);
                 }
             }
+
             return $this->formatSuccessResponse($post, 'Post created successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to create post');
@@ -83,7 +86,7 @@ class PostController extends Controller
         try {
             $post = $this->postRepository->showUserPost($id);
 
-            if (!$post) {
+            if (! $post) {
                 return $this->formatErrorResponse(self::POST_NOT_FOUND_MESSAGE, 404);
             }
 
@@ -91,10 +94,11 @@ class PostController extends Controller
                 $includes = explode(',', $request->include);
                 $allowedIncludes = ['user'];
                 $validIncludes = array_intersect($includes, $allowedIncludes);
-                if (!empty($validIncludes)) {
+                if (! empty($validIncludes)) {
                     $post->load($validIncludes);
                 }
             }
+
             return $this->formatSuccessResponse($post, 'Post retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, self::POST_NOT_FOUND_MESSAGE);
@@ -110,7 +114,7 @@ class PostController extends Controller
             $validated = $request->validated();
             $post = $this->postRepository->updatePost($id, $validated);
 
-            if (!$post) {
+            if (! $post) {
                 return $this->formatErrorResponse(self::POST_NOT_FOUND_MESSAGE, 404);
             }
 
@@ -118,7 +122,7 @@ class PostController extends Controller
                 $includes = explode(',', $request->include);
                 $allowedIncludes = ['user'];
                 $validIncludes = array_intersect($includes, $allowedIncludes);
-                if (!empty($validIncludes)) {
+                if (! empty($validIncludes)) {
                     $post->load($validIncludes);
                 }
             }
@@ -137,7 +141,7 @@ class PostController extends Controller
         try {
             $post = $this->postRepository->find($id);
 
-            if (!$post) {
+            if (! $post) {
                 return $this->formatErrorResponse(self::POST_NOT_FOUND_MESSAGE, 404);
             }
 
@@ -162,6 +166,7 @@ class PostController extends Controller
             $params = $request->only(['search', 'per_page', 'include', 'sort', 'direction']);
             $posts = $this->postRepository->getPublishedPosts($params);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Published posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve published posts');
@@ -177,6 +182,7 @@ class PostController extends Controller
             $perPage = min($request->get('per_page', 15), 100);
             $posts = $this->postRepository->getDraftPosts($perPage);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Draft posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve draft posts');
@@ -192,6 +198,7 @@ class PostController extends Controller
             $perPage = min($request->get('per_page', 15), 100);
             $posts = $this->postRepository->getArchivedPosts($perPage);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Archived posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve archived posts');
@@ -208,6 +215,7 @@ class PostController extends Controller
             $perPage = min($request->get('per_page', 15), 100);
             $posts = $this->postRepository->getRecentPosts($days, $perPage);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Recent posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve recent posts');
@@ -223,6 +231,7 @@ class PostController extends Controller
             $perPage = min($request->get('per_page', 15), 100);
             $posts = $this->postRepository->getPostsByUser($userId, $perPage);
             $response = new CustomPaginatedCollection($posts, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'User posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve user posts');
@@ -237,14 +246,14 @@ class PostController extends Controller
         try {
             $request->validate([
                 'ids' => 'required|array',
-                'ids.*' => 'integer|exists:posts,id'
+                'ids.*' => 'integer|exists:posts,id',
             ]);
 
             $result = $this->postRepository->bulkDestroy($request->ids);
 
             return $this->formatSuccessResponse([
                 'message' => "Successfully deleted {$result['deleted']} posts",
-                'details' => $result
+                'details' => $result,
             ], 'Bulk delete successful');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to bulk delete posts');
@@ -257,7 +266,7 @@ class PostController extends Controller
             $request->validate([
                 'ids' => 'required|array',
                 'ids.*' => 'integer|exists:posts,id',
-                'status' => 'required|in:draft,published,archived'
+                'status' => 'required|in:draft,published,archived',
             ]);
 
             $updateData = ['status' => $request->status];
@@ -271,7 +280,7 @@ class PostController extends Controller
 
             return $this->formatSuccessResponse([
                 'message' => "Successfully updated {$result['updated']} posts",
-                'details' => $result
+                'details' => $result,
             ], 'Bulk update successful');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to bulk update posts');
@@ -287,6 +296,7 @@ class PostController extends Controller
             $perPage = min($request->get('per_page', 15), 100);
             $users = $this->postRepository->allUserPosts($perPage);
             $response = new CustomPaginatedCollection($users, $request->get('include_links', false));
+
             return $this->formatSuccessResponse($response, 'Users with posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to retrieve users with posts');
@@ -300,9 +310,10 @@ class PostController extends Controller
     {
         try {
             $user = $this->postRepository->showUserPost($userId);
-            if (!$user) {
+            if (! $user) {
                 return $this->formatErrorResponse('User not found', 404);
             }
+
             return $this->formatSuccessResponse($user, 'User posts retrieved successfully');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, request(), 'Failed to retrieve user posts');

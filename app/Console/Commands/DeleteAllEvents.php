@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Events;
+use Illuminate\Console\Command;
 
 class DeleteAllEvents extends Command
 {

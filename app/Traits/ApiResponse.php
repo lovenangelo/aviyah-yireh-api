@@ -3,12 +3,12 @@
 namespace App\Traits;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 trait ApiResponse
 {
@@ -39,7 +39,7 @@ trait ApiResponse
         'credit_card',
         'card_number',
         'cvv',
-        'ssn'
+        'ssn',
     ];
 
     /**
@@ -73,7 +73,7 @@ trait ApiResponse
             $errors[] = [
                 'field' => $field,
                 'code' => $this->getValidationErrorCode($field, $messages[0]),
-                'message' => $this->getCustomValidationMessage($field, $messages[0]) ?? $messages[0]
+                'message' => $this->getCustomValidationMessage($field, $messages[0]) ?? $messages[0],
             ];
         }
 
@@ -95,12 +95,12 @@ trait ApiResponse
         $errors[] = [
             'field' => 'persmission',
             'code' => 'FORBIDDEN_ACCESS',
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
         ];
 
         return $this->formatErrorResponse(
-            code: "FORBIDDEN_ACCESS",
-            message: "Request failed due to unauthorized access.",
+            code: 'FORBIDDEN_ACCESS',
+            message: 'Request failed due to unauthorized access.',
             details: $errors,
             statusCode: 403,
             request: $request
@@ -115,6 +115,7 @@ trait ApiResponse
                 return $code;
             }
         }
+
         return null;
     }
 
@@ -125,17 +126,14 @@ trait ApiResponse
     {
         return match (true) {
             isset($this->validationErrorMap[$field]) &&
-                ($code = $this->findMatchingRule($message, $this->validationErrorMap[$field])) !== null
-            => $code,
+                ($code = $this->findMatchingRule($message, $this->validationErrorMap[$field])) !== null => $code,
 
             isset($this->getGlobalValidationErrorMap()[$field]) &&
-                ($code = $this->findMatchingRule($message, $this->getGlobalValidationErrorMap()[$field])) !== null
-            => $code,
+                ($code = $this->findMatchingRule($message, $this->getGlobalValidationErrorMap()[$field])) !== null => $code,
 
-            ($code = $this->findMatchingRule($message, $this->getCommonValidationRules())) !== null
-            => str_replace('{FIELD}', strtoupper($field), $code),
+            ($code = $this->findMatchingRule($message, $this->getCommonValidationRules())) !== null => str_replace('{FIELD}', strtoupper($field), $code),
 
-            default => strtoupper($field) . '_VALIDATION_ERROR'
+            default => strtoupper($field).'_VALIDATION_ERROR'
         };
     }
 
@@ -176,19 +174,19 @@ trait ApiResponse
                 'required' => 'NAME_REQUIRED',
                 'string' => 'NAME_INVALID_TYPE',
                 'max' => 'NAME_TOO_LONG',
-                'min' => 'NAME_TOO_SHORT'
+                'min' => 'NAME_TOO_SHORT',
             ],
             'email' => [
                 'required' => 'EMAIL_REQUIRED',
                 'email' => 'EMAIL_INVALID_FORMAT',
                 'unique' => 'EMAIL_ALREADY_EXISTS',
-                'max' => 'EMAIL_TOO_LONG'
+                'max' => 'EMAIL_TOO_LONG',
             ],
             'password' => [
                 'required' => 'PASSWORD_REQUIRED',
                 'confirmed' => 'PASSWORD_CONFIRMATION_MISMATCH',
-                'min' => 'PASSWORD_TOO_SHORT'
-            ]
+                'min' => 'PASSWORD_TOO_SHORT',
+            ],
         ]);
     }
 
@@ -206,7 +204,7 @@ trait ApiResponse
             'exists' => '{FIELD}_NOT_FOUND',
             'max' => '{FIELD}_TOO_LONG',
             'min' => '{FIELD}_TOO_SHORT',
-            'confirmed' => '{FIELD}_CONFIRMATION_MISMATCH'
+            'confirmed' => '{FIELD}_CONFIRMATION_MISMATCH',
         ]);
     }
 
@@ -240,15 +238,15 @@ trait ApiResponse
         $details = [
             [
                 'field' => $field,
-                'code' => strtoupper($field) . '_ALREADY_EXISTS',
+                'code' => strtoupper($field).'_ALREADY_EXISTS',
                 'message' => $this->getConstraintErrorMessage($field)
-                    ?? "A record with this {$field} already exists"
-            ]
+                    ?? "A record with this {$field} already exists",
+            ],
         ];
 
         return $this->formatErrorResponse(
-            code: strtoupper($context) . '_CONFLICT',
-            message: ucfirst($context) . ' failed due to conflicting data',
+            code: strtoupper($context).'_CONFLICT',
+            message: ucfirst($context).' failed due to conflicting data',
             details: $details,
             statusCode: 409,
             request: $request
@@ -286,7 +284,7 @@ trait ApiResponse
             "/for key '(\w+)'/i" => 1,
             "/column '(\w+)'/i" => 1,
             "/key '.*\.(\w+)'/i" => 1,
-            "/users_(\w+)_unique/i" => 1
+            "/users_(\w+)_unique/i" => 1,
         ];
 
         foreach ($patterns as $pattern => $group) {
@@ -303,7 +301,7 @@ trait ApiResponse
      */
     protected function handleGeneralError(\Throwable $e, Request $request, string $context = 'operation'): JsonResponse
     {
-        Log::error(ucfirst($context) . ' failed', [
+        Log::error(ucfirst($context).' failed', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
             'request_data' => $this->sanitizeRequestData($request),
@@ -315,10 +313,10 @@ trait ApiResponse
             'success' => false,
             'error' => [
                 'code' => 'INTERNAL_SERVER_ERROR',
-                'message' => 'An unexpected error occurred during ' . $context,
+                'message' => 'An unexpected error occurred during '.$context,
             ],
             'timestamp' => now()->toISOString(),
-            'request_id' => $this->getRequestId($request)
+            'request_id' => $this->getRequestId($request),
         ];
 
         if (config('app.debug')) {
@@ -326,7 +324,7 @@ trait ApiResponse
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'type' => get_class($e)
+                'type' => get_class($e),
             ];
         }
 
@@ -350,10 +348,10 @@ trait ApiResponse
                 'message' => $message,
             ],
             'timestamp' => now()->toISOString(),
-            'request_id' => $this->getRequestId($request)
+            'request_id' => $this->getRequestId($request),
         ];
 
-        if (!empty($details)) {
+        if (! empty($details)) {
             $errorResponse['error']['details'] = $details;
         }
 
@@ -373,7 +371,7 @@ trait ApiResponse
             'success' => true,
             'message' => $message,
             'timestamp' => now()->toISOString(),
-            'request_id' => $this->getRequestId($request)
+            'request_id' => $this->getRequestId($request),
         ];
 
         if ($data !== null) {
@@ -388,7 +386,7 @@ trait ApiResponse
      */
     protected function getRequestId(?Request $request): string
     {
-        if (!$request) {
+        if (! $request) {
             return Str::uuid()->toString();
         }
 

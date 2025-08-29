@@ -20,7 +20,7 @@ class CustomPaginatedCollection extends ResourceCollection
         if (isset($paginated['data'])) {
             $paginated['items'] = $paginated['data'];
             unset($paginated['data']);
-            if (!$this->includeLinks) {
+            if (! $this->includeLinks) {
                 unset($paginated['links']);
                 unset($paginated['last_page']);
                 unset($paginated['last_page_url']);

@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests\Event;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Events;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
 {
@@ -25,7 +23,7 @@ class StoreEventRequest extends FormRequest
     public function rules(): array
     {
         $rules = Events::$rules;
+
         return $rules;
     }
-    
 }

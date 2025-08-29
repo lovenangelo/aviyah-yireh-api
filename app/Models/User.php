@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use App\Mail\BrevoMail;
-use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\TwoFactorCode;
 use Carbon\Carbon;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -57,7 +57,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role.asc',
         'role.desc',
         'created_at.asc',
-        'created_at.desc'
+        'created_at.desc',
     ];
 
     /**
@@ -74,7 +74,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verification_code_expires_at',
         'created_at',
         'updated_at',
-        'role_id'
+        'role_id',
     ];
 
     public function getNameAttribute()
@@ -83,7 +83,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->first_name,
             $this->middle_name,
             $this->last_name,
-            $this->suffix
+            $this->suffix,
         ])->filter()->implode(' ');
 
         return trim($nameParts);
@@ -96,7 +96,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'avatar_url',
-        'name'
+        'name',
     ];
 
     /**
@@ -131,8 +131,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Generate a two-factor authentication code for the user.
-     *
-     * @return string
      */
     public function generateTwoFactorCode(): string
     {
@@ -150,8 +148,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Generate a email verification code for the user.
-     *
-     * @return string
      */
     public function generateEmailVerificationCode(): string
     {
@@ -168,8 +164,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Reset the two-factor authentication code.
-     *
-     * @return void
      */
     public function resetTwoFactorCode(): void
     {
@@ -178,11 +172,8 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->save();
     }
 
-
     /**
      * Reset the email verification authentication code.
-     *
-     * @return void
      */
     public function resetEmailVerificationCode(): void
     {
@@ -193,9 +184,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Verify if the provided two-factor authentication code is valid.
-     *
-     * @param string $code
-     * @return bool
      */
     public function verifyTwoFactorCode(string $code): bool
     {
@@ -217,9 +205,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Verify if the provided two-factor authentication code is valid.
-     *
-     * @param string $code
-     * @return bool
      */
     public function verifyEmailVerificationCode(string $code): bool
     {
@@ -239,20 +224,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return false;
     }
 
-
     /**
      * Scope a query to filter the users.
-     *
-     * @param Builder $query
-     * @param array $filters
-     * @return Builder
      */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
             ->when(
-                !array_key_exists('sort', $filters) ?? false,
-                fn($query) => $query->orderBy('created_at', 'desc')
+                ! array_key_exists('sort', $filters) ?? false,
+                fn ($query) => $query->orderBy('created_at', 'desc')
             )
             ->when(
                 $filters['sort'] ?? false,
@@ -270,7 +250,7 @@ class User extends Authenticatable implements MustVerifyEmail
                     $query->orderBy($sortArr[0], $sortArr[1]);
                 }
             )
-            ->when(!empty($filters['search']), function ($query) use ($filters) {
+            ->when(! empty($filters['search']), function ($query) use ($filters) {
                 $query->where('users.first_name', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.middle_name', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.last_name', 'LIKE', "%{$filters['search']}%")
@@ -280,14 +260,12 @@ class User extends Authenticatable implements MustVerifyEmail
             })
             ->when(
                 isset($filters['roles']) && $filters['roles'],
-                fn($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
+                fn ($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
             );
     }
 
     /**
      * Get the role that the user belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function role(): BelongsTo
     {
@@ -296,9 +274,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if the user has the given role.
-     *
-     * @param string $role
-     * @return bool
      */
     public function hasRole(string $role): bool
     {
@@ -307,13 +282,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the avatar URL attribute.
-     *
-     * @return Attribute
      */
     protected function avatarUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->avatar
+            get: fn () => $this->avatar
                 ? Storage::disk('public')->url($this->avatar)
                 : null,
         );
@@ -321,8 +294,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Send the two-factor authentication code to the user.
-     *
-     * @return void
      */
     public function sendTwoFactorCodeNotification(): void
     {

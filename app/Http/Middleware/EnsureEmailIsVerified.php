@@ -17,9 +17,9 @@ class EnsureEmailIsVerified
     public function handle(Request $request, Closure $next): Response
     {
         if (
-            !$request->user() ||
+            ! $request->user() ||
             ($request->user() instanceof MustVerifyEmail &&
-                !$request->user()->hasVerifiedEmail())
+                ! $request->user()->hasVerifiedEmail())
         ) {
             // Return JSON response for token-based clients
             if ($request->hasHeader('X-Request-Token') || $request->expectsJson()) {

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\API\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 
 class TwoFactorAuthController extends Controller
 {
@@ -53,19 +53,20 @@ class TwoFactorAuthController extends Controller
 
             $response = null;
 
-            if (!$user) {
-                $response = $this->formatErrorResponse(code: "USER_NOT_FOUND", message: "User not found.", statusCode: 404);
-            } elseif (!$user->verifyTwoFactorCode($request->code)) {
-                $response = $this->formatErrorResponse(code: "INVALID_OR_EXPIRED_CODE", message: "Invalid or expired two-factor code.", statusCode: 422);
+            if (! $user) {
+                $response = $this->formatErrorResponse(code: 'USER_NOT_FOUND', message: 'User not found.', statusCode: 404);
+            } elseif (! $user->verifyTwoFactorCode($request->code)) {
+                $response = $this->formatErrorResponse(code: 'INVALID_OR_EXPIRED_CODE', message: 'Invalid or expired two-factor code.', statusCode: 422);
             } else {
                 $token = $user->createToken('auth-token')->plainTextToken;
                 $user->load('role');
                 $data = [
                     'user' => $user,
-                    'token' => $token
+                    'token' => $token,
                 ];
-                $response = $this->formatSuccessResponse($data, "Two-factor authentication successful.", 201, $request);
+                $response = $this->formatSuccessResponse($data, 'Two-factor authentication successful.', 201, $request);
             }
+
             return $response;
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Failed to verify two-factor authentication code.');

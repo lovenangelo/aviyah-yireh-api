@@ -8,7 +8,7 @@ abstract class BaseExporter
      * The data to be exported
      */
     protected $data;
-    
+
     /**
      * The name of the file that will contain the exported data
      */
@@ -25,6 +25,7 @@ abstract class BaseExporter
     public function setFileName(string $name): self
     {
         $this->fileName = $name;
+
         return $this;
     }
 
@@ -34,6 +35,7 @@ abstract class BaseExporter
     public function setData(array $data): self
     {
         $this->data = $data;
+
         return $this;
     }
 

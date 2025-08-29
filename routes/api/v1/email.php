@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\API\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\API\V1\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\API\V1\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 // Email verification

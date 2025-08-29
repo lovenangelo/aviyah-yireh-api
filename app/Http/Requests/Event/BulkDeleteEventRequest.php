@@ -23,17 +23,17 @@ class BulkDeleteEventRequest extends FormRequest
     {
         return [
             'ids' => ['required', 'array', 'min:1'],
-            'ids.*' => ['required', 'integer', 'exists:events,id']
+            'ids.*' => ['required', 'integer', 'exists:events,id'],
         ];
     }
 
-     public function messages(): array
+    public function messages(): array
     {
         return [
             'ids.required' => 'Please provide event IDs to delete.',
             'ids.array' => 'event IDs must be provided as an array.',
             'ids.min' => 'At least one event ID must be provided.',
-            'ids.*.exists' => 'One or more event IDs do not exist in the database.'
+            'ids.*.exists' => 'One or more event IDs do not exist in the database.',
         ];
     }
 }

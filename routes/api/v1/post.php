@@ -1,11 +1,7 @@
 <?php
 
-
-
 use App\Http\Controllers\API\V1\Post\PostController;
-
 use Illuminate\Support\Facades\Route;
-
 
 Route::prefix('')->group(function () {
     // Standard CRUD routes

@@ -9,7 +9,8 @@ class TrainingMaterial extends Model
 {
     public const SELECT_TRAINING_MATERIALS_ALL = 'training_materials.*';
 
-    protected $hidden = ['created_at', 'category_id', 'language_id', 'user_id',];
+    protected $hidden = ['created_at', 'category_id', 'language_id', 'user_id'];
+
     protected $fillable = [
         'user_id',
         'category_id',
@@ -23,7 +24,7 @@ class TrainingMaterial extends Model
         'views',
         'is_visible',
         'status',
-        'is_featured'
+        'is_featured',
     ];
 
     /**
@@ -43,17 +44,13 @@ class TrainingMaterial extends Model
 
     protected $casts = [
         'duration' => 'double',
-        'is_visible' => "boolean",
-        "files" => "array",
-        "status" => "integer",
+        'is_visible' => 'boolean',
+        'files' => 'array',
+        'status' => 'integer',
     ];
 
     /**
      * Scope a query to filter the training materials.
-     *
-     * @param Builder $query
-     * @param array $filters
-     * @return Builder
      */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
@@ -76,15 +73,16 @@ class TrainingMaterial extends Model
 
     private function applyDefaultSorting(Builder $query, array $filters): Builder
     {
-        if (!array_key_exists('sort', $filters) ?? false) {
+        if (! array_key_exists('sort', $filters) ?? false) {
             return $query->orderBy('created_at', 'desc');
         }
+
         return $query;
     }
 
     private function applyCustomSorting(Builder $query, array $filters): Builder
     {
-        if (isset($filters['sort']) && !$filters['sort']) {
+        if (isset($filters['sort']) && ! $filters['sort']) {
             $sortArr = explode('.', $filters['sort']);
             if ($filters['sort'] ?? false) {
                 $query = $query->join('categories', 'training_materials.category_id', '=', 'categories.id')
@@ -102,17 +100,19 @@ class TrainingMaterial extends Model
                 $query = $query->orderBy($sortArr[0], $sortArr[1] ?? 'asc');
             }
         }
+
         return $query;
     }
 
     private function applySearch(Builder $query, array $filters): Builder
     {
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('training_materials.title', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('training_materials.description', 'LIKE', "%{$filters['search']}%");
             });
         }
+
         return $query;
     }
 
@@ -121,6 +121,7 @@ class TrainingMaterial extends Model
         if (isset($filters['categories']) && $filters['categories']) {
             $query->whereIn('category_id', array_map('intval', explode(',', $filters['categories'])));
         }
+
         return $query;
     }
 
@@ -129,6 +130,7 @@ class TrainingMaterial extends Model
         if (isset($filters['languages']) && $filters['languages']) {
             $query->whereIn('language_id', array_map('intval', explode(',', $filters['languages'])));
         }
+
         return $query;
     }
 
@@ -137,6 +139,7 @@ class TrainingMaterial extends Model
         if (isset($filters['users']) && $filters['users']) {
             $query->whereIn('user_id', array_map('intval', explode(',', $filters['users'])));
         }
+
         return $query;
     }
 
@@ -145,6 +148,7 @@ class TrainingMaterial extends Model
         if (isset($filters['is_visible']) && $filters['is_visible'] !== '') {
             $query->where('is_visible', (bool) $filters['is_visible']);
         }
+
         return $query;
     }
 
@@ -153,6 +157,7 @@ class TrainingMaterial extends Model
         if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
             $query->where('is_featured', (bool) $filters['is_featured']);
         }
+
         return $query;
     }
 
@@ -161,6 +166,7 @@ class TrainingMaterial extends Model
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->where('status', $filters['status']);
         }
+
         return $query;
     }
 
@@ -172,6 +178,7 @@ class TrainingMaterial extends Model
         if (isset($filters['max_duration']) && $filters['max_duration'] !== '') {
             $query->where('duration', '<=', $filters['max_duration']);
         }
+
         return $query;
     }
 
@@ -183,6 +190,7 @@ class TrainingMaterial extends Model
         if (isset($filters['max_views']) && $filters['max_views'] !== '') {
             $query->where('views', '<=', $filters['max_views']);
         }
+
         return $query;
     }
 
@@ -194,6 +202,7 @@ class TrainingMaterial extends Model
         if (isset($filters['expired']) && $filters['expired']) {
             $query->where('expiration_date', '<', now());
         }
+
         return $query;
     }
 
@@ -205,6 +214,7 @@ class TrainingMaterial extends Model
         if (isset($filters['created_to']) && $filters['created_to']) {
             $query->where('created_at', '<=', $filters['created_to']);
         }
+
         return $query;
     }
 

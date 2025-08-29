@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Post;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class StorePostRequest extends FormRequest
 {
@@ -44,9 +44,8 @@ class StorePostRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }
 }
-

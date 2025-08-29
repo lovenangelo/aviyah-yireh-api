@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API\V1\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
 /**
  * @OA\Tag(
  *     name="Email Verification",
@@ -14,8 +14,9 @@ use App\Traits\ApiResponse;
  * )
  */
 class EmailVerificationNotificationController extends Controller
-{   
+{
     use ApiResponse;
+
     /**
      * Send a new email verification notification.
      *
@@ -28,51 +29,68 @@ class EmailVerificationNotificationController extends Controller
      *     security={
      *         {"bearer_token": {}}
      *     },
+     *
      *     @OA\Parameter(
      *         name="X-Request-Token",
      *         in="header",
      *         description="Header to indicate token-based authentication request",
      *         required=false,
+     *
      *         @OA\Schema(type="string", example="true")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Verification link sent or already verified",
+     *
      *         @OA\JsonContent(
      *             oneOf={
+     *
      *                 @OA\Schema(
      *                     title="Verification Link Sent",
      *                     type="object",
+     *
      *                     @OA\Property(property="status", type="string", example="verification-link-sent")
      *                 ),
+     *
      *                 @OA\Schema(
      *                     title="Already Verified",
      *                     type="object",
+     *
      *                     @OA\Property(property="message", type="string", example="Email already verified")
      *                 )
      *             }
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=302,
      *         description="Redirect to dashboard if already verified (session-based)",
+     *
      *         @OA\Header(
      *             header="Location",
      *             description="Redirect location",
+     *
      *             @OA\Schema(type="string", example="/dashboard")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Unauthenticated.")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=429,
      *         description="Too many requests (throttled)",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Too many requests. Please try again later.")
      *         )
      *     )
@@ -82,15 +100,15 @@ class EmailVerificationNotificationController extends Controller
     {
         try {
             if ($request->user()->hasVerifiedEmail()) {
-                return $this->formatSuccessResponse(message: "Email already verified");
+                return $this->formatSuccessResponse(message: 'Email already verified');
             }
 
             $request->user()->sendEmailVerificationNotification();
 
-            return $this->formatSuccessResponse(message: "Verification email has been sent");
+            return $this->formatSuccessResponse(message: 'Verification email has been sent');
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'email_verification');
         }
-        
+
     }
 }

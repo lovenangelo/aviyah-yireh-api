@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Events;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class EventsPolicy
 {
@@ -37,7 +36,7 @@ class EventsPolicy
      */
     public function update(User $user, Events $events): bool
     {
-       return $user->id === $events->author_id;
+        return $user->id === $events->author_id;
     }
 
     /**

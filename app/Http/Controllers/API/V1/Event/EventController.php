@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\API\V1\Event;
 
-use Illuminate\Http\Request;
-use App\Models\Events;
-use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Event\BulkDeleteEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
-use App\Http\Requests\Event\BulkDeleteEventRequest;
 use App\Http\Resources\CustomPaginatedCollection;
-use App\Repositories\EventRepository;
 use App\Models\User;
+use App\Repositories\EventRepository;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    private const EVENT_NOT_FOUND = "Event not found";
+    private const EVENT_NOT_FOUND = 'Event not found';
+
     use ApiResponse;
 
     public function __construct(EventRepository $eventRepository)
@@ -33,20 +33,20 @@ class EventController extends Controller
                 'location',
                 'start_at',
                 'end_at',
-                'author_id'
+                'author_id',
             ]);
 
             if ($filters) {
                 $event = $this->eventRepository->getFilter($filters, $perPage);
             } else {
-                $event =  $this->eventRepository->getEvents($perPage);
+                $event = $this->eventRepository->getEvents($perPage);
             }
 
             $event = new CustomPaginatedCollection($event, $request->query('include_links', false));
+
             return $this->formatSuccessResponse(
                 data: $event
             );
-
 
         } catch (\Throwable $th) {
             return $this->handleApiException($th, $request, 'Show Events');
@@ -57,13 +57,10 @@ class EventController extends Controller
     {
         try {
 
-
-
             $event = $this->eventRepository->storeEvents($request);
 
-
             return $this->formatSuccessResponse(
-                message: "Event created successfully",
+                message: 'Event created successfully',
                 data: $event
             );
         } catch (\Throwable $th) {
@@ -77,9 +74,9 @@ class EventController extends Controller
 
             $event = $this->eventRepository->find($id);
 
-            if (!$event) {
+            if (! $event) {
                 return $this->formatErrorResponse(
-                    code: "NOT_FOUND",
+                    code: 'NOT_FOUND',
                     message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
@@ -97,14 +94,14 @@ class EventController extends Controller
         }
     }
 
-    public function update(UpdateEventRequest $request,  $id)
+    public function update(UpdateEventRequest $request, $id)
     {
         try {
             $event = $this->eventRepository->find($id);
 
-            if (!$event) {
+            if (! $event) {
                 return $this->formatErrorResponse(
-                    code: "NOT_FOUND",
+                    code: 'NOT_FOUND',
                     message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
@@ -112,14 +109,13 @@ class EventController extends Controller
 
             $this->authorize('update', $event);
 
-
             $this->eventRepository->update($request->all(), $event->id);
-          
+
             return $this->formatSuccessResponse(
-                message: "Event update successfully",
+                message: 'Event update successfully',
                 data: [
-                    "eventId" => $event->id,
-                    "changes" => $request->all()
+                    'eventId' => $event->id,
+                    'changes' => $request->all(),
                 ]
             );
         } catch (\Throwable $th) {
@@ -132,10 +128,10 @@ class EventController extends Controller
         try {
 
             $event = $this->eventRepository->find($id);
-          
-            if (!$event) {
+
+            if (! $event) {
                 return $this->formatErrorResponse(
-                    code: "NOT_FOUND",
+                    code: 'NOT_FOUND',
                     message: self::EVENT_NOT_FOUND,
                     statusCode: 404
                 );
@@ -146,16 +142,16 @@ class EventController extends Controller
             $this->eventRepository->delete($event->id);
 
             return $this->formatSuccessResponse(
-                message: "Event successfully deleted",
+                message: 'Event successfully deleted',
                 data: [
-                    "deletedEvent" => [
-                        "id" => $event->id,
-                        "title" => $event->title
-                    ]
+                    'deletedEvent' => [
+                        'id' => $event->id,
+                        'title' => $event->title,
+                    ],
                 ]
             );
         } catch (\Throwable $th) {
-            return $this->handleApiException($th, $request, "Delete Event");
+            return $this->handleApiException($th, $request, 'Delete Event');
         }
     }
 
@@ -168,7 +164,7 @@ class EventController extends Controller
             $result = $this->eventRepository->bulkDestroy($request->validated('ids'));
 
             return $this->formatSuccessResponse(
-                message: "Events deleted successfully",
+                message: 'Events deleted successfully',
                 data: $result
             );
         } catch (\Throwable $th) {

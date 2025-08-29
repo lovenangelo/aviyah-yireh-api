@@ -4,13 +4,14 @@ namespace App\Http\Requests\User;
 
 use App\Models\User;
 use App\Traits\ApiResponse;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateUserRequest extends FormRequest
 {
     use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -31,7 +32,7 @@ class UpdateUserRequest extends FormRequest
 
         // Validate email uniqueness for updates (except for the current user)
         $userId = $this->route('user') ?? auth()->id();
-        $rules['email'] = 'required|string|max:255|email|unique:users,email,' . $userId;
+        $rules['email'] = 'required|string|max:255|email|unique:users,email,'.$userId;
 
         unset($rules['password']);
 
@@ -41,7 +42,6 @@ class UpdateUserRequest extends FormRequest
     /**
      * Handle a failed validation attempt.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @return void
      *
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
@@ -50,7 +50,7 @@ class UpdateUserRequest extends FormRequest
     {
         throw new HttpResponseException(
             $this->formatErrorResponse(
-                code: "INVALID_REQUEST",
+                code: 'INVALID_REQUEST',
                 message: 'Validation failed',
                 statusCode: 422,
                 details: $validator->errors()->toArray()

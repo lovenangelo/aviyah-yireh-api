@@ -2,9 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
 use App\Models\Events;
-use App\Repositories\BaseRepository;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class EventRepository extends BaseRepository
@@ -21,7 +20,7 @@ class EventRepository extends BaseRepository
             'description',
             'location',
             'start_at',
-            'end_at'
+            'end_at',
         ];
     }
 
@@ -43,12 +42,14 @@ class EventRepository extends BaseRepository
     public function getFilter($filters, $perPage = null)
     {
         $query = $this->baseQuery()->filter($filters);
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function allUserEvents($perPage = null)
     {
         $query = User::with('events')->select('id', 'name')->has('events');
+
         return $perPage ? $query->paginate($perPage) : $query->get();
     }
 
@@ -156,7 +157,7 @@ class EventRepository extends BaseRepository
             'start_at' => $input->start_at,
             'end_at' => $input->end_at,
             'image_url' => $input->image_url,
-            'author_id' => auth()->id()
+            'author_id' => auth()->id(),
         ]);
     }
 
@@ -168,10 +169,10 @@ class EventRepository extends BaseRepository
     public function bulkDestroy(array $eventIds)
     {
         $result = [
-            "deleted" => 0,
-            "failed" => 0,
-            "attempted" => count($eventIds),
-            "failed_details" => []
+            'deleted' => 0,
+            'failed' => 0,
+            'attempted' => count($eventIds),
+            'failed_details' => [],
         ];
 
         foreach ($eventIds as $eventId) {
@@ -182,7 +183,7 @@ class EventRepository extends BaseRepository
                 $result['failed']++;
                 $result['failed_details'][] = [
                     'id' => $eventId,
-                    'reason' => $e->getMessage()
+                    'reason' => $e->getMessage(),
                 ];
             }
         }

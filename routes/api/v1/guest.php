@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\API\V1\Auth\RegisteredUserController;
-use App\Http\Controllers\API\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\API\V1\Auth\NewPasswordController;
+use App\Http\Controllers\API\V1\Auth\PasswordResetLinkController;
+use App\Http\Controllers\API\V1\Auth\RegisteredUserController;
 use App\Http\Controllers\API\V1\Auth\TwoFactorAuthController;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Facades\Route;
 
 // Authentication
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('api.login');

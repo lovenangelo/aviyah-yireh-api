@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Post;
 use App\Models\User;
-use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Builder;
 
 class PostRepository extends BaseRepository
@@ -20,7 +19,7 @@ class PostRepository extends BaseRepository
             'title',
             'content',
             'status',
-            'published_at'
+            'published_at',
         ];
     }
 
@@ -42,12 +41,14 @@ class PostRepository extends BaseRepository
     public function getFilter($filters, $perPage = null)
     {
         $query = $this->baseQuery()->filter($filters);
+
         return $this->executeQuery($query, $perPage);
     }
 
     public function allUserPosts($perPage = null)
     {
         $query = User::with('posts')->select('id', 'name')->has('posts');
+
         return $perPage ? $query->paginate($perPage) : $query->get();
     }
 
@@ -94,7 +95,7 @@ class PostRepository extends BaseRepository
             $includes = explode(',', $params['include']);
             $allowedIncludes = ['user']; // Define allowed relationships
             $validIncludes = array_intersect($includes, $allowedIncludes);
-            if (!empty($validIncludes)) {
+            if (! empty($validIncludes)) {
                 $query->with($validIncludes);
             }
         }
@@ -105,7 +106,7 @@ class PostRepository extends BaseRepository
 
         // Validate sort field to prevent SQL injection
         $allowedSortFields = ['id', 'title', 'status', 'created_at', 'updated_at', 'published_at'];
-        if (!in_array($sortField, $allowedSortFields)) {
+        if (! in_array($sortField, $allowedSortFields)) {
             $sortField = 'created_at';
         }
 
@@ -117,6 +118,7 @@ class PostRepository extends BaseRepository
     public function getPublishedPosts(array $params = [])
     {
         $params['status'] = 'published';
+
         return $this->getFiltered($params);
     }
 
@@ -185,7 +187,7 @@ class PostRepository extends BaseRepository
     {
         $post = $this->find($id);
 
-        if (!$post) {
+        if (! $post) {
             return null;
         }
 
@@ -219,10 +221,10 @@ class PostRepository extends BaseRepository
     public function bulkDestroy(array $postIds)
     {
         $result = [
-            "deleted" => 0,
-            "failed" => 0,
-            "attempted" => count($postIds),
-            "failed_details" => []
+            'deleted' => 0,
+            'failed' => 0,
+            'attempted' => count($postIds),
+            'failed_details' => [],
         ];
 
         foreach ($postIds as $postId) {
@@ -233,7 +235,7 @@ class PostRepository extends BaseRepository
                 $result['failed']++;
                 $result['failed_details'][] = [
                     'id' => $postId,
-                    'reason' => $e->getMessage()
+                    'reason' => $e->getMessage(),
                 ];
             }
         }
@@ -244,10 +246,10 @@ class PostRepository extends BaseRepository
     public function bulkUpdate(array $postIds, array $data)
     {
         $result = [
-            "updated" => 0,
-            "failed" => 0,
-            "attempted" => count($postIds),
-            "failed_details" => []
+            'updated' => 0,
+            'failed' => 0,
+            'attempted' => count($postIds),
+            'failed_details' => [],
         ];
 
         foreach ($postIds as $postId) {
@@ -260,14 +262,14 @@ class PostRepository extends BaseRepository
                     $result['failed']++;
                     $result['failed_details'][] = [
                         'id' => $postId,
-                        'reason' => 'Post not found'
+                        'reason' => 'Post not found',
                     ];
                 }
             } catch (\Exception $e) {
                 $result['failed']++;
                 $result['failed_details'][] = [
                     'id' => $postId,
-                    'reason' => $e->getMessage()
+                    'reason' => $e->getMessage(),
                 ];
             }
         }

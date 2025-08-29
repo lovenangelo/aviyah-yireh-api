@@ -2,14 +2,15 @@
 
 namespace App\Http\Requests\TrainingMaterial;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BulkDestroyTrainingMaterialsRequest extends FormRequest
 {
     use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,7 +28,7 @@ class BulkDestroyTrainingMaterialsRequest extends FormRequest
     {
         return [
             'ids' => ['required', 'array', 'min:1'],
-            'ids.*' => ['required', 'integer', 'exists:training_materials,id']
+            'ids.*' => ['required', 'integer', 'exists:training_materials,id'],
         ];
     }
 
@@ -42,7 +43,7 @@ class BulkDestroyTrainingMaterialsRequest extends FormRequest
             'ids.required' => 'Please provide training material IDs to delete.',
             'ids.array' => 'Training material IDs must be provided as an array.',
             'ids.min' => 'At least one training material ID must be provided.',
-            'ids.*.exists' => 'One or more training material IDs do not exist in the database.'
+            'ids.*.exists' => 'One or more training material IDs do not exist in the database.',
         ];
     }
 
