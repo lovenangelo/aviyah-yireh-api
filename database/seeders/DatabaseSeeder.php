@@ -56,5 +56,6 @@ class DatabaseSeeder extends Seeder
         $this->call(LanguageSeeder::class);
         $this->call(EventsSeeder::class);
         $this->call(TrainingMaterialSeeder::class);
+        $this->call(CompanySeeder::class);
     }
 }

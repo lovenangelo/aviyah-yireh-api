@@ -232,7 +232,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query
             ->when(
                 ! array_key_exists('sort', $filters) ?? false,
-                fn ($query) => $query->orderBy('created_at', 'desc')
+                fn($query) => $query->orderBy('created_at', 'desc')
             )
             ->when(
                 $filters['sort'] ?? false,
@@ -260,7 +260,7 @@ class User extends Authenticatable implements MustVerifyEmail
             })
             ->when(
                 isset($filters['roles']) && $filters['roles'],
-                fn ($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
+                fn($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
             );
     }
 
@@ -280,13 +280,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role?->name === $role;
     }
 
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
     /**
      * Get the avatar URL attribute.
      */
     protected function avatarUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->avatar
+            get: fn() => $this->avatar
                 ? Storage::disk('public')->url($this->avatar)
                 : null,
         );
