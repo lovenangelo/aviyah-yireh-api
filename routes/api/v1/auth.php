@@ -22,7 +22,7 @@ Route::prefix('roles')->group(function () {
     Route::get($roleIdRoute, [RoleAPIController::class, 'show'])->name('role.retrieve');
 
     // Role create
-    Route::post('/', [RoleAPIController::class, 'store'])->name('roles.create');
+    Route::post('/', [RoleAPIController::class, 'store']);
 
     // Role update
     Route::put($roleIdRoute, [RoleAPIController::class, 'update'])->name('roles.update');

@@ -58,8 +58,8 @@ class RoleAPIController extends Controller
     public function store(StoreRoleRequest $request): JsonResponse
     {
         try {
-            // Check if user has permission to create a new role
-            $this->authorize('create', self::ROLE);
+            $user = $request->user();
+            $this->authorize('create', $user);
             $role = $this->roleRepository->createNewRole($request->all());
 
             return $this->formatSuccessResponse($role, 'Role created successfully.', 201, $request);
@@ -162,5 +162,21 @@ class RoleAPIController extends Controller
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Role delete many');
         }
+    }
+
+    /**
+     * Determine if the request is expecting a JSON response.
+     */
+    public function expectsJson(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determine if the current request is asking for JSON.
+     */
+    public function wantsJson(): bool
+    {
+        return true;
     }
 }

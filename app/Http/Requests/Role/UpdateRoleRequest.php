@@ -2,11 +2,16 @@
 
 namespace App\Http\Requests\Role;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Traits\ApiResponse;
+use Illuminate\Contracts\Validation\Validator;
 
 class UpdateRoleRequest extends FormRequest
 {
+    use ApiResponse;
+
     public function authorize(): bool
     {
         return true;
@@ -57,5 +62,41 @@ class UpdateRoleRequest extends FormRequest
                 'permissions' => []
             ]);
         }
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @return void
+     *
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            $this->formatErrorResponse(
+                code: 'INVALID_REQUEST',
+                message: 'Validation failed',
+                statusCode: 422,
+                details: $validator->errors()->toArray()
+            )
+
+        );
+    }
+
+    /**
+     * Determine if the request is expecting a JSON response.
+     */
+    public function expectsJson(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determine if the current request is asking for JSON.
+     */
+    public function wantsJson(): bool
+    {
+        return true;
     }
 }

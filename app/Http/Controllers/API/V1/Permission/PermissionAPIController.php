@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API\V1\Permission;
 
 use App\Http\Controllers\Controller;
+use App\Models\Permission;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
 
 class PermissionAPIController extends Controller
 {
@@ -18,6 +18,7 @@ class PermissionAPIController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+
             $permissions = Permission::all();
 
             // Group permissions by module
