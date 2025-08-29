@@ -122,12 +122,12 @@ class RoleAPIController extends Controller
             // Get role to delete
             $roleToDelete = $this->roleRepository->find($id);
 
-            if (! $roleToDelete) {
+            if (!$roleToDelete) {
                 return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
             // Check if user has permission to delete the role
-            $this->authorize('delete', $roleToDelete);
+            $this->authorize('delete', self::ROLE);
 
             // Delete role
             $result = $this->roleRepository->destroyRole((int) $id);

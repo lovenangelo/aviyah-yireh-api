@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class RolePolicy
 {
@@ -42,10 +42,10 @@ class RolePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Role $model): bool
+    public function delete(User $user): bool
     {
-        // Admin can delete roles but not if they have associated users
-        return $user->hasRole('admin') && $model->users()->count() === 0;
+        // Admin can delete roles
+        return $user->hasRole('admin');
     }
 
     /**

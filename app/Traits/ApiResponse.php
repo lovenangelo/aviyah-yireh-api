@@ -93,7 +93,7 @@ trait ApiResponse
     {
 
         $errors[] = [
-            'field' => 'persmission',
+            'field' => 'permission',
             'code' => 'FORBIDDEN_ACCESS',
             'message' => $e->getMessage(),
         ];
@@ -133,7 +133,7 @@ trait ApiResponse
 
             ($code = $this->findMatchingRule($message, $this->getCommonValidationRules())) !== null => str_replace('{FIELD}', strtoupper($field), $code),
 
-            default => strtoupper($field).'_VALIDATION_ERROR'
+            default => strtoupper($field) . '_VALIDATION_ERROR'
         };
     }
 
@@ -238,15 +238,15 @@ trait ApiResponse
         $details = [
             [
                 'field' => $field,
-                'code' => strtoupper($field).'_ALREADY_EXISTS',
+                'code' => strtoupper($field) . '_ALREADY_EXISTS',
                 'message' => $this->getConstraintErrorMessage($field)
                     ?? "A record with this {$field} already exists",
             ],
         ];
 
         return $this->formatErrorResponse(
-            code: strtoupper($context).'_CONFLICT',
-            message: ucfirst($context).' failed due to conflicting data',
+            code: strtoupper($context) . '_CONFLICT',
+            message: ucfirst($context) . ' failed due to conflicting data',
             details: $details,
             statusCode: 409,
             request: $request
@@ -301,7 +301,7 @@ trait ApiResponse
      */
     protected function handleGeneralError(\Throwable $e, Request $request, string $context = 'operation'): JsonResponse
     {
-        Log::error(ucfirst($context).' failed', [
+        Log::error(ucfirst($context) . ' failed', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
             'request_data' => $this->sanitizeRequestData($request),
@@ -313,7 +313,7 @@ trait ApiResponse
             'success' => false,
             'error' => [
                 'code' => 'INTERNAL_SERVER_ERROR',
-                'message' => 'An unexpected error occurred during '.$context,
+                'message' => 'An unexpected error occurred during ' . $context,
             ],
             'timestamp' => now()->toISOString(),
             'request_id' => $this->getRequestId($request),
