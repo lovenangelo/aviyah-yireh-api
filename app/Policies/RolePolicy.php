@@ -18,7 +18,7 @@ class RolePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Role $model): bool
+    public function view(User $user): bool
     {
         return $user->hasRole('admin');
     }
@@ -34,7 +34,7 @@ class RolePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Role $model): bool
+    public function update(User $user): bool
     {
         return $user->hasRole('admin');
     }
@@ -60,7 +60,7 @@ class RolePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Role $model): bool
+    public function restore(User $user): bool
     {
         // Only admin can restore roles
         return $user->hasRole('admin');

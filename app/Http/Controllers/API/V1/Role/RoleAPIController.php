@@ -105,7 +105,7 @@ class RoleAPIController extends Controller
             }
 
             // Check if user has permission to update the role
-            $this->authorize('update', $role);
+            $this->authorize('update', $request->user());
 
             // Update role with permissions
             $updatedRole = $this->roleRepository->updateRoleWithPermissions($request->validated(), $role->id);
