@@ -95,7 +95,7 @@ class TrainingMaterial extends Model
             } elseif ($sortArr[0] === 'user') {
                 $query = $query->join('users', 'training_materials.user_id', '=', 'users.id')
                     ->select(self::SELECT_TRAINING_MATERIALS_ALL)
-                    ->orderBy('users.first_name', $sortArr[1] ?? 'asc');
+                    ->orderBy('users.name', $sortArr[1] ?? 'asc');
             } else {
                 $query = $query->orderBy($sortArr[0], $sortArr[1] ?? 'asc');
             }

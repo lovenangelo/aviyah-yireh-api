@@ -72,10 +72,7 @@ class UserRepository extends BaseRepository
     {
         // Create user with role
         $user = $this->model->create([
-            'first_name' => $inputs['first_name'],
-            'middle_name' => isset($inputs['middle_name']) ? $inputs['middle_name'] : null,
-            'last_name' => $inputs['last_name'],
-            'suffix' => isset($inputs['suffix']) ? $inputs['suffix'] : null,
+            'name' => $inputs['name'],
             'email' => $inputs['email'],
             'password' => Hash::make(Str::random(8)),
             'role_id' => $inputs['role_id'],
@@ -212,7 +209,7 @@ class UserRepository extends BaseRepository
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to upload avatar: '.$e->getMessage(),
+                'message' => 'Failed to upload avatar: ' . $e->getMessage(),
                 'status' => 500,
             ];
         }
@@ -251,7 +248,7 @@ class UserRepository extends BaseRepository
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to delete avatar: '.$e->getMessage(),
+                'message' => 'Failed to delete avatar: ' . $e->getMessage(),
                 'status' => 500,
             ];
         }

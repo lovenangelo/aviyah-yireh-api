@@ -24,29 +24,21 @@ class DatabaseSeeder extends Seeder
 
         // Create users with roles
         User::factory()->create([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'suffix' => 'Sr.',
+            'name' => 'John Doe',
             'email' => 'johndoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $adminRole->id,
         ]);
 
         User::factory()->create([
-            'first_name' => 'Jane',
-            'middle_name' => 'Taylor',
-            'last_name' => 'Doe',
-            'suffix' => null,
+            'name' => 'Jane Taylor',
             'email' => 'janedoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $adminRole->id,
         ]);
 
         User::factory()->create([
-            'first_name' => 'Jack',
-            'last_name' => 'Doe',
-            'middle_name' => null,
-            'suffix' => null,
+            'name' => 'Jack Doe',
             'email' => 'jackdoe@example.com',
             'password' => Hash::make($password),
             'role_id' => $userRole->id,

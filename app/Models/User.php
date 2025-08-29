@@ -26,10 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'first_name',
-        'middle_name',
-        'last_name',
-        'suffix',
+        'name',
         'email',
         'phone',
         'password',
@@ -44,14 +41,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $sortable = [
-        'first_name.asc',
-        'first_name.desc',
-        'last_name.asc',
-        'last_name.desc',
-        'middle_name.asc',
-        'middle_name.desc',
-        'suffix.asc',
-        'suffix.desc',
         'email.asc',
         'email.desc',
         'role.asc',
@@ -77,18 +66,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'role_id',
     ];
 
-    public function getNameAttribute()
-    {
-        $nameParts = collect([
-            $this->first_name,
-            $this->middle_name,
-            $this->last_name,
-            $this->suffix,
-        ])->filter()->implode(' ');
-
-        return trim($nameParts);
-    }
-
     /**
      * The accessors to append to the model's array form.
      *
@@ -96,7 +73,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'avatar_url',
-        'name',
     ];
 
     /**
@@ -121,8 +97,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     public static array $rules = [
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
+        'name' => 'required|string|max:255',
         'email' => 'required|string|max:255|email|unique:users,email',
         'phone' => 'nullable|string|max:20|regex:/^[\+]?[0-9\-\(\)\s]+$/',
         'password' => 'required|string|min:8|max:255',
@@ -251,10 +226,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
             )
             ->when(! empty($filters['search']), function ($query) use ($filters) {
-                $query->where('users.first_name', 'LIKE', "%{$filters['search']}%")
-                    ->orWhere('users.middle_name', 'LIKE', "%{$filters['search']}%")
-                    ->orWhere('users.last_name', 'LIKE', "%{$filters['search']}%")
-                    ->orWhere('users.suffix', 'LIKE', "%{$filters['search']}%")
+                $query->where('users.name', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.email', 'LIKE', "%{$filters['search']}%")
                     ->orWhere('users.phone', 'LIKE', "%{$filters['search']}%");
             })
@@ -315,7 +287,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $details = [
             'code' => $this->generateEmailVerificationCode(),
-            'name' => $this->first_name,
+            'name' => $this->name,
         ];
         \Illuminate\Support\Facades\Mail::to($this->email)->send(new BrevoMail($details));
     }
