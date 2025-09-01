@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\ServiceCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -44,11 +45,8 @@ class DatabaseSeeder extends Seeder
             'role_id' => $userRole->id,
         ]);
 
-        $this->call(CategorySeeder::class);
-        $this->call(LanguageSeeder::class);
-        $this->call(EventsSeeder::class);
-        $this->call(TrainingMaterialSeeder::class);
         $this->call(CompanySeeder::class);
         $this->call(PermissionsSeeder::class);
+        //$this->call(ServiceCategory::class);
     }
 }
