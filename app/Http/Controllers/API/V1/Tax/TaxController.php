@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1\Tax;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaxRequest;
 use App\Http\Requests\UpdateTaxRequest;
+use App\Http\Resources\CustomPaginatedCollection;
 use App\Models\Tax;
 use App\Traits\ApiResponse;
 
@@ -32,7 +33,8 @@ class TaxController extends Controller
     {
         try {
             $tax = Tax::create($request->validated());
-            return $this->formatSuccessResponse($tax, 201);
+            $paginated = new CustomPaginatedCollection($tax);
+            return $this->formatSuccessResponse($paginated, 201);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
