@@ -6,25 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaxRequest;
 use App\Http\Requests\UpdateTaxRequest;
 use App\Models\Tax;
+use App\Traits\ApiResponse;
 
 class TaxController extends Controller
 {
+
+    use ApiResponse;
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $taxes = Tax::all();
-        return response()->json($taxes);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // Not typically used in API controllers
-        return response()->json(['message' => 'Not implemented'], 405);
+        try {
+            $taxes = Tax::all();
+            return $this->formatSuccessResponse($taxes);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -32,8 +30,12 @@ class TaxController extends Controller
      */
     public function store(StoreTaxRequest $request)
     {
-        $tax = Tax::create($request->validated());
-        return response()->json($tax, 201);
+        try {
+            $tax = Tax::create($request->validated());
+            return $this->formatSuccessResponse($tax, 201);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -41,16 +43,11 @@ class TaxController extends Controller
      */
     public function show(Tax $tax)
     {
-        return response()->json($tax);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tax $tax)
-    {
-        // Not typically used in API controllers
-        return response()->json(['message' => 'Not implemented'], 405);
+        try {
+            return $this->formatSuccessResponse($tax);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -58,8 +55,12 @@ class TaxController extends Controller
      */
     public function update(UpdateTaxRequest $request, Tax $tax)
     {
-        $tax->update($request->validated());
-        return response()->json($tax);
+        try {
+            $tax->update($request->validated());
+            return $this->formatSuccessResponse($tax);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -67,7 +68,11 @@ class TaxController extends Controller
      */
     public function destroy(Tax $tax)
     {
-        $tax->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+        try {
+            $tax->delete();
+            return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 }
