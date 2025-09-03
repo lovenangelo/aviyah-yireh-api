@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Role;
 
-use Illuminate\Validation\Rule;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -26,21 +26,21 @@ class UpdateRoleRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('roles', 'name')->ignore($roleId)
+                Rule::unique('roles', 'name')->ignore($roleId),
             ],
             'description' => [
                 'nullable',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
             'permissions' => [
                 'nullable',
-                'array'
+                'array',
             ],
             'permissions.*' => [
                 'string',
-                'exists:permissions,name'
-            ]
+                'exists:permissions,name',
+            ],
         ];
     }
 
@@ -57,9 +57,9 @@ class UpdateRoleRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Ensure permissions is always an array
-        if ($this->has('permissions') && !is_array($this->permissions)) {
+        if ($this->has('permissions') && ! is_array($this->permissions)) {
             $this->merge([
-                'permissions' => []
+                'permissions' => [],
             ]);
         }
     }

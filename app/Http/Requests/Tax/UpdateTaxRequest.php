@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Tax;
 
 use App\Traits\ApiResponse;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateTaxRequest extends FormRequest
@@ -29,11 +29,11 @@ class UpdateTaxRequest extends FormRequest
         $taxId = $this->route('tax')->id ?? $this->route('tax');
 
         return [
-            'name' => 'sometimes|required|string|max:255|unique:taxes,name,' . $taxId,
+            'name' => 'sometimes|required|string|max:255|unique:taxes,name,'.$taxId,
             'rate' => 'sometimes|required|numeric|min:0|max:100',
             'type' => 'sometimes|required|string|max:255',
             'effective_date' => 'sometimes|required|date',
-            'is_active' => 'sometimes|boolean'
+            'is_active' => 'sometimes|boolean',
         ];
     }
 
@@ -64,7 +64,7 @@ class UpdateTaxRequest extends FormRequest
     {
         if ($this->has('is_active') && is_string($this->is_active)) {
             $this->merge([
-                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN)
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
     }

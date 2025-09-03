@@ -14,6 +14,7 @@ class ServiceCategoryController extends Controller
     public function index()
     {
         $categories = ServiceCategory::all();
+
         return response()->json($categories);
     }
 

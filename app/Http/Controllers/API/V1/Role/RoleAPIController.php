@@ -75,7 +75,7 @@ class RoleAPIController extends Controller
             $role = $this->roleRepository->find($id);
 
             // Check if role exists
-            if (!$role) {
+            if (! $role) {
                 return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
@@ -122,7 +122,7 @@ class RoleAPIController extends Controller
             // Get role to delete
             $roleToDelete = $this->roleRepository->find($id);
 
-            if (!$roleToDelete) {
+            if (! $roleToDelete) {
                 return $this->formatErrorResponse('404', self::ROLE_NOT_FOUND, [], 404);
             }
 
@@ -150,7 +150,7 @@ class RoleAPIController extends Controller
             // Delete multiple roles
             $result = $this->roleRepository->bulkDestroy($ids);
 
-            $message = $result['deleted'] . ' roles deleted successfully';
+            $message = $result['deleted'].' roles deleted successfully';
             $data = [
                 'deleted' => $result['deleted'],
                 'failed' => $result['failed'],

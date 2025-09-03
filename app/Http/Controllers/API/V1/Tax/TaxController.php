@@ -11,8 +11,8 @@ use App\Traits\ApiResponse;
 
 class TaxController extends Controller
 {
-
     use ApiResponse;
+
     /**
      * Display a listing of the resource.
      */
@@ -20,6 +20,7 @@ class TaxController extends Controller
     {
         try {
             $taxes = Tax::all();
+
             return $this->formatSuccessResponse($taxes);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
@@ -34,6 +35,7 @@ class TaxController extends Controller
         try {
             $tax = Tax::create($request->validated());
             $paginated = new CustomPaginatedCollection($tax);
+
             return $this->formatSuccessResponse($paginated, 201);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
@@ -47,6 +49,7 @@ class TaxController extends Controller
     {
         try {
             $tax = Tax::find($id);
+
             return $this->formatSuccessResponse($tax);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
@@ -61,6 +64,7 @@ class TaxController extends Controller
         $tax = Tax::find($id);
         try {
             $tax->update($request->validated());
+
             return $this->formatSuccessResponse($tax);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
@@ -74,6 +78,7 @@ class TaxController extends Controller
     {
         try {
             $tax->delete();
+
             return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);

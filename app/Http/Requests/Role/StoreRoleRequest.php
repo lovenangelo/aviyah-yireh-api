@@ -2,14 +2,15 @@
 
 namespace App\Http\Requests\Role;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreRoleRequest extends FormRequest
 {
     use ApiResponse;
+
     public function authorize(): bool
     {
         return true;
@@ -22,21 +23,21 @@ class StoreRoleRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:roles,name'
+                'unique:roles,name',
             ],
             'description' => [
                 'nullable',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
             'permissions' => [
                 'nullable',
-                'array'
+                'array',
             ],
             'permissions.*' => [
                 'string',
-                'exists:permissions,name'
-            ]
+                'exists:permissions,name',
+            ],
         ];
     }
 
@@ -53,9 +54,9 @@ class StoreRoleRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Ensure permissions is always an array
-        if ($this->has('permissions') && !is_array($this->permissions)) {
+        if ($this->has('permissions') && ! is_array($this->permissions)) {
             $this->merge([
-                'permissions' => []
+                'permissions' => [],
             ]);
         }
     }

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\API\V1\ItemCategory;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreItemCategoryRequest;
-use App\Http\Requests\UpdateItemCategoryRequest;
-use App\Http\Resources\CustomPaginatedCollection;
+use App\Http\Requests\ItemCategory\StoreItemCategoryRequest;
+use App\Http\Requests\ItemCategory\UpdateItemCategoryRequest;
 use App\Models\ItemCategory;
 use App\Traits\ApiResponse;
 
@@ -20,22 +19,22 @@ class ItemCategoryController extends Controller
     {
         try {
             $categories = ItemCategory::all();
+
             return $this->formatSuccessResponse($categories);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreItemCategoryRequest $request)
     {
-         try {
+        try {
             $itemCategory = ItemCategory::create($request->validated());
-            $paginated = new CustomPaginatedCollection($itemCategory);
-            return $this->formatSuccessResponse($paginated, 201);
+
+            return $this->formatSuccessResponse($itemCategory, 201);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -44,10 +43,12 @@ class ItemCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ItemCategory $itemCategory)
+    public function show($id)
     {
-         try {
-            return $this->formatSuccessResponse($itemCategory);
+        try {
+            $category = ItemCategory::find($id);
+
+            return $this->formatSuccessResponse($category);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -56,11 +57,16 @@ class ItemCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ItemCategory $itemCategory)
+    public function update(UpdateItemCategoryRequest $request, $id)
     {
+        $category = ItemCategory::find($id);
         try {
-            $itemCategory->update($request->validated());
-            return $this->formatSuccessResponse($itemCategory);
+            if (empty($category)) {
+                return $this->formatErrorResponse('Item Category not found', 404);
+            }
+            $category->update($request->validated());
+
+            return $this->formatSuccessResponse($category);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -69,10 +75,11 @@ class ItemCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $itemCategory)
+    public function destroy(ItemCategory $itemCategory)
     {
         try {
             $itemCategory->delete();
+
             return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);

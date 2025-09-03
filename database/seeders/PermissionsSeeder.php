@@ -49,7 +49,7 @@ class PermissionsSeeder extends Seeder
                 $permissionName = "{$module}.{$action}";
                 $permission = Permission::firstOrCreate([
                     'name' => $permissionName,
-                    'guard_name' => 'web'
+                    'guard_name' => 'web',
                 ]);
                 $permissions[] = $permission;
 
@@ -61,11 +61,11 @@ class PermissionsSeeder extends Seeder
         $superAdminRole = Role::firstOrCreate([
             'name' => 'Super Admin',
             'guard_name' => 'web',
-            'description' => 'Has full access to all system features and permissions'
+            'description' => 'Has full access to all system features and permissions',
         ]);
 
         $superAdminRole->syncPermissions($permissions);
-        $this->command->info("Created Super Admin role with all permissions");
+        $this->command->info('Created Super Admin role with all permissions');
 
         // Create some example roles
         $this->createExampleRoles();
@@ -80,7 +80,7 @@ class PermissionsSeeder extends Seeder
         $managerRole = Role::firstOrCreate([
             'name' => 'Manager',
             'guard_name' => 'web',
-            'description' => 'Can manage most operations except system settings'
+            'description' => 'Can manage most operations except system settings',
         ]);
 
         $managerPermissions = [
@@ -104,13 +104,13 @@ class PermissionsSeeder extends Seeder
         ];
 
         $managerRole->syncPermissions($managerPermissions);
-        $this->command->info("Created Manager role");
+        $this->command->info('Created Manager role');
 
         // Employee role - limited permissions
         $employeeRole = Role::firstOrCreate([
             'name' => 'Employee',
             'guard_name' => 'web',
-            'description' => 'Basic employee with limited access'
+            'description' => 'Basic employee with limited access',
         ]);
 
         $employeePermissions = [
@@ -124,13 +124,13 @@ class PermissionsSeeder extends Seeder
         ];
 
         $employeeRole->syncPermissions($employeePermissions);
-        $this->command->info("Created Employee role");
+        $this->command->info('Created Employee role');
 
         // Accountant role - finance related permissions
         $accountantRole = Role::firstOrCreate([
             'name' => 'Accountant',
             'guard_name' => 'web',
-            'description' => 'Handles financial operations and reporting'
+            'description' => 'Handles financial operations and reporting',
         ]);
 
         $accountantPermissions = [
@@ -150,13 +150,13 @@ class PermissionsSeeder extends Seeder
         ];
 
         $accountantRole->syncPermissions($accountantPermissions);
-        $this->command->info("Created Accountant role");
+        $this->command->info('Created Accountant role');
 
         // Viewer role - read-only access
         $viewerRole = Role::firstOrCreate([
             'name' => 'Viewer',
             'guard_name' => 'web',
-            'description' => 'Read-only access to most modules'
+            'description' => 'Read-only access to most modules',
         ]);
 
         $viewerPermissions = [
@@ -167,6 +167,6 @@ class PermissionsSeeder extends Seeder
         ];
 
         $viewerRole->syncPermissions($viewerPermissions);
-        $this->command->info("Created Viewer role");
+        $this->command->info('Created Viewer role');
     }
 }

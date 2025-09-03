@@ -49,6 +49,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionsSeeder::class);
         $this->call(TaxSeeder::class);
         $this->call(ItemCategorySeeder::class);
-        //$this->call(ServiceCategory::class);
+        // $this->call(ServiceCategory::class);
     }
 }
