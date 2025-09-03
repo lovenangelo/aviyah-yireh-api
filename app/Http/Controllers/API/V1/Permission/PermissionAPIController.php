@@ -25,7 +25,7 @@ class PermissionAPIController extends Controller
             return $this->formatSuccessResponse([
                 'permissions' => $permissions,
                 'grouped_permissions' => $groupedPermissions,
-                'modules' => array_keys($groupedPermissions)
+                'modules' => array_keys($groupedPermissions),
             ], 'Permissions retrieved successfully!', 200);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Permissions Fetching');
@@ -48,13 +48,13 @@ class PermissionAPIController extends Controller
             foreach ($groupedPermissions as $module => $modulePermissions) {
                 $matrix[] = [
                     'module' => $module,
-                    'permissions' => $this->buildModulePermissions($modulePermissions, $actions)
+                    'permissions' => $this->buildModulePermissions($modulePermissions, $actions),
                 ];
             }
 
             return $this->formatSuccessResponse([
                 'matrix' => $matrix,
-                'actions' => $actions
+                'actions' => $actions,
             ], 'Permission matrix retrieved successfully!', 200);
         } catch (\Throwable $e) {
             return $this->handleApiException($e, $request, 'Permission Matrix Fetching');
@@ -75,7 +75,7 @@ class PermissionAPIController extends Controller
             if (count($parts) >= 2) {
                 $moduleName = str_replace('-', ' ', ucwords($parts[0], '-'));
 
-                if (!isset($modules[$moduleName])) {
+                if (! isset($modules[$moduleName])) {
                     $modules[$moduleName] = [];
                 }
 
@@ -95,7 +95,7 @@ class PermissionAPIController extends Controller
 
         foreach ($actions as $action) {
             $permission = collect($modulePermissions)->first(function ($perm) use ($action) {
-                return str_ends_with($perm->name, '.' . $action);
+                return str_ends_with($perm->name, '.'.$action);
             });
 
             $permissions[$action] = $permission ? $permission->name : null;

@@ -3,13 +3,14 @@
 namespace App\Http\Requests\Tax;
 
 use App\Traits\ApiResponse;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreTaxRequest extends FormRequest
 {
     use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -30,7 +31,7 @@ class StoreTaxRequest extends FormRequest
             'rate' => 'required|numeric|min:0|max:100',
             'type' => 'required|string|max:255',
             'effective_date' => 'required|date',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ];
     }
 
@@ -61,12 +62,12 @@ class StoreTaxRequest extends FormRequest
     {
         if ($this->has('is_active') && is_string($this->is_active)) {
             $this->merge([
-                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN)
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
 
         // Set default value for is_active if not provided
-        if (!$this->has('is_active')) {
+        if (! $this->has('is_active')) {
             $this->merge(['is_active' => true]);
         }
     }

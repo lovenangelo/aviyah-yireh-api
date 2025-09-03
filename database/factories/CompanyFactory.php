@@ -24,7 +24,7 @@ class CompanyFactory extends Factory
     public function aviyahAdvertising(): array
     {
         return [
-            'name' => "Aviyah - Advertising",
+            'name' => 'Aviyah - Advertising',
         ];
     }
 

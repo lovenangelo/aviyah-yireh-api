@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\Tax;
+namespace App\Http\Controllers\API\V1\ItemCategory;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tax\StoreTaxRequest;
-use App\Http\Requests\Tax\UpdateTaxRequest;
-use App\Http\Resources\CustomPaginatedCollection;
-use App\Models\Tax;
+use App\Http\Requests\ItemCategory\StoreItemCategoryRequest;
+use App\Http\Requests\ItemCategory\UpdateItemCategoryRequest;
+use App\Models\ItemCategory;
 use App\Traits\ApiResponse;
 
-class TaxController extends Controller
+class ItemCategoryController extends Controller
 {
     use ApiResponse;
 
@@ -19,9 +18,9 @@ class TaxController extends Controller
     public function index()
     {
         try {
-            $taxes = Tax::all();
+            $categories = ItemCategory::all();
 
-            return $this->formatSuccessResponse($taxes);
+            return $this->formatSuccessResponse($categories);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -30,13 +29,12 @@ class TaxController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTaxRequest $request)
+    public function store(StoreItemCategoryRequest $request)
     {
         try {
-            $tax = Tax::create($request->validated());
-            $paginated = new CustomPaginatedCollection($tax);
+            $itemCategory = ItemCategory::create($request->validated());
 
-            return $this->formatSuccessResponse($paginated, 201);
+            return $this->formatSuccessResponse($itemCategory, 201);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -48,9 +46,9 @@ class TaxController extends Controller
     public function show($id)
     {
         try {
-            $tax = Tax::find($id);
+            $category = ItemCategory::find($id);
 
-            return $this->formatSuccessResponse($tax);
+            return $this->formatSuccessResponse($category);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -59,13 +57,16 @@ class TaxController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTaxRequest $request, $id)
+    public function update(UpdateItemCategoryRequest $request, $id)
     {
-        $tax = Tax::find($id);
+        $category = ItemCategory::find($id);
         try {
-            $tax->update($request->validated());
+            if (empty($category)) {
+                return $this->formatErrorResponse('Item Category not found', 404);
+            }
+            $category->update($request->validated());
 
-            return $this->formatSuccessResponse($tax);
+            return $this->formatSuccessResponse($category);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -74,10 +75,10 @@ class TaxController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tax $tax)
+    public function destroy(ItemCategory $itemCategory)
     {
         try {
-            $tax->delete();
+            $itemCategory->delete();
 
             return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
         } catch (\Throwable $th) {

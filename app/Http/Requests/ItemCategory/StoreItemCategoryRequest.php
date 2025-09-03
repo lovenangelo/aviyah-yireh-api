@@ -1,63 +1,64 @@
 <?php
 
-namespace App\Http\Requests\Role;
+namespace App\Http\Requests\ItemCategory;
 
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreRoleRequest extends FormRequest
+class StoreItemCategoryRequest extends FormRequest
 {
     use ApiResponse;
 
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                'unique:roles,name',
-            ],
-            'description' => [
-                'nullable',
-                'string',
-                'max:1000',
-            ],
-            'permissions' => [
-                'nullable',
-                'array',
-            ],
-            'permissions.*' => [
-                'string',
-                'exists:permissions,name',
-            ],
+            'name' => 'required|string|max:255|unique:item_categories,name',
+            'description' => 'required|string|max:100',
         ];
     }
 
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
-            'name.required' => 'Role name is required.',
-            'name.unique' => 'A role with this name already exists.',
-            'permissions.array' => 'Permissions must be an array.',
-            'permissions.*.exists' => 'One or more selected permissions do not exist.',
+            'name.required' => 'Category name is required',
+            'name.unique' => 'Category name already exists',
         ];
     }
 
+    /**
+     * Prepare the data for validation.
+     */
     protected function prepareForValidation(): void
     {
-        // Ensure permissions is always an array
-        if ($this->has('permissions') && ! is_array($this->permissions)) {
+        if ($this->has('is_active') && is_string($this->is_active)) {
             $this->merge([
-                'permissions' => [],
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
+        }
+
+        // Set default value for is_active if not provided
+        if (! $this->has('is_active')) {
+            $this->merge(['is_active' => true]);
         }
     }
 

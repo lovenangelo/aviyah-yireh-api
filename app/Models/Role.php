@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
@@ -21,14 +21,14 @@ class Role extends SpatieRole
 
     protected $appends = [
         'permissions_list',
-        'users_count'
+        'users_count',
     ];
 
     // Filterable fields for your existing filter system
     public function scopeFilter($query, array $filters)
     {
         // Search functionality
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -37,7 +37,7 @@ class Role extends SpatieRole
         }
 
         // Sorting
-        if (!empty($filters['sort'])) {
+        if (! empty($filters['sort'])) {
             $sortField = $filters['sort'];
             $sortDirection = 'asc';
 

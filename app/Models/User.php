@@ -19,7 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -207,7 +207,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query
             ->when(
                 ! array_key_exists('sort', $filters) ?? false,
-                fn($query) => $query->orderBy('created_at', 'desc')
+                fn ($query) => $query->orderBy('created_at', 'desc')
             )
             ->when(
                 $filters['sort'] ?? false,
@@ -232,7 +232,7 @@ class User extends Authenticatable implements MustVerifyEmail
             })
             ->when(
                 isset($filters['roles']) && $filters['roles'],
-                fn($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
+                fn ($query) => $query->whereIn('role_id', array_map('intval', explode(',', $filters['roles'])))
             );
     }
 
@@ -263,7 +263,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function avatarUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->avatar
+            get: fn () => $this->avatar
                 ? Storage::disk('public')->url($this->avatar)
                 : null,
         );

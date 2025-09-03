@@ -209,7 +209,7 @@ class UserRepository extends BaseRepository
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to upload avatar: ' . $e->getMessage(),
+                'message' => 'Failed to upload avatar: '.$e->getMessage(),
                 'status' => 500,
             ];
         }
@@ -248,7 +248,7 @@ class UserRepository extends BaseRepository
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to delete avatar: ' . $e->getMessage(),
+                'message' => 'Failed to delete avatar: '.$e->getMessage(),
                 'status' => 500,
             ];
         }
