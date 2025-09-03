@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API\V1\Tax;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreTaxRequest;
-use App\Http\Requests\UpdateTaxRequest;
+use App\Http\Requests\Tax\StoreTaxRequest;
+use App\Http\Requests\Tax\UpdateTaxRequest;
 use App\Http\Resources\CustomPaginatedCollection;
 use App\Models\Tax;
 use App\Traits\ApiResponse;
@@ -43,9 +43,10 @@ class TaxController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tax $tax)
+    public function show($id)
     {
         try {
+            $tax = Tax::find($id);
             return $this->formatSuccessResponse($tax);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
@@ -55,8 +56,9 @@ class TaxController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTaxRequest $request, Tax $tax)
+    public function update(UpdateTaxRequest $request, $id)
     {
+        $tax = Tax::find($id);
         try {
             $tax->update($request->validated());
             return $this->formatSuccessResponse($tax);
