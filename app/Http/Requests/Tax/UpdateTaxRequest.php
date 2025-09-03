@@ -1,11 +1,16 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Tax;
 
+use App\Traits\ApiResponse;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateTaxRequest extends FormRequest
 {
+    use ApiResponse;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -62,5 +67,41 @@ class UpdateTaxRequest extends FormRequest
                 'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN)
             ]);
         }
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @return void
+     *
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            $this->formatErrorResponse(
+                code: 'INVALID_REQUEST',
+                message: 'Validation failed',
+                statusCode: 422,
+                details: $validator->errors()->toArray()
+            )
+
+        );
+    }
+
+    /**
+     * Determine if the request is expecting a JSON response.
+     */
+    public function expectsJson(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determine if the current request is asking for JSON.
+     */
+    public function wantsJson(): bool
+    {
+        return true;
     }
 }
