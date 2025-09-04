@@ -13,11 +13,28 @@ class ServiceCategory extends Model
         'company_id',
     ];
 
+    protected $appends = [
+        'service',
+    ];
+
+    public function getServiceAttribute()
+    {
+        return $this->services()->get();
+    }
+
     /**
-     * Get the Company for the Category post.
+     * Get the Service for the Service Category.
+     */
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class, 'service_category_id');
+    }
+
+    /**
+     * Get the Company for the Service Category.
      */
     public function companies(): HasMany
     {
-        return $this->hasMany(Item::class, 'company_id');
+        return $this->hasMany(Company::class, 'company_id');
     }
 }
