@@ -9,9 +9,6 @@ class LaborCategory extends Model
     protected $fillable = [
         'name',
         'description',
-        'cost',
-        'selling_price',
         'company_id',
-        'category_id',
     ];
 }

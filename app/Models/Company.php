@@ -15,4 +15,14 @@ class Company extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function item_category()
+    {
+        return $this->hasMany(ItemCategory::class);
+    }
+
+    public function item_setup()
+    {
+        return $this->hasMany(ItemSetUp::class);
+    }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\LaborCategory;
+namespace App\Http\Requests\ItemSetUp;
 
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreLaborCategoryRequest extends FormRequest
+class UpdateItemSetUpRequest extends FormRequest
 {
     use ApiResponse;
 
@@ -20,17 +20,19 @@ class StoreLaborCategoryRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Get the validation rules that apply to the update request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required|string|max:255|unique:labor_categories,name',
-            'description' => 'required|string|max:100',
+        $categoryId = $this->route('item_setup')->id ?? $this->route('item_setup');
 
+        return [
+            'name' => 'sometimes|required|string|max:255|unique:item_set_ups,name,'.$categoryId,
+            'description' => 'sometimes|required|numeric|min:0|max:100',
         ];
+
     }
 
     /**
@@ -41,8 +43,8 @@ class StoreLaborCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Labor Category name is required',
-            'name.unique' => 'Labor Category name already exists',
+            'name.required' => 'Item SetUp name is required',
+            'name.unique' => 'Item SetUp name already exists',
         ];
     }
 
@@ -55,11 +57,6 @@ class StoreLaborCategoryRequest extends FormRequest
             $this->merge([
                 'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
-        }
-
-        // Set default value for is_active if not provided
-        if (! $this->has('is_active')) {
-            $this->merge(['is_active' => true]);
         }
     }
 

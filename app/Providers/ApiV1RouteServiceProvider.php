@@ -48,8 +48,12 @@ class ApiV1RouteServiceProvider extends ServiceProvider
             ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/item-category.php'));
 
-            Route::prefix(self::API_V1_PREFIX)
+        Route::prefix(self::API_V1_PREFIX)
             ->middleware(['api', self::AUTH_SANCTUM])
             ->group(base_path('routes/api/v1/labor-category.php'));
+
+        Route::prefix(self::API_V1_PREFIX)
+            ->middleware(['api', self::AUTH_SANCTUM])
+            ->group(base_path('routes/api/v1/item-setup.php'));
     }
 }
