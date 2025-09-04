@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\LaborCategory;
+namespace App\Http\Requests\ItemSetUpCategory;
 
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreLaborCategoryRequest extends FormRequest
+class StoreItemSetUpRequest extends FormRequest
 {
     use ApiResponse;
 
@@ -27,7 +27,9 @@ class StoreLaborCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:labor_categories,name',
+            'name' => 'required|string|max:255|unique:item_set_ups,name',
+            'cost' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
             'description' => 'required|string|max:100',
 
         ];
@@ -41,8 +43,12 @@ class StoreLaborCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Labor Category name is required',
-            'name.unique' => 'Labor Category name already exists',
+            'name.required' => 'Item SetUp name is required',
+            'name.unique' => 'Item SetUp name already exists',
+            'cost.required' => 'Item SetUp cost is required',
+            'cost.numeric' => 'Item SetUp cost must be a number',
+            'selling_price.required' => 'Item SetUp selling price is required',
+            'selling_price.numeric' => 'Item SetUp selling price must be a number',
         ];
     }
 

@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TaxSeeder::class);
         $this->call(ItemCategorySeeder::class);
         $this->call(LaborCategorySeeder::class);
+        $this->call(ItemSeeder::class);
         // $this->call(ServiceCategory::class);
     }
 }
