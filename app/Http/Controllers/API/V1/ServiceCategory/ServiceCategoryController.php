@@ -3,75 +3,73 @@
 namespace App\Http\Controllers\API\V1\ServiceCategory;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ServiceCategory\StoreServiceCategoryRequest;
+use App\Http\Requests\ServiceCategory\UpdateServiceCategoryRequest;
 use App\Models\ServiceCategory;
-use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class ServiceCategoryController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $categories = ServiceCategory::all();
+        try {
+            $service_categories = ServiceCategory::all();
 
-        return response()->json($categories);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // Not typically used in API controllers
-        return response()->json(['message' => 'Not implemented'], 405);
+            return $this->formatSuccessResponse($service_categories);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreServiceCategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            // Add other fields as needed
-        ]);
+        try {
+            $serviceCategory = ServiceCategory::create($request->validated());
 
-        $category = ServiceCategory::create($validated);
-
-        return response()->json($category, 201);
+            return $this->formatSuccessResponse($serviceCategory, 201);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ServiceCategory $serviceCategory)
+    public function show($id)
     {
-        return response()->json($serviceCategory);
-    }
+        try {
+            $category = ServiceCategory::find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ServiceCategory $serviceCategory)
-    {
-        // Not typically used in API controllers
-        return response()->json(['message' => 'Not implemented'], 405);
+            return $this->formatSuccessResponse($category);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ServiceCategory $serviceCategory)
+    public function update(UpdateServiceCategoryRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            // Add other fields as needed
-        ]);
+        $service_category = ServiceCategory::find($id);
+        try {
+            if (empty($service_category)) {
+                return $this->formatErrorResponse('Item Category not found', 404);
+            }
+            $service_category->update($request->validated());
 
-        $serviceCategory->update($validated);
-
-        return response()->json($serviceCategory);
+            return $this->formatSuccessResponse($service_category);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -79,8 +77,12 @@ class ServiceCategoryController extends Controller
      */
     public function destroy(ServiceCategory $serviceCategory)
     {
-        $serviceCategory->delete();
+        try {
+            $serviceCategory->delete();
 
-        return response()->json(['message' => 'Deleted successfully']);
+            return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
+        } catch (\Throwable $th) {
+            return $this->formatErrorResponse($th->getMessage(), 500);
+        }
     }
 }

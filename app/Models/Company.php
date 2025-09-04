@@ -25,4 +25,9 @@ class Company extends Model
     {
         return $this->hasMany(Item::class);
     }
+
+    public function service_categories()
+    {
+        return $this->hasMany(ServiceCategory::class);
+    }
 }
