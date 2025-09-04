@@ -6,11 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class ItemSetUpSeeder extends Seeder
+class ItemSeeder extends Seeder
 {
     public function run(): void
     {
-        $item_setup = [
+        $item = [
             [
                 'name' => 'Labor Category A',
                 'cost' => 114.25,
@@ -46,6 +46,6 @@ class ItemSetUpSeeder extends Seeder
             ],
         ];
 
-        DB::table('item_set_ups')->insert($item_setup);
+        DB::table('items')->insert($item);
     }
 }

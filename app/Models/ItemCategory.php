@@ -14,10 +14,10 @@ class ItemCategory extends Model
     ];
 
     protected $appends = [
-        'item_setup',
+        'item',
     ];
 
-    public function getItemSetupAttribute()
+    public function getItemAttribute()
     {
         return $this->item_setup()->get();
     }
@@ -25,9 +25,9 @@ class ItemCategory extends Model
     /**
      * Get the item_setup for the Item SetUp post.
      */
-    public function item_setup(): HasMany
+    public function item(): HasMany
     {
-        return $this->hasMany(ItemSetUp::class, 'category_id');
+        return $this->hasMany(Item::class, 'category_id');
     }
 
      /**
@@ -35,6 +35,6 @@ class ItemCategory extends Model
       */
     public function company(): HasMany
     {
-        return $this->hasMany(ItemSetUp::class, 'company_id');
+        return $this->hasMany(Item::class, 'company_id');
     }
 }

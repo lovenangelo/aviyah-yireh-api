@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\ItemSetUp;
+namespace App\Http\Controllers\API\V1\Item;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ItemSetUp\StoreItemSetUpRequest;
-use App\Http\Requests\ItemSetUp\UpdateItemSetUpRequest;
-use App\Models\ItemSetUp;
+use App\Http\Requests\Item\StoreItemRequest;
+use App\Http\Requests\Item\UpdateItemRequest;
+use App\Models\Item;
 use App\Traits\ApiResponse;
 
-class ItemSetUpController extends Controller
+class ItemController extends Controller
 {
     use ApiResponse;
 
@@ -18,9 +18,9 @@ class ItemSetUpController extends Controller
     public function index()
     {
         try {
-            $item_setup = ItemSetUp::all();
+            $item = Item::all();
 
-            return $this->formatSuccessResponse($item_setup);
+            return $this->formatSuccessResponse($item);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -29,10 +29,10 @@ class ItemSetUpController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreItemSetUpRequest $request)
+    public function store(StoreItemRequest $request)
     {
         try {
-            $itemCategory = ItemSetUp::create($request->validated());
+            $itemCategory = Item::create($request->validated());
 
             return $this->formatSuccessResponse($itemCategory, 201);
         } catch (\Throwable $th) {
@@ -46,7 +46,7 @@ class ItemSetUpController extends Controller
     public function show($id)
     {
         try {
-            $category = ItemSetUp::find($id);
+            $category = Item::find($id);
 
             return $this->formatSuccessResponse($category);
         } catch (\Throwable $th) {
@@ -57,17 +57,17 @@ class ItemSetUpController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateItemSetUpRequest $request, $id)
+    public function update(UpdateItemRequest $request, $id)
     {
-        $item_setup = ItemSetUp::find($id);
+        $item = Item::find($id);
         try {
-            if (empty($item_setup)) {
+            if (empty($item)) {
                 return $this->formatErrorResponse('Item Category not found', 404);
             }
 
-            $item_setup->update($request->validated());
+            $item->update($request->validated());
 
-            return $this->formatSuccessResponse($item_setup);
+            return $this->formatSuccessResponse($item);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -76,10 +76,10 @@ class ItemSetUpController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ItemSetUp $itemSetUp)
+    public function destroy(Item $item)
     {
         try {
-            $itemSetUp->delete();
+            $item->delete();
 
             return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
         } catch (\Throwable $th) {
