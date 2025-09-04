@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
-use App\Models\ServiceCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +50,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ItemCategorySeeder::class);
         $this->call(LaborCategorySeeder::class);
         $this->call(ItemSeeder::class);
-        // $this->call(ServiceCategory::class);
+        $this->call(ServiceCategorySeeder::class);
     }
 }

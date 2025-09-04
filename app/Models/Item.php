@@ -17,7 +17,7 @@ class Item extends Model
     ];
 
     /**
-     * Get the post that owns the comment.
+     * Get the item category that owns the item.
      */
     public function item_category(): BelongsTo
     {
@@ -25,11 +25,10 @@ class Item extends Model
     }
 
     /**
-     * Get the post that owns the comment.
+     * Get the company that owns the item.
      */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
 }
-

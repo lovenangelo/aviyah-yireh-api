@@ -30,9 +30,9 @@ class ItemCategory extends Model
         return $this->hasMany(Item::class, 'category_id');
     }
 
-     /**
-      * Get the Company for the Category post.
-      */
+    /**
+     * Get the Company for the Category post.
+     */
     public function companies(): HasMany
     {
         return $this->hasMany(Item::class, 'company_id');
