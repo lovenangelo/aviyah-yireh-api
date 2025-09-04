@@ -19,13 +19,13 @@ class ItemCategory extends Model
 
     public function getItemAttribute()
     {
-        return $this->item_setup()->get();
+        return $this->items()->get();
     }
 
     /**
-     * Get the item_setup for the Item SetUp post.
+     * Get the item for the Item post.
      */
-    public function item(): HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'category_id');
     }
@@ -33,7 +33,7 @@ class ItemCategory extends Model
      /**
       * Get the Company for the Category post.
       */
-    public function company(): HasMany
+    public function companies(): HasMany
     {
         return $this->hasMany(Item::class, 'company_id');
     }
