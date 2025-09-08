@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\ItemCategory;
+namespace App\Http\Requests\JobType;
 
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreItemCategoryRequest extends FormRequest
+class StoreJobTypeRequest extends FormRequest
 {
     use ApiResponse;
 
@@ -27,7 +27,7 @@ class StoreItemCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:item_categories,name',
+            'name' => 'required|string|max:255|unique:job_types,name',
             'description' => 'required|string|max:100',
             'company_id' => 'required|integer',
         ];
@@ -41,27 +41,15 @@ class StoreItemCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Category name is required',
-            'name.unique' => 'Category name already exists',
+            'name.required' => 'Job Type is required',
+            'name.unique' => 'Job Type already exists',
         ];
     }
 
     /**
      * Prepare the data for validation.
      */
-    protected function prepareForValidation(): void
-    {
-        if ($this->has('is_active') && is_string($this->is_active)) {
-            $this->merge([
-                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
-            ]);
-        }
-
-        // Set default value for is_active if not provided
-        if (! $this->has('is_active')) {
-            $this->merge(['is_active' => true]);
-        }
-    }
+    protected function prepareForValidation(): void {}
 
     /**
      * Handle a failed validation attempt.

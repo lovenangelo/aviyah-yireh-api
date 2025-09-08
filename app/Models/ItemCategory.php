@@ -23,7 +23,7 @@ class ItemCategory extends Model
     }
 
     /**
-     * Get the item for the Item post.
+     * Get the items for the item category.
      */
     public function items(): HasMany
     {
@@ -31,7 +31,7 @@ class ItemCategory extends Model
     }
 
     /**
-     * Get the Company for the Category post.
+     * Get the companies for the item category.
      */
     public function companies(): HasMany
     {

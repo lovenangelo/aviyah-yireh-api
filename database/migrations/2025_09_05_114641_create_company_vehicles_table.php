@@ -18,7 +18,8 @@ return new class extends Migration
             $table->year('year');
             $table->integer('mileage');
             $table->char('color', length: 20);
-            $table->foreignId('company_id')->constrained('companies')->nullOnDelete();
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
             $table->timestamps();
         });
     }

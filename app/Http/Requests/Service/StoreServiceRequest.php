@@ -29,6 +29,7 @@ class StoreServiceRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:services,name',
             'description' => 'required|string|max:100',
+            'company_id' => 'required|integer',
         ];
     }
 
@@ -42,6 +43,8 @@ class StoreServiceRequest extends FormRequest
         return [
             'name.required' => 'Service name is required',
             'name.unique' => 'Service name already exists',
+            'company_id' => 'required|integer',
+            'service_category_id' => 'required|integer',
         ];
     }
 

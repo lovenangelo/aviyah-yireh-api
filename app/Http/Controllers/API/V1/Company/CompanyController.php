@@ -15,7 +15,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $companies = Company::with('company_vehicles')->get();
+        $companies = Company::with('job_types')->get();
 
         return $this->formatSuccessResponse($companies);
     }

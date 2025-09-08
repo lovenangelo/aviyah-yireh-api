@@ -6,23 +6,23 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class ServiceCategorySeeder extends Seeder
+class JobTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $service_category = [
+        $category = [
             [
-                'name' => 'Service Category A',
+                'name' => 'Job Type A',
                 'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sit amet bibendum nulla.',
                 'company_id' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Service Category B',
+                'name' => 'Item Category B',
                 'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sit amet bibendum nulla.',
                 'company_id' => 1,
                 'created_at' => Carbon::now(),
@@ -30,6 +30,6 @@ class ServiceCategorySeeder extends Seeder
             ],
         ];
 
-        DB::table('service_categories')->insert($service_category);
+        DB::table('job_types')->insert($category);
     }
 }
