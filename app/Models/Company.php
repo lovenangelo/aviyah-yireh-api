@@ -30,4 +30,9 @@ class Company extends Model
     {
         return $this->hasMany(ServiceCategory::class);
     }
+
+    public function company_vehicles()
+    {
+        return $this->hasMany(CompanyVehicle::class);
+    }
 }
