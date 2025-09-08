@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description', length: 100);
-            $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete();
-            $table->foreignId('service_category_id')->nullable()->constrained('service_categories')->nullOnDelete();
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
+            $table->unsignedBigInteger('service_category_id')->nullable();
+            $table->foreign('service_category_id')->references('id')->on('service_categories')->onDelete('set null');
             $table->timestamps();
         });
     }

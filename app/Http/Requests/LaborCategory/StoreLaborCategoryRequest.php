@@ -29,6 +29,7 @@ class StoreLaborCategoryRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:labor_categories,name',
             'description' => 'required|string|max:100',
+            'company_id' => 'required|integer',
 
         ];
     }

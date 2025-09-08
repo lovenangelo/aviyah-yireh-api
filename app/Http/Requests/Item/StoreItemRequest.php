@@ -31,6 +31,7 @@ class StoreItemSetUpRequest extends FormRequest
             'cost' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'description' => 'required|string|max:100',
+            'company_id' => 'required|integer',
 
         ];
     }
