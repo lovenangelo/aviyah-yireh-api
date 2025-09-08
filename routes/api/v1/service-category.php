@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('service-category')->group(function () {
     // Define a constant for the tax route segment
-    $serviceCategoryRoute = '/{service_category}';
+    $serviceCategoryRoute = '/{service-category}';
 
     // GET /service-category - List all service categories
     Route::get('/', [\App\Http\Controllers\API\V1\ServiceCategory\ServiceCategoryController::class, 'index']);
