@@ -15,11 +15,11 @@ class Service extends Model
     ];
 
     /**
-     * Get the item services that owns the service.
+     * Get the service category that owns the service.
      */
     public function service_category(): BelongsTo
     {
-        return $this->belongsTo(ItemCategory::class, 'service_id');
+        return $this->belongsTo(ServiceCategory::class, 'service_category_id');
     }
 
     /**

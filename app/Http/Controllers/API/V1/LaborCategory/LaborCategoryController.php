@@ -18,9 +18,9 @@ class LaborCategoryController extends Controller
     public function index()
     {
         try {
-            $categories = LaborCategory::all();
+            $company = LaborCategory::with('company')->get();
 
-            return $this->formatSuccessResponse($categories);
+            return $this->formatSuccessResponse($company);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }

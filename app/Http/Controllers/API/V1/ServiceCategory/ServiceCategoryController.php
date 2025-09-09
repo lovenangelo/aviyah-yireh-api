@@ -18,9 +18,9 @@ class ServiceCategoryController extends Controller
     public function index()
     {
         try {
-            $service_categories = ServiceCategory::all();
+            $company = ServiceCategory::with('company')->get();
 
-            return $this->formatSuccessResponse($service_categories);
+            return $this->formatSuccessResponse($company);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }

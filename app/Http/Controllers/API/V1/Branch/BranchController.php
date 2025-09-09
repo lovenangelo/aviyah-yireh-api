@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\JobType;
+namespace App\Http\Controllers\API\V1\Branch;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\JobType\StoreJobTypeRequest;
-use App\Http\Requests\JobType\UpdateJobTypeRequest;
-use App\Models\JobType;
+use App\Http\Requests\Branch\StoreBranchRequest;
+use App\Http\Requests\Branch\UpdateBranchRequest;
+use App\Models\Branch;
 use App\Traits\ApiResponse;
 
-class JobTypeController extends Controller
+class BranchController extends Controller
 {
     use ApiResponse;
 
@@ -18,7 +18,7 @@ class JobTypeController extends Controller
     public function index()
     {
         try {
-            $company = JobType::with('company')->get();
+            $company = Branch::with('company')->get();
 
             return $this->formatSuccessResponse($company);
         } catch (\Throwable $th) {
@@ -29,12 +29,12 @@ class JobTypeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreJobTypeRequest $request)
+    public function store(StoreBranchRequest $request)
     {
         try {
-            $jobType = JobType::create($request->validated());
+            $branch = Branch::create($request->validated());
 
-            return $this->formatSuccessResponse($jobType, 201);
+            return $this->formatSuccessResponse($branch, 201);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -46,9 +46,9 @@ class JobTypeController extends Controller
     public function show($id)
     {
         try {
-            $jobType = JobType::find($id);
+            $branch = Branch::find($id);
 
-            return $this->formatSuccessResponse($jobType);
+            return $this->formatSuccessResponse($branch);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -57,16 +57,16 @@ class JobTypeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateJobTypeRequest $request, $id)
+    public function update(UpdateBranchRequest $request, $id)
     {
-        $jobType = JobType::find($id);
+        $branch = Branch::find($id);
         try {
-            if (empty($jobType)) {
+            if (empty($branch)) {
                 return $this->formatErrorResponse('Job type not found', 404);
             }
-            $jobType->update($request->validated());
+            $branch->update($request->validated());
 
-            return $this->formatSuccessResponse($jobType);
+            return $this->formatSuccessResponse($branch);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
@@ -75,10 +75,10 @@ class JobTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LaborCategory $jobType)
+    public function destroy(Branch $branch)
     {
         try {
-            $jobType->delete();
+            $branch->delete();
 
             return $this->formatSuccessResponse(['message' => 'Deleted successfully']);
         } catch (\Throwable $th) {

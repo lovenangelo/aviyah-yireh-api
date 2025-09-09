@@ -18,9 +18,9 @@ class ItemController extends Controller
     public function index()
     {
         try {
-            $item = Item::all();
+            $items = Item::with(['company', 'item_category'])->get();
 
-            return $this->formatSuccessResponse($item);
+            return $this->formatSuccessResponse($items);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }
