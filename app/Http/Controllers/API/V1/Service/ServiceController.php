@@ -18,7 +18,7 @@ class ServiceController extends Controller
     public function index()
     {
         try {
-            $services = Service::all();
+            $services = Service::with(['company', 'service_category'])->get();
 
             return $this->formatSuccessResponse($services);
         } catch (\Throwable $th) {

@@ -18,9 +18,9 @@ class CompanyVehicleController extends Controller
     public function index()
     {
         try {
-            $item = CompanyVehicle::all();
+            $companies = CompanyVehicle::with('company')->get();
 
-            return $this->formatSuccessResponse($item);
+            return $this->formatSuccessResponse($companies);
         } catch (\Throwable $th) {
             return $this->formatErrorResponse($th->getMessage(), 500);
         }

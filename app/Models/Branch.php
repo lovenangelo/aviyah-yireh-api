@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ServiceCategory extends Model
+class Branch extends Model
 {
     protected $fillable = [
         'name',
@@ -14,7 +14,7 @@ class ServiceCategory extends Model
     ];
 
     /**
-     * Get the company that owns the service category.
+     * Get the company that owns the branch.
      */
     public function company(): BelongsTo
     {

@@ -40,7 +40,7 @@ class Company extends Model
      */
     public function service_categories()
     {
-        return $this->hasMany(ServiceCategory::class);
+        return $this->hasMay(ServiceCategory::class);
     }
 
     /**
@@ -57,5 +57,13 @@ class Company extends Model
     public function job_types()
     {
         return $this->hasMany(JobType::class);
+    }
+
+    /**
+     * Get the branches for the company
+     */
+    public function branches()
+    {
+        return $this->hasMany(Branch::class);
     }
 }

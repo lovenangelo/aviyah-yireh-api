@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemCategory extends Model
 {
@@ -13,28 +13,11 @@ class ItemCategory extends Model
         'company_id',
     ];
 
-    protected $appends = [
-        'item',
-    ];
-
-    public function getItemAttribute()
-    {
-        return $this->items()->get();
-    }
-
-    /**
-     * Get the items for the item category.
-     */
-    public function items(): HasMany
-    {
-        return $this->hasMany(Item::class, 'category_id');
-    }
-
     /**
      * Get the companies for the item category.
      */
-    public function companies(): HasMany
+    public function company(): BelongsTo
     {
-        return $this->hasMany(Item::class, 'company_id');
+        return $this->belongsTo(Company::class, 'company_id');
     }
 }
